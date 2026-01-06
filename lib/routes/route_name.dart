@@ -1,0 +1,28 @@
+class RouteName {
+  final String splash = '/';
+  final String onBoard = '/onBoard';
+  final String otpScreen = '/otpScreen';
+  final String chatScreen = '/chatScreen';
+  final String signInScreen = '/signInScreen';
+  final String signUpScreen = '/signUpScreen';
+  final String profileScreen = '/profileScreen';
+  final String withdrawScreen = '/withdrawScreen';
+  final String myWalletScreen = '/myWalletScreen';
+  final String commonBottomBar = '/commonBottomBar';
+  final String offerListScreen = '/offerListScreen';
+  final String appSettingScreen = '/appSettingScreen';
+  final String topUpWalletScreen = '/topUpWalletScreen';
+  final String bankDetailsScreen = '/bankDetailsScreen';
+  final String saveLocationScreen = '/saveLocationScreen';
+  final String pendingRideDetails = '/pendingRideDetails';
+  final String completedRideDetails = '/completedRideDetails';
+  final String cancelRideDetailsScreen = '/cancelRideDetailsScreen';
+  final String createOfferScreen = '/createOfferScreen';
+  final String documentUpdateScreen = '/documentUpdateScreen';
+  final String vehicleUpdateScreen = '/vehicleUpdateScreen';
+  final String pickupCustomerScreen = '/pickupCustomerScreen';
+  final String pickedCustomerScreen = '/pickedCustomerScreen';
+  final String rideDetailsScreen = '/rideDetailsScreen';
+  final String notificationScreen = '/notificationScreen';
+  final String emptyNotificationScreen = '/emptyNotificationScreen';
+}

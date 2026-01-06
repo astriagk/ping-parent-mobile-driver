@@ -1,0 +1,98 @@
+# Dart & Flutter
+.dart_tool/
+.packages
+.pub/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+.flutter-plugins-dependencies.lock
+.flutter-versions
+.idea/
+*.iml
+*.ipr
+*.iws
+*.swp
+*.lock
+*.log
+*.tmp
+*.DS_Store
+*.class
+*.jar
+*.war
+*.ear
+*.pyc
+*.pyo
+*.pyd
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Android
+android/.gradle/
+android/app/build/
+android/local.properties
+android/key.properties
+android/gradle.properties
+android/gradlew
+android/gradlew.bat
+android/gradle/wrapper/gradle-wrapper.jar
+
+# iOS
+ios/Pods/
+ios/Flutter/Flutter.framework/
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/Flutter/ephemeral/
+ios/Runner.xcworkspace/
+ios/Runner.xcodeproj/project.xcworkspace/
+ios/Runner.xcodeproj/xcuserdata/
+ios/Runner.xcworkspace/xcuserdata/
+ios/Podfile.lock
+
+# Web
+web/generated/
+
+# VS Code
+.vscode/
+
+# Misc
+*.orig
+*.rej
+*.bak
+*.tmp
+*.swp
+*.swo
+
+# Coverage
+coverage/
+
+# Test outputs
+test/output/
+
+# Environment files
+.env
+.env.*
+
+# System files
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Exclude secrets and credentials
+**/secrets.*
+**/credentials.*
+
+# Exclude personal settings
+*.local
+*.personal
+
+# Exclude logs
+*.log
+logs/
+
+# Exclude crash reports
+crashlytics/
+
+# Exclude generated files
+*.g.dart
