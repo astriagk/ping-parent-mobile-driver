@@ -28,11 +28,35 @@ class SignInScreen extends StatelessWidget {
                       style: AppCss.lexendMedium14
                           .textColor(appColor(context).appTheme.darkText)),
                   //country picker layout
-                  const CountryPickerLayout(),
-                  CommonButton(
-                      text: language(context, appFonts.getOTP),
-                      onTap: () =>
-                          route.pushNamed(context, routeName.otpScreen)),
+                  CountryPickerLayout(controller: signInPvr.phoneController),
+                  signInPvr.isSendingOtp
+                      ? const Center(child: CircularProgressIndicator())
+                          .paddingSymmetric(vertical: Sizes.s10)
+                      : CommonButton(
+                          text: language(context, appFonts.getOTP),
+                          onTap: () async {
+                            final success = await signInPvr.sendOtp();
+                            if (success && context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(language(context,
+                                          appFonts.otpSentSuccessfully) ??
+                                      'OTP sent successfully'),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
+                              route.pushNamed(context, routeName.otpScreen);
+                            } else if (!success &&
+                                context.mounted &&
+                                signInPvr.sendOtpError != null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(signInPvr.sendOtpError!),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          }),
                   //common Rich Text layout
                   AuthCommonWidgets().commonRichText(
                       context,
