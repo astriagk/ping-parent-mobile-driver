@@ -8,6 +8,9 @@ class SignInProvider extends ChangeNotifier {
   bool isSendingOtp = false;
   String? sendOtpError;
 
+  String? token;
+  Map<String, dynamic>? user;
+
   final TextEditingController signInController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
 

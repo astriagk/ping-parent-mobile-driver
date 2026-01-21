@@ -39,11 +39,8 @@ class SignInScreen extends StatelessWidget {
                             if (success && context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text(language(context,
-                                          appFonts.otpSentSuccessfully) ??
-                                      'OTP sent successfully'),
-                                  backgroundColor: Colors.green,
-                                ),
+                                    content: TextWidgetCommon(
+                                        text: appFonts.otpSentSuccessfully)),
                               );
                               route.pushNamed(context, routeName.otpScreen);
                             } else if (!success &&
@@ -51,8 +48,8 @@ class SignInScreen extends StatelessWidget {
                                 signInPvr.sendOtpError != null) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text(signInPvr.sendOtpError!),
-                                  backgroundColor: Colors.red,
+                                  content: TextWidgetCommon(
+                                      text: signInPvr.sendOtpError!),
                                 ),
                               );
                             }
