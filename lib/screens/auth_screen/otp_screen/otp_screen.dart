@@ -13,8 +13,10 @@ class OtpScreen extends StatelessWidget {
     final result = await otpCtrlProvider.verifyOtp(phone, otp);
     if (!context.mounted) return;
     if (result.success) {
+      otpCtrlProvider.pinController.clear();
       signInProvider.token = result.token;
       signInProvider.user = result.user;
+      // Session persistence is handled in AuthService after verification
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: TextWidgetCommon(
@@ -60,12 +62,16 @@ class OtpScreen extends StatelessWidget {
                               .padding(bottom: Sizes.s9),
                           // PinPut layout
                           OTPScreenWidgets().pinPutLayout(),
-                          // Common button
-                          CommonButton(
-                              text: language(context, appFonts.verify),
-                              onTap: () async {
-                                await _handleOtpVerification(context);
-                              }).padding(top: Sizes.s60, bottom: Sizes.s15),
+                          otpCtrl.isVerifyingOtp
+                              ? const Center(child: CircularProgressIndicator())
+                                  .paddingSymmetric(vertical: Sizes.s10)
+                              :
+                              // Common button
+                              CommonButton(
+                                  text: language(context, appFonts.verify),
+                                  onTap: () async {
+                                    await _handleOtpVerification(context);
+                                  }).padding(top: Sizes.s60, bottom: Sizes.s15),
                           // Common Rich Text layout
                           AuthCommonWidgets().commonRichText(
                               context,

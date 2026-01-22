@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 /// Environment configuration for different build flavors
 enum Environment { development, staging, production }
 
@@ -57,11 +59,28 @@ class EnvironmentConfig {
 }
 
 /// Global environment configuration instance
-/// This should be initialized in main.dart based on build flavor
-late EnvironmentConfig appConfig;
+/// IMPORTANT: You must call initializeEnvironment() in main.dart before using any API or config.
+/// Example:
+///   void main() {
+///     initializeEnvironment(Environment.production);
+///     runApp(const MyApp());
+///   }
+late EnvironmentConfig _appConfig;
+
+/// Safe getter for appConfig. Throws if not initialized.
+EnvironmentConfig get appConfig {
+  if (!_isAppConfigInitialized) {
+    throw StateError(
+        'appConfig has not been initialized. Call initializeEnvironment() in main.dart before using any API/config.');
+  }
+  return _appConfig;
+}
+
+bool _isAppConfigInitialized = false;
 
 /// Initialize app configuration
 void initializeEnvironment(Environment env) {
-  appConfig = EnvironmentConfig.getConfig(env);
-  print('🔧 Environment initialized: ${appConfig.toString()}');
+  _appConfig = EnvironmentConfig.getConfig(env);
+  _isAppConfigInitialized = true;
+  debugPrint('🔧 Environment initialized: $_appConfig');
 }

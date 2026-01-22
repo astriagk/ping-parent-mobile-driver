@@ -11,7 +11,6 @@ class SignInProvider extends ChangeNotifier {
   String? token;
   Map<String, dynamic>? user;
 
-  final TextEditingController signInController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
 
   final AuthService _authService;
@@ -32,27 +31,34 @@ class SignInProvider extends ChangeNotifier {
   }
 
   Future<SendOtpResult> sendOtp(String phone) async {
+    isSendingOtp = true;
+    notifyListeners();
+    SendOtpResult result;
     if (phone.isEmpty) {
-      return SendOtpResult(
-          success: false, error: 'Please enter a phone number');
-    }
-    if (phone.length < 10) {
-      return SendOtpResult(
+      result =
+          SendOtpResult(success: false, error: 'Please enter a phone number');
+    } else if (phone.length < 10) {
+      result = SendOtpResult(
           success: false, error: 'Phone number must be at least 10 digits');
-    }
-    try {
-      final response = await _authService.sendOtp(phone: phone);
-      if (response.success) {
-        currentPhone = phone;
-        return SendOtpResult(success: true, message: response.message);
-      } else {
-        return SendOtpResult(
-            success: false,
-            error: response.error ?? response.message ?? 'Failed to send OTP');
+    } else {
+      try {
+        final response = await _authService.sendOtp(phone: phone);
+        if (response.success) {
+          currentPhone = phone;
+          result = SendOtpResult(success: true, message: response.message);
+        } else {
+          result = SendOtpResult(
+              success: false,
+              error:
+                  response.error ?? response.message ?? 'Failed to send OTP');
+        }
+      } catch (e) {
+        result = SendOtpResult(success: false, error: 'Error: ${e.toString()}');
       }
-    } catch (e) {
-      return SendOtpResult(success: false, error: 'Error: ${e.toString()}');
     }
+    isSendingOtp = false;
+    notifyListeners();
+    return result;
   }
 
   void clearErrors() {
@@ -62,7 +68,6 @@ class SignInProvider extends ChangeNotifier {
 
   @override
   void dispose() {
-    signInController.dispose();
     phoneController.dispose();
     super.dispose();
   }

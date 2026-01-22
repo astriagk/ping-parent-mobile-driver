@@ -7,10 +7,12 @@ class SignInScreen extends StatelessWidget {
   /// Handles OTP sending and result UI logic
   Future<void> _handleSendOtp(
       BuildContext context, SignInProvider signInPvr) async {
+    FocusScope.of(context).unfocus();
     final phone = signInPvr.phoneController.text.trim();
     final result = await signInPvr.sendOtp(phone);
     if (!context.mounted) return;
     if (result.success) {
+      signInPvr.phoneController.clear();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: TextWidgetCommon(

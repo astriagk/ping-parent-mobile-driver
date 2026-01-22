@@ -1,9 +1,7 @@
 import 'dart:convert';
 import '../api_client.dart';
 import '../endpoints.dart';
-import '../models/send_otp_request.dart';
-import '../models/send_otp_response.dart';
-import '../models/verify_otp_request.dart';
+import '../models/index.dart';
 import 'storage_service.dart';
 
 class AuthService {
@@ -48,7 +46,10 @@ class AuthService {
         body: request.toJson(),
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
-        return VerifyOtpResponse.fromJson(jsonDecode(response.body));
+        final verifyResponse =
+            VerifyOtpResponse.fromJson(jsonDecode(response.body));
+        await saveUserSession(verifyResponse, phone);
+        return verifyResponse;
       } else {
         return VerifyOtpResponse(
           success: false,
@@ -71,5 +72,27 @@ class AuthService {
   /// Check if user has valid session
   Future<bool> hasValidSession() async {
     return await _storage.hasValidSession();
+  }
+
+  /// Save user session after successful OTP verification
+  Future<void> saveUserSession(VerifyOtpResponse response, String phone) async {
+    if (response.token != null) {
+      await _storage.saveAuthToken(response.token!);
+      await _storage.saveUserPhone(phone);
+      await _storage.saveLoginStatus(true);
+    }
+    // Save user data if available
+    if (response.user != null) {
+      final userData = response.user!;
+      if (userData['id'] != null) {
+        await _storage.saveUserId(userData['id'].toString());
+      }
+      if (userData['name'] != null) {
+        await _storage.saveUserName(userData['name'].toString());
+      }
+      if (userData['email'] != null) {
+        await _storage.saveUserEmail(userData['email'].toString());
+      }
+    }
   }
 }

@@ -17,13 +17,16 @@ class ApiClient {
   final StorageService _storage;
   late final Duration timeout;
 
+  /// IMPORTANT: appConfig must be initialized before creating ApiClient.
+  /// If not initialized, a default timeout of 30 seconds will be used.
   ApiClient({
     http.Client? client,
     StorageService? storage,
     Duration? timeout,
   })  : _client = client ?? http.Client(),
         _storage = storage ?? StorageService() {
-    this.timeout = timeout ?? appConfig.requestTimeout;
+    this.timeout =
+        timeout ?? (appConfig?.requestTimeout ?? const Duration(seconds: 30));
   }
 
   /// Get headers with automatic auth token injection
