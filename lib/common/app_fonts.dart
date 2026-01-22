@@ -283,4 +283,6 @@ class AppFonts {
   final dropAdd =
       '220 Yonge St, Toronto, ON M5B 2H1, ON M5B 2H1, Yonge St, Canada';
   final dropAdd1 = '17600 Yonge St, Newmarket, ON L3Y 4Z1, Canada';
+
+  final otpSentSuccessfully = 'OTP sent successfully';
 }

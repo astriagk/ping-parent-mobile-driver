@@ -1,9 +1,14 @@
+import '../../api/services/auth_service.dart';
+import '../../api/api_client.dart';
 import 'package:taxify_driver_ui/config.dart';
 
 class OtpProvider extends ChangeNotifier {
   TextEditingController pinController = TextEditingController();
   final focusNode = FocusNode();
   final formKey = GlobalKey<FormState>();
+  bool isVerifyingOtp = false;
+  String? verifyOtpError;
+  final AuthService _authService = AuthService(ApiClient());
 
   backOnTap(context) {
     pinController.text = "";
@@ -11,8 +16,44 @@ class OtpProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  verifyOtp(context) {
-    route.pushNamedAndRemoveUntil(context, routeName.commonBottomBar);
+  Future<OtpVerifyResult> verifyOtp(String phone, String otp) async {
+    if (phone.isEmpty || otp.isEmpty) {
+      return OtpVerifyResult(
+          success: false, error: 'Phone and OTP are required');
+    }
+    isVerifyingOtp = true;
+    verifyOtpError = null;
+    notifyListeners();
+    try {
+      final response = await _authService.verifyOtp(phone: phone, otp: otp);
+      isVerifyingOtp = false;
+      verifyOtpError = null;
+      notifyListeners();
+      if (response.success) {
+        return OtpVerifyResult(
+          success: true,
+          message: response.message,
+          token: response.token,
+          user: response.user,
+        );
+      } else {
+        return OtpVerifyResult(
+          success: false,
+          error:
+              response.error ?? response.message ?? 'OTP verification failed',
+        );
+      }
+    } catch (e) {
+      isVerifyingOtp = false;
+      verifyOtpError = 'Error verifying OTP';
+      notifyListeners();
+      return OtpVerifyResult(success: false, error: 'Error verifying OTP');
+    }
+  }
+
+  void clearErrors() {
+    verifyOtpError = null;
+    isVerifyingOtp = false;
     notifyListeners();
   }
 
@@ -21,4 +62,19 @@ class OtpProvider extends ChangeNotifier {
     pinController.text = "";
     route.pop(context);
   }
+}
+
+class OtpVerifyResult {
+  final bool success;
+  final String? error;
+  final String? message;
+  final String? token;
+  final dynamic user;
+  OtpVerifyResult({
+    required this.success,
+    this.error,
+    this.message,
+    this.token,
+    this.user,
+  });
 }

@@ -37,6 +37,7 @@ android/gradle.properties
 android/gradlew
 android/gradlew.bat
 android/gradle/wrapper/gradle-wrapper.jar
+ios/Flutter/flutter_export_environment.sh
 
 # iOS
 ios/Pods/

@@ -1,4 +1,4 @@
-import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart' as emoji_picker;
 import 'package:flutter/foundation.dart' as foundation;
 import 'package:intl/intl.dart';
 
@@ -80,26 +80,29 @@ class ChatScreen extends StatelessWidget {
             if (chatCtrl.isEmojiKeyboardVisible)
               SizedBox(
                   height: Insets.i250,
-                  child: EmojiPicker(
+                  child: emoji_picker.EmojiPicker(
                       onEmojiSelected: (category, emoji) {
                         chatCtrl.controller.text += emoji.emoji;
                       },
-                      config: Config(
+                      config: emoji_picker.Config(
                           height: 256,
                           checkPlatformCompatibility: true,
-                          emojiViewConfig: EmojiViewConfig(
+                          emojiViewConfig: emoji_picker.EmojiViewConfig(
                               emojiSizeMax: 28 *
                                   (foundation.defaultTargetPlatform ==
                                           TargetPlatform.iOS
                                       ? 1.20
                                       : 1.0)),
-                          viewOrderConfig: const ViewOrderConfig(
-                              top: EmojiPickerItem.categoryBar,
-                              middle: EmojiPickerItem.emojiView,
-                              bottom: EmojiPickerItem.searchBar),
-                          categoryViewConfig: const CategoryViewConfig(),
-                          bottomActionBarConfig: const BottomActionBarConfig(),
-                          searchViewConfig: const SearchViewConfig())))
+                          viewOrderConfig: const emoji_picker.ViewOrderConfig(
+                              top: emoji_picker.EmojiPickerItem.categoryBar,
+                              middle: emoji_picker.EmojiPickerItem.emojiView,
+                              bottom: emoji_picker.EmojiPickerItem.searchBar),
+                          categoryViewConfig:
+                              const emoji_picker.CategoryViewConfig(),
+                          bottomActionBarConfig:
+                              const emoji_picker.BottomActionBarConfig(),
+                          searchViewConfig:
+                              const emoji_picker.SearchViewConfig())))
           ])));
     });
   }
