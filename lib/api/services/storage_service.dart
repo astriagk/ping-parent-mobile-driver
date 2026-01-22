@@ -10,7 +10,22 @@ class StorageService {
 
   StorageService._internal();
 
-  final _secureStorage = const FlutterSecureStorage();
+  /// FlutterSecureStorage with platform-specific security options
+  /// On Android: Uses encrypted shared preferences (API 23+)
+  /// On iOS: Uses Keychain with secure accessibility settings
+  AndroidOptions get _androidOptions => const AndroidOptions(
+        encryptedSharedPreferences: true,
+        resetOnError: true,
+      );
+
+  IOSOptions get _iosOptions => const IOSOptions(
+        accessibility: KeychainAccessibility.first_unlock_this_device,
+      );
+
+  FlutterSecureStorage get _secureStorage => FlutterSecureStorage(
+        aOptions: _androidOptions,
+        iOptions: _iosOptions,
+      );
 
   static const String _keyAuthToken = 'auth_token';
   static const String _keyUserId = 'user_id';

@@ -3,6 +3,33 @@ import 'package:taxify_driver_ui/config.dart';
 class OtpScreen extends StatelessWidget {
   const OtpScreen({super.key});
 
+  /// Handles OTP verification and result UI logic
+  Future<void> _handleOtpVerification(BuildContext context) async {
+    final otpCtrlProvider = Provider.of<OtpProvider>(context, listen: false);
+    final signInProvider = Provider.of<SignInProvider>(context, listen: false);
+    final phone = signInProvider.currentPhone ??
+        signInProvider.phoneController.text.trim();
+    final otp = otpCtrlProvider.pinController.text.trim();
+    final result = await otpCtrlProvider.verifyOtp(phone, otp);
+    if (!context.mounted) return;
+    if (result.success) {
+      signInProvider.token = result.token;
+      signInProvider.user = result.user;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: TextWidgetCommon(
+                text: result.message ?? 'OTP verified successfully')),
+      );
+      route.pushNamedAndRemoveUntil(context, routeName.commonBottomBar);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: TextWidgetCommon(
+                text: result.error ?? 'OTP verification failed')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<OtpProvider>(builder: (context1, otpCtrl, child) {
@@ -35,9 +62,10 @@ class OtpScreen extends StatelessWidget {
                           OTPScreenWidgets().pinPutLayout(),
                           // Common button
                           CommonButton(
-                                  text: language(context, appFonts.verify),
-                                  onTap: () => otpCtrl.verifyOtp(context))
-                              .padding(top: Sizes.s60, bottom: Sizes.s15),
+                              text: language(context, appFonts.verify),
+                              onTap: () async {
+                                await _handleOtpVerification(context);
+                              }).padding(top: Sizes.s60, bottom: Sizes.s15),
                           // Common Rich Text layout
                           AuthCommonWidgets().commonRichText(
                               context,

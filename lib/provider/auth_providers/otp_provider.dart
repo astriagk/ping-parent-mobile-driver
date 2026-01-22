@@ -16,47 +16,38 @@ class OtpProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> verifyOtp(context) async {
-    final signInProvider = Provider.of<SignInProvider>(context, listen: false);
-    final otp = pinController.text.trim();
-    final phone = signInProvider.currentPhone ??
-        signInProvider.phoneController.text.trim();
+  Future<OtpVerifyResult> verifyOtp(String phone, String otp) async {
     if (phone.isEmpty || otp.isEmpty) {
-      verifyOtpError = 'Phone and OTP are required';
-      notifyListeners();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: TextWidgetCommon(text: verifyOtpError)),
-      );
-      return;
+      return OtpVerifyResult(
+          success: false, error: 'Phone and OTP are required');
     }
     isVerifyingOtp = true;
     verifyOtpError = null;
     notifyListeners();
     try {
       final response = await _authService.verifyOtp(phone: phone, otp: otp);
+      isVerifyingOtp = false;
+      verifyOtpError = null;
+      notifyListeners();
       if (response.success) {
-        signInProvider.token = response.token;
-        signInProvider.user = response.user;
-        isVerifyingOtp = false;
-        verifyOtpError = null;
-        notifyListeners();
-        route.pushNamedAndRemoveUntil(context, routeName.commonBottomBar);
+        return OtpVerifyResult(
+          success: true,
+          message: response.message,
+          token: response.token,
+          user: response.user,
+        );
       } else {
-        isVerifyingOtp = false;
-        verifyOtpError =
-            response.error ?? response.message ?? 'OTP verification failed';
-        notifyListeners();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: TextWidgetCommon(text: verifyOtpError)),
+        return OtpVerifyResult(
+          success: false,
+          error:
+              response.error ?? response.message ?? 'OTP verification failed',
         );
       }
     } catch (e) {
       isVerifyingOtp = false;
       verifyOtpError = 'Error verifying OTP';
       notifyListeners();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: TextWidgetCommon(text: verifyOtpError)),
-      );
+      return OtpVerifyResult(success: false, error: 'Error verifying OTP');
     }
   }
 
@@ -71,4 +62,19 @@ class OtpProvider extends ChangeNotifier {
     pinController.text = "";
     route.pop(context);
   }
+}
+
+class OtpVerifyResult {
+  final bool success;
+  final String? error;
+  final String? message;
+  final String? token;
+  final dynamic user;
+  OtpVerifyResult({
+    required this.success,
+    this.error,
+    this.message,
+    this.token,
+    this.user,
+  });
 }

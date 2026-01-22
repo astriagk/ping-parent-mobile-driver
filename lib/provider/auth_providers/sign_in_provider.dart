@@ -31,48 +31,27 @@ class SignInProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> sendOtp() async {
-    final phone = phoneController.text.trim();
-    print("Sending OTP to: $phone");
-    // Validation
+  Future<SendOtpResult> sendOtp(String phone) async {
     if (phone.isEmpty) {
-      sendOtpError = 'Please enter a phone number';
-      notifyListeners();
-      return false;
+      return SendOtpResult(
+          success: false, error: 'Please enter a phone number');
     }
-
     if (phone.length < 10) {
-      sendOtpError = 'Phone number must be at least 10 digits';
-      notifyListeners();
-      return false;
+      return SendOtpResult(
+          success: false, error: 'Phone number must be at least 10 digits');
     }
-
-    isSendingOtp = true;
-    sendOtpError = null;
-    notifyListeners();
-
     try {
-      // Call API to send OTP
       final response = await _authService.sendOtp(phone: phone);
-      print("Send OTP response: $response");
       if (response.success) {
         currentPhone = phone;
-        isSendingOtp = false;
-        sendOtpError = null;
-        notifyListeners();
-        return true;
+        return SendOtpResult(success: true, message: response.message);
       } else {
-        isSendingOtp = false;
-        sendOtpError =
-            response.error ?? response.message ?? 'Failed to send OTP';
-        notifyListeners();
-        return false;
+        return SendOtpResult(
+            success: false,
+            error: response.error ?? response.message ?? 'Failed to send OTP');
       }
     } catch (e) {
-      isSendingOtp = false;
-      sendOtpError = 'Error: ${e.toString()}';
-      notifyListeners();
-      return false;
+      return SendOtpResult(success: false, error: 'Error: ${e.toString()}');
     }
   }
 
@@ -87,4 +66,11 @@ class SignInProvider extends ChangeNotifier {
     phoneController.dispose();
     super.dispose();
   }
+}
+
+class SendOtpResult {
+  final bool success;
+  final String? error;
+  final String? message;
+  SendOtpResult({required this.success, this.error, this.message});
 }
