@@ -111,7 +111,12 @@ class SignUpLayout extends StatelessWidget {
               .padding(vertical: Sizes.s15)
           : CommonButton(
               text: language(context, appFonts.verify),
-              onTap: () => signUpPvr.verifySignUpOtp(),
+              onTap: () async {
+                final success = await signUpPvr.verifySignUpOtp();
+                if (success && context.mounted) {
+                  route.pushNamed(context, routeName.documentsOnboarding);
+                }
+              },
             ).padding(bottom: Sizes.s15),
       AuthCommonWidgets().commonRichText(
           context, '', language(context, 'Change Number'), onTap: () {

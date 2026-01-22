@@ -1,4 +1,4 @@
-import '../../../../config.dart';
+import '../../../../../config.dart';
 
 class VehicleRegistrationsLayout extends StatelessWidget {
   const VehicleRegistrationsLayout({super.key});

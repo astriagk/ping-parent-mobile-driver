@@ -1,11 +1,12 @@
-import '../../../../config.dart';
+import '../../../../../config.dart';
 
 class BankDetailsLayout extends StatelessWidget {
   const BankDetailsLayout({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<SignUpProvider>(builder: (context, signUpPvr, child) {
+    return Consumer<OnboardingProvider>(
+        builder: (context, onboardingPvr, child) {
       return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         AuthCommonWidgets().textAndTextField(
             language(context, appFonts.holderName),
@@ -34,7 +35,7 @@ class BankDetailsLayout extends StatelessWidget {
         VSpace(Insets.i30),
         CommonButton(
                 text: language(context, appFonts.next),
-                onTap: () => signUpPvr.bankDetails(context))
+                onTap: () => onboardingPvr.bankDetails(context))
             .padding(bottom: Sizes.s20),
       ]);
     });

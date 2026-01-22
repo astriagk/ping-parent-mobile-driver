@@ -4,7 +4,6 @@ import 'package:taxify_driver_ui/screens/app_pages/notifications_screen/notifica
 import 'package:taxify_driver_ui/screens/auth_screen/onboarding_screen/onboarding_screen.dart';
 import 'package:taxify_driver_ui/screens/auth_screen/otp_screen/otp_screen.dart';
 import 'package:taxify_driver_ui/screens/auth_screen/sign_in_screen/sign_in_screen.dart';
-import 'package:taxify_driver_ui/screens/auth_screen/sign_up_screen/sign_up_screen.dart';
 import 'package:taxify_driver_ui/screens/auth_screen/splash_screen/splash_screen.dart';
 import '../config.dart';
 import '../screens/app_pages/bank_details_screen/bank_details_screen.dart';
@@ -33,6 +32,9 @@ class AppRoute {
     routeName.onBoard: (p0) => const OnboardingScreen(),
     routeName.signInScreen: (p0) => const SignInScreen(),
     routeName.signUpScreen: (p0) => const SignUpScreen(),
+    routeName.documentsOnboarding: (p0) => const DocumentsOnboardingScreen(),
+    routeName.vehicleOnboarding: (p0) => const VehicleOnboardingScreen(),
+    routeName.bankOnboarding: (p0) => const BankOnboardingScreen(),
     routeName.profileScreen: (p0) => const ProfileScreen(),
     routeName.withdrawScreen: (p0) => const WithdrawScreen(),
     routeName.myWalletScreen: (p0) => const MyWalletScreen(),

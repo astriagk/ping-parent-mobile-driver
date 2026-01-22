@@ -1,10 +1,14 @@
 export 'package:taxify_driver_ui/screens/auth_screen/splash_screen/splash_screen_layout.dart';
 export 'package:taxify_driver_ui/screens/screens_extensions.dart';
 export 'package:taxify_driver_ui/screens/auth_screen/auth_common_widgets.dart';
-export 'package:taxify_driver_ui/screens/auth_screen/sign_up_screen/layouts/bank_details_layout.dart';
-export 'package:taxify_driver_ui/screens/auth_screen/sign_up_screen/layouts/documents_verify_layout.dart';
+export 'package:taxify_driver_ui/screens/auth_screen/bank_onboarding_screen/layouts/bank_details_layout.dart';
+export 'package:taxify_driver_ui/screens/auth_screen/documents_onboarding_screen/layouts/documents_verify_layout.dart';
 export 'package:taxify_driver_ui/screens/auth_screen/sign_up_screen/layouts/sign_up_layout.dart';
-export 'package:taxify_driver_ui/screens/auth_screen/sign_up_screen/layouts/vehicle_registrations_layout.dart';
+export 'package:taxify_driver_ui/screens/auth_screen/vehicle_onboarding_screen/layouts/vehicle_registrations_layout.dart';
+export 'package:taxify_driver_ui/screens/auth_screen/sign_up_screen/sign_up_screen.dart';
+export 'package:taxify_driver_ui/screens/auth_screen/documents_onboarding_screen/documents_onboarding_screen.dart';
+export 'package:taxify_driver_ui/screens/auth_screen/vehicle_onboarding_screen/vehicle_onboarding_screen.dart';
+export 'package:taxify_driver_ui/screens/auth_screen/bank_onboarding_screen/bank_onboarding_screen.dart';
 export 'package:taxify_driver_ui/screens/auth_screen/otp_screen/otp_screen_widgets.dart';
 export 'package:taxify_driver_ui/screens/bottom_navigation_bar/layouts/home_screen/layouts/active_offer_layout.dart';
 export 'package:taxify_driver_ui/screens/bottom_navigation_bar/layouts/home_screen/layouts/ride_data_layout.dart';

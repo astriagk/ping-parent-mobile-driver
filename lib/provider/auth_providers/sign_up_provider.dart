@@ -24,57 +24,6 @@ class SignUpProvider extends ChangeNotifier {
     });
   }
 
-  int index = 0;
-  final List<String> rules = [
-    appFonts.maxInBack,
-    appFonts.carsAreNotPermitted,
-    appFonts.iApologize,
-    appFonts.pleaseNoSmoking,
-    appFonts.noAlcoholClosed,
-  ];
-
-  List vehicleDropDownItems = [
-    {'value': 1, 'label': 'Electric Mountain Bike'},
-    {'value': 2, 'label': 'Hybrid SUV'},
-    {'value': 3, 'label': 'Convertible Sports Car'},
-    {'value': 4, 'label': 'Cargo Minivan'},
-    {'value': 5, 'label': 'Electric Pickup Truck'},
-    {'value': 6, 'label': 'Luxury Camper Van'},
-    {'value': 7, 'label': 'Off-Road SUV'},
-    {'value': 8, 'label': 'Refrigerated Box Truck'},
-    {'value': 9, 'label': 'Adventure Touring Motorcycle'},
-    {'value': 10, 'label': 'Compact Cargo Van'},
-    {'value': 11, 'label': 'Monster Pickup Truck'},
-    {'value': 12, 'label': 'Electric Road Bike'},
-    {'value': 13, 'label': 'Luxury SUV'},
-    {'value': 14, 'label': 'Mini Tow Truck'},
-    {'value': 15, 'label': 'Hybrid Coupe'},
-  ];
-
-  onChange(value) {
-    selectedVehicle = value;
-    notifyListeners();
-  }
-
-  dynamic selectedVehicle;
-
-  final List<Map<String, dynamic>> vehicles = [
-    {'name': appFonts.bike, 'image': 'assets/image/auth/bike.png'},
-    {'name': appFonts.car, 'image': 'assets/image/auth/car.png'},
-    {'name': appFonts.van, 'image': 'assets/image/auth/van.png'},
-    {'name': appFonts.truck, 'image': 'assets/image/auth/truck.png'}
-  ];
-
-  // Track selected vehicle
-  int selectedIndex = 0;
-
-  List<bool> isChecked = [];
-
-  onInit() {
-    isChecked = List<bool>.filled(rules.length, false);
-    selectedVehicle = vehicleDropDownItems[0]['value'];
-  }
-
   File? image;
 
   Future<void> pickImage(
@@ -149,50 +98,12 @@ class SignUpProvider extends ChangeNotifier {
   }
 
   handleBackTap(context) {
-    if (index == 0) {
-      index0BackTap(context);
-    } else if (index == 1) {
-      index1BackTap(context);
-    } else if (index == 2) {
-      index2BackTap(context);
-    } else if (index == 3) {
-      index3BackTap(context);
-    }
-  }
-
-  String getTitleText(BuildContext context) {
-    switch (index) {
-      case 0:
-        return language(context, appFonts.createYourAccount);
-      case 1:
-        return language(context, appFonts.documentVerify);
-      case 2:
-        return language(context, appFonts.vehicleRegistration);
-      case 3:
-        return language(context, appFonts.bankDetails);
-      default:
-        return '';
-    }
-  }
-
-  index0BackTap(context) {
     route.pop(context);
     notifyListeners();
   }
 
-  index1BackTap(context) {
-    index = 0;
-    notifyListeners();
-  }
-
-  index2BackTap(context) {
-    index = 1;
-    notifyListeners();
-  }
-
-  index3BackTap(context) {
-    index = 2;
-    notifyListeners();
+  String getTitleText(BuildContext context) {
+    return language(context, appFonts.createYourAccount);
   }
 
   /*vehicleChooseOnTap() {
@@ -237,7 +148,7 @@ class SignUpProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> verifySignUpOtp() async {
+  Future<bool> verifySignUpOtp() async {
     isVerifyingOtp = true;
     verifyOtpError = null;
     notifyListeners();
@@ -249,7 +160,7 @@ class SignUpProvider extends ChangeNotifier {
       verifyOtpError = 'Please enter a valid 6-digit OTP';
       isVerifyingOtp = false;
       notifyListeners();
-      return;
+      return false;
     }
 
     try {
@@ -259,9 +170,10 @@ class SignUpProvider extends ChangeNotifier {
         otpController.clear();
         phoneController.clear();
         isOtpSent = false;
-        // Move to documents verification
-        index = 1;
         verifyOtpError = null;
+        isVerifyingOtp = false;
+        notifyListeners();
+        return true;
       } else {
         verifyOtpError =
             response.error ?? response.message ?? 'Failed to verify OTP';
@@ -271,6 +183,7 @@ class SignUpProvider extends ChangeNotifier {
     }
     isVerifyingOtp = false;
     notifyListeners();
+    return false;
   }
 
   @override
@@ -282,26 +195,5 @@ class SignUpProvider extends ChangeNotifier {
 
   alreadyHavingAccountSignInButton(context) {
     route.pushNamed(context, routeName.signInScreen);
-  }
-
-  documentVerifyButton() {
-    index = 2;
-    notifyListeners();
-  }
-
-  vehicleRegButton() {
-    index = 3;
-    notifyListeners();
-  }
-
-  bankDetails(context) {
-    route.pushNamedAndRemoveUntil(context, routeName.commonBottomBar);
-    notifyListeners();
-  }
-
-  vehiclesRulesOnTap() {
-    notifyListeners();
-    isChecked[index] = !isChecked[index];
-    notifyListeners();
   }
 }
