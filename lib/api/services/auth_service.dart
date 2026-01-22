@@ -24,15 +24,54 @@ class AuthService {
       if (response.statusCode == 200 || response.statusCode == 201) {
         return SendOtpResponse.fromJson(jsonDecode(response.body));
       } else {
-        return SendOtpResponse(
-          success: false,
-          error: 'Failed to send OTP. Status',
-        );
+        try {
+          final errorResponse =
+              SendOtpResponse.fromJson(jsonDecode(response.body));
+          return errorResponse;
+        } catch (_) {
+          return SendOtpResponse(
+            success: false,
+            error: 'Failed to send OTP. Status code: ${response.statusCode}',
+          );
+        }
       }
     } catch (e) {
       return SendOtpResponse(
         success: false,
-        error: 'Error sending OTP',
+        error: 'Error sending OTP: ${e.toString()}',
+      );
+    }
+  }
+
+  Future<SendOtpResponse> registerSendOtp({required String phone}) async {
+    try {
+      // Save phone temporarily for OTP verification
+      await _storage.saveUserPhone(phone);
+
+      final request = SendOtpRequest(phone: phone);
+      final response = await _apiClient.post(
+        Endpoints.registerSendOtp,
+        body: request.toJson(),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return SendOtpResponse.fromJson(jsonDecode(response.body));
+      } else {
+        try {
+          final errorResponse =
+              SendOtpResponse.fromJson(jsonDecode(response.body));
+          return errorResponse;
+        } catch (_) {
+          return SendOtpResponse(
+            success: false,
+            error: 'Failed to send OTP. Status code: ${response.statusCode}',
+          );
+        }
+      }
+    } catch (e) {
+      return SendOtpResponse(
+        success: false,
+        error: 'Error sending OTP: ${e.toString()}',
       );
     }
   }
@@ -60,6 +99,39 @@ class AuthService {
       return VerifyOtpResponse(
         success: false,
         error: 'Error verifying OTP',
+      );
+    }
+  }
+
+  Future<VerifyOtpResponse> registerVerifyOtp(
+      {required String phone, required String otp}) async {
+    try {
+      final request = VerifyOtpRequest(phone: phone, otp: otp, role: 'driver');
+      final response = await _apiClient.post(
+        Endpoints.registerVerifyOtp,
+        body: request.toJson(),
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final verifyResponse =
+            VerifyOtpResponse.fromJson(jsonDecode(response.body));
+        await saveUserSession(verifyResponse, phone);
+        return verifyResponse;
+      } else {
+        try {
+          final errorResponse =
+              VerifyOtpResponse.fromJson(jsonDecode(response.body));
+          return errorResponse;
+        } catch (_) {
+          return VerifyOtpResponse(
+            success: false,
+            error: 'Failed to verify OTP. Status code: ${response.statusCode}',
+          );
+        }
+      }
+    } catch (e) {
+      return VerifyOtpResponse(
+        success: false,
+        error: 'Error verifying OTP: ${e.toString()}',
       );
     }
   }

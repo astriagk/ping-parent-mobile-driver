@@ -76,7 +76,41 @@ class VehicleRegistrationsLayout extends StatelessWidget {
         AuthCommonWidgets()
             .textAndTextField(language(context, appFonts.maximumSeats),
                 language(context, appFonts.enterMaximumSeat), context)
-            .padding(vertical: Sizes.s15)
+            .padding(vertical: Sizes.s15),
+        VSpace(Insets.i25),
+        Text(language(context, appFonts.selectYourRule),
+                style: AppCss.lexendSemiBold18.textColor(appTheme.darkText))
+            .padding(bottom: Insets.i15),
+        ListView.builder(
+            physics: const NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.zero,
+            shrinkWrap: true,
+            itemCount: signUpPvr.rules.length,
+            itemBuilder: (context, index) {
+              return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                        child: Text(language(context, signUpPvr.rules[index]),
+                            style: AppCss.lexendRegular14
+                                .textColor(appTheme.textClr))),
+                    GestureDetector(
+                        onTap: () {
+                          signUpPvr.notifyListeners();
+                          signUpPvr.isChecked[index] =
+                              !signUpPvr.isChecked[index];
+                          signUpPvr.notifyListeners();
+                        },
+                        child: SvgPicture.asset(signUpPvr.isChecked[index]
+                            ? svgAssets.tickSquare
+                            : svgAssets.tickSquare1))
+                  ]).padding(bottom: Insets.i15);
+            }),
+        VSpace(Insets.i30),
+        CommonButton(
+                text: language(context, appFonts.next),
+                onTap: () => signUpPvr.vehicleRegButton())
+            .padding(bottom: Sizes.s20)
       ]);
     });
   }

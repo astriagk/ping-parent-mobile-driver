@@ -1,12 +1,29 @@
-import 'dart:developer';
 import 'dart:io';
-
-import 'package:image_picker/image_picker.dart';
-import 'package:permission_handler/permission_handler.dart';
-
+import '../../api/api_client.dart';
+import '../../api/services/auth_service.dart';
 import '../../config.dart';
 
 class SignUpProvider extends ChangeNotifier {
+  // OTP state
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController otpController = TextEditingController();
+  bool isSendingOtp = false;
+  bool isVerifyingOtp = false;
+  String? sendOtpError;
+  String? verifyOtpError;
+  bool isOtpSent = false;
+
+  final AuthService _authService = AuthService(ApiClient());
+
+  SignUpProvider() {
+    phoneController.addListener(() {
+      if (sendOtpError != null) {
+        sendOtpError = null;
+        notifyListeners();
+      }
+    });
+  }
+
   int index = 0;
   final List<String> rules = [
     appFonts.maxInBack,
@@ -131,6 +148,33 @@ class SignUpProvider extends ChangeNotifier {
     }*/
   }
 
+  handleBackTap(context) {
+    if (index == 0) {
+      index0BackTap(context);
+    } else if (index == 1) {
+      index1BackTap(context);
+    } else if (index == 2) {
+      index2BackTap(context);
+    } else if (index == 3) {
+      index3BackTap(context);
+    }
+  }
+
+  String getTitleText(BuildContext context) {
+    switch (index) {
+      case 0:
+        return language(context, appFonts.createYourAccount);
+      case 1:
+        return language(context, appFonts.documentVerify);
+      case 2:
+        return language(context, appFonts.vehicleRegistration);
+      case 3:
+        return language(context, appFonts.bankDetails);
+      default:
+        return '';
+    }
+  }
+
   index0BackTap(context) {
     route.pop(context);
     notifyListeners();
@@ -157,8 +201,83 @@ class SignUpProvider extends ChangeNotifier {
   }*/
 
   signUpButton() {
-    index = 1;
+    registerSendOtp();
+  }
+
+  Future<void> registerSendOtp() async {
+    isSendingOtp = true;
+    sendOtpError = null;
     notifyListeners();
+    final phone = phoneController.text.trim();
+    if (phone.isEmpty) {
+      sendOtpError = 'Please enter a phone number';
+      isSendingOtp = false;
+      notifyListeners();
+      return;
+    } else if (phone.length < 10) {
+      sendOtpError = 'Phone number must be at least 10 digits';
+      isSendingOtp = false;
+      notifyListeners();
+      return;
+    }
+    try {
+      final response = await _authService.registerSendOtp(phone: phone);
+      if (response.success) {
+        // Show OTP input instead of moving to next index
+        isOtpSent = true;
+        sendOtpError = null;
+      } else {
+        sendOtpError =
+            response.error ?? response.message ?? 'Failed to send OTP';
+      }
+    } catch (e) {
+      sendOtpError = 'Error: [${e.toString()}';
+    }
+    isSendingOtp = false;
+    notifyListeners();
+  }
+
+  Future<void> verifySignUpOtp() async {
+    isVerifyingOtp = true;
+    verifyOtpError = null;
+    notifyListeners();
+
+    final phone = phoneController.text.trim();
+    final otp = otpController.text.trim();
+
+    if (otp.isEmpty || otp.length != 6) {
+      verifyOtpError = 'Please enter a valid 6-digit OTP';
+      isVerifyingOtp = false;
+      notifyListeners();
+      return;
+    }
+
+    try {
+      final response =
+          await _authService.registerVerifyOtp(phone: phone, otp: otp);
+      if (response.success) {
+        otpController.clear();
+        phoneController.clear();
+        isOtpSent = false;
+        // Move to documents verification
+        index = 1;
+        verifyOtpError = null;
+      } else {
+        verifyOtpError =
+            response.error ?? response.message ?? 'Failed to verify OTP';
+      }
+    } catch (e) {
+      verifyOtpError = 'Error: ${e.toString()}';
+    }
+    isVerifyingOtp = false;
+    notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    phoneController.dispose();
+    otpController.dispose();
+    super.dispose();
   }
 
   alreadyHavingAccountSignInButton(context) {
