@@ -39,7 +39,7 @@ dynamic ar = {
   "category": "الفئة",
   "createYourAccount": "أنشئ حسابك",
   "documentVerify": "التحقق من المستندات",
-  "vehicleRegistration": "تسجيل المركبة",
+  "userRegistration": "تسجيل المركبة",
   "vehicleDetails": "تفاصيل المركبة",
   "exploreYourLife": "استكشف حياتك بالانضمام إلى Ride.",
   "userName": "اسم المستخدم",

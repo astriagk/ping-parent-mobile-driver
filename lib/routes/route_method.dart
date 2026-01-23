@@ -33,7 +33,7 @@ class AppRoute {
     routeName.signInScreen: (p0) => const SignInScreen(),
     routeName.signUpScreen: (p0) => const SignUpScreen(),
     routeName.documentsOnboarding: (p0) => const DocumentsOnboardingScreen(),
-    routeName.vehicleOnboarding: (p0) => const VehicleOnboardingScreen(),
+    routeName.userOnboarding: (p0) => const UserOnboardingScreen(),
     routeName.bankOnboarding: (p0) => const BankOnboardingScreen(),
     routeName.profileScreen: (p0) => const ProfileScreen(),
     routeName.withdrawScreen: (p0) => const WithdrawScreen(),

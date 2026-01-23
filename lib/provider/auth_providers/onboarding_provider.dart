@@ -53,10 +53,9 @@ class OnboardingProvider extends ChangeNotifier {
   dynamic selectedVehicle;
 
   final List<Map<String, dynamic>> vehicles = [
-    {'name': appFonts.bike, 'image': 'assets/image/auth/bike.png'},
-    {'name': appFonts.car, 'image': 'assets/image/auth/car.png'},
+    {'name': appFonts.auto, 'image': 'assets/image/auth/van.png'},
     {'name': appFonts.van, 'image': 'assets/image/auth/van.png'},
-    {'name': appFonts.truck, 'image': 'assets/image/auth/truck.png'}
+    {'name': appFonts.bus, 'image': 'assets/image/auth/van.png'}
   ];
 
   int selectedIndex = 0;
@@ -64,9 +63,24 @@ class OnboardingProvider extends ChangeNotifier {
 
   File? image;
 
+  // User Data
+  Map<String, dynamic> userData = {
+    'name': '',
+    'email': '',
+    'photo_url': '',
+    'vehicle_type': '',
+    'vehicle_number': '',
+    'vehicle_capacity': 0,
+  };
+
   onInit() {
     isChecked = List<bool>.filled(rules.length, false);
     selectedVehicle = vehicleDropDownItems[0]['value'];
+  }
+
+  void setUserData(Map<String, dynamic> data) {
+    userData = data;
+    notifyListeners();
   }
 
   Future<void> pickImage(
@@ -127,12 +141,11 @@ class OnboardingProvider extends ChangeNotifier {
     currentIndex = index;
   }
 
-  // Signup onboarding methods (routing-based)
-  documentVerifyButton(context) {
-    route.pushNamed(context, routeName.vehicleOnboarding);
+  userRegButton(context) {
+    route.pushNamed(context, routeName.documentsOnboarding);
   }
 
-  vehicleRegButton(context) {
+  documentVerifyButton(context) {
     route.pushNamed(context, routeName.bankOnboarding);
   }
 

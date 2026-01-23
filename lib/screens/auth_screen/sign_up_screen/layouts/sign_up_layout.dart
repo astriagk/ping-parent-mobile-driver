@@ -114,7 +114,7 @@ class SignUpLayout extends StatelessWidget {
               onTap: () async {
                 final success = await signUpPvr.verifySignUpOtp();
                 if (success && context.mounted) {
-                  route.pushNamed(context, routeName.documentsOnboarding);
+                  route.pushNamed(context, routeName.userOnboarding);
                 }
               },
             ).padding(bottom: Sizes.s15),

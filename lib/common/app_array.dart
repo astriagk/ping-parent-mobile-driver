@@ -214,7 +214,7 @@ class AppArray {
       "title": appFonts.registrationDetails,
       "data": [
         {"subTitle": appFonts.documentRegistration, "icon": svgAssets.document},
-        {"subTitle": appFonts.vehicleRegistration, "icon": svgAssets.frame},
+        {"subTitle": appFonts.userRegistration, "icon": svgAssets.frame},
         {"subTitle": appFonts.bankDetail, "icon": svgAssets.bank}
       ]
     },

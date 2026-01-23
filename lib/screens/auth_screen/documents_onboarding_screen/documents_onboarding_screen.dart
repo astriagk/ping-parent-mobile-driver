@@ -20,7 +20,7 @@ class DocumentsOnboardingScreen extends StatelessWidget {
               language(context, appFonts.documentVerify),
               language(context, appFonts.exploreYourLife),
               isSignUp: true,
-              index: 1),
+              index: 2),
           // Documents verification layout
           const DocumentsVerifyLayout()
         ])
