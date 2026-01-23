@@ -14,6 +14,16 @@ class OnboardingProvider extends ChangeNotifier {
   final TextEditingController vehicleCapacityController =
       TextEditingController();
 
+  // Text Controllers for document verification
+  final TextEditingController drivingLicenseController =
+      TextEditingController();
+  final TextEditingController vehicleLicenseNumberController =
+      TextEditingController();
+  final TextEditingController insuranceNumberController =
+      TextEditingController();
+  final TextEditingController birthCertificateController =
+      TextEditingController();
+
   // Intro onboarding (initial slides)
   final PageController pageController = PageController();
   int currentIndex = 0;
@@ -97,9 +107,9 @@ class OnboardingProvider extends ChangeNotifier {
   }
 
   Future<void> pickImage(
-    context,
-    /* {required ImageSource source}*/
-  ) async {
+    context, {
+    String? documentName,
+  }) async {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -112,7 +122,11 @@ class OnboardingProvider extends ChangeNotifier {
                     Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(language(context, appFonts.upload),
+                          Text(
+                              language(context, appFonts.upload) +
+                                  (documentName != null
+                                      ? ' - $documentName'
+                                      : ''),
                               style: AppCss.lexendMedium16
                                   .textColor(appTheme.primary)),
                           CommonIconButton(
@@ -325,6 +339,10 @@ class OnboardingProvider extends ChangeNotifier {
     emailController.dispose();
     vehicleNumberController.dispose();
     vehicleCapacityController.dispose();
+    drivingLicenseController.dispose();
+    vehicleLicenseNumberController.dispose();
+    insuranceNumberController.dispose();
+    birthCertificateController.dispose();
     super.dispose();
   }
 }

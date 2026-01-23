@@ -244,7 +244,6 @@ class AppFonts {
   final withdrawHistory = 'withdrawHistory';
   final uploadImage = 'uploadImage';
   final uploadBack = 'uploadBack';
-  final drivingLicense = 'drivingLicense';
   final certificateOfRegistration = 'certificateOfRegistration';
   final birthCertificate = 'birthCertificate';
   final selectCountry = 'selectCountry';
@@ -290,4 +289,13 @@ class AppFonts {
   final van = 'van';
   final bus = 'bus';
   final enterUserName = 'enterUserName';
+
+  // document verification
+
+  final drivingLicense = 'drivingLicense';
+  final enterDrivingLicense = 'enterDrivingLicense';
+  final vehicleLicenseNumber = 'vehicleLicenseNumber';
+  final enterVehicleLicenseNumber = 'enterVehicleLicenseNumber';
+  final insuranceNumber = 'insuranceNumber';
+  final enterInsuranceNumber = 'enterInsuranceNumber';
 }
