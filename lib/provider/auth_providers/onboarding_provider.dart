@@ -268,15 +268,73 @@ class OnboardingProvider extends ChangeNotifier {
   /// Shows error snackbar
   void _showError(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: TextWidgetCommon(text: message),
-        backgroundColor: Colors.red,
-      ),
+      SnackBar(content: TextWidgetCommon(text: message)),
     );
   }
 
-  documentVerifyButton(context) {
-    route.pushNamed(context, routeName.bankOnboarding);
+  /// Handle driver documents upload and validation
+  Future<void> handleDocumentsVerification(BuildContext context) async {
+    FocusScope.of(context).unfocus();
+
+    // Get values from controllers
+    final drivingLicenseNumber = drivingLicenseController.text.trim();
+    final vehicleLicenseNumber = vehicleLicenseNumberController.text.trim();
+    final insuranceNumber = insuranceNumberController.text.trim();
+
+    // Validation
+    if (drivingLicenseNumber.isEmpty) {
+      _showError(context, 'Please enter driving license number');
+      return;
+    }
+
+    if (vehicleLicenseNumber.isEmpty) {
+      _showError(context, 'Please enter vehicle license number');
+      return;
+    }
+
+    if (insuranceNumber.isEmpty) {
+      _showError(context, 'Please enter insurance number');
+      return;
+    }
+
+    // Call API to upload documents with dummy photo URLs
+    isCreatingProfile = true;
+    notifyListeners();
+
+    final result = await _onboardingService.uploadDriverDocuments(
+      drivingLicenseNumber: drivingLicenseNumber,
+      drivingLicensePhotoUrl:
+          'https://picsum.photos/seed/picsum/200/300', // Dummy URL
+      vehicleLicenseNumber: vehicleLicenseNumber,
+      vehicleLicensePhotoUrl:
+          'https://picsum.photos/seed/picsum/200/300', // Dummy URL
+      insuranceNumber: insuranceNumber,
+      insurancePhotoUrl:
+          'https://picsum.photos/seed/picsum/200/300', // Dummy URL
+    );
+
+    isCreatingProfile = false;
+    notifyListeners();
+
+    if (!context.mounted) return;
+
+    if (result.success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: TextWidgetCommon(
+            text: result.message ?? 'Driver documents uploaded successfully',
+          ),
+        ),
+      );
+      // Navigate to next onboarding screen
+      route.pushNamed(context, routeName.commonBottomBar);
+    } else {
+      String errorMessage = result.error ?? 'Failed to upload documents';
+      if (result.details != null && result.details!.isNotEmpty) {
+        errorMessage = result.details!.join('\n');
+      }
+      _showError(context, errorMessage);
+    }
   }
 
   bankDetails(context) {

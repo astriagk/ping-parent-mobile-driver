@@ -19,6 +19,7 @@ class Endpoints {
 
   // ===== Driver Endpoints =====
   static String get driverProfile => '$baseUrl/driver/profile';
+  static String get driverDocuments => '$baseUrl/driver/documents';
   static String get driverList => '$baseUrl/driver/list';
   static String get assignDriver => '$baseUrl/driver/assign';
 

@@ -13,9 +13,10 @@ class DocumentsVerifyLayout extends StatelessWidget {
         _buildDocumentUploadUI(context, onboardingPvr),
         VSpace(Insets.i30),
         CommonButton(
-                text: language(context, appFonts.next),
-                onTap: () => onboardingPvr.documentVerifyButton(context))
-            .padding(bottom: Sizes.s20),
+            text: language(context, appFonts.next),
+            onTap: () async {
+              await onboardingPvr.handleDocumentsVerification(context);
+            }).padding(bottom: Sizes.s20),
       ]);
     });
   }

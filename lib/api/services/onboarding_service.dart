@@ -56,4 +56,51 @@ class OnboardingService {
       );
     }
   }
+
+  /// Upload driver documents
+  Future<DriverDocumentsResponse> uploadDriverDocuments({
+    required String drivingLicenseNumber,
+    required String drivingLicensePhotoUrl,
+    required String vehicleLicenseNumber,
+    required String vehicleLicensePhotoUrl,
+    required String insuranceNumber,
+    required String insurancePhotoUrl,
+  }) async {
+    try {
+      final request = DriverDocumentsRequest(
+        drivingLicenseNumber: drivingLicenseNumber,
+        drivingLicensePhotoUrl: drivingLicensePhotoUrl,
+        vehicleLicenseNumber: vehicleLicenseNumber,
+        vehicleLicensePhotoUrl: vehicleLicensePhotoUrl,
+        insuranceNumber: insuranceNumber,
+        insurancePhotoUrl: insurancePhotoUrl,
+      );
+
+      final response = await _apiClient.post(
+        Endpoints.driverDocuments,
+        body: request.toJson(),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return DriverDocumentsResponse.fromJson(jsonDecode(response.body));
+      } else {
+        try {
+          final errorResponse =
+              DriverDocumentsResponse.fromJson(jsonDecode(response.body));
+          return errorResponse;
+        } catch (_) {
+          return DriverDocumentsResponse(
+            success: false,
+            error:
+                'Failed to upload driver documents. Status code: ${response.statusCode}',
+          );
+        }
+      }
+    } catch (e) {
+      return DriverDocumentsResponse(
+        success: false,
+        error: 'Error uploading driver documents: ${e.toString()}',
+      );
+    }
+  }
 }
