@@ -81,7 +81,18 @@ class OnboardingProvider extends ChangeNotifier {
   ];
 
   int selectedIndex = 0;
-  List<bool> isChecked = [];
+  late List<bool> isChecked;
+
+  OnboardingProvider() {
+    _initializeDefaults();
+  }
+
+  void _initializeDefaults() {
+    isChecked = List<bool>.filled(rules.length, false);
+    selectedVehicle = vehicleDropDownItems.isNotEmpty
+        ? vehicleDropDownItems[0]['value']
+        : null;
+  }
 
   File? image;
 
@@ -96,8 +107,7 @@ class OnboardingProvider extends ChangeNotifier {
   };
 
   onInit() {
-    isChecked = List<bool>.filled(rules.length, false);
-    selectedVehicle = vehicleDropDownItems[0]['value'];
+    _initializeDefaults();
     _onboardingService = OnboardingService(ApiClient());
   }
 
@@ -227,7 +237,7 @@ class OnboardingProvider extends ChangeNotifier {
       name: name,
       email: email,
       photoUrl:
-          'https://example.com/photo.jpg', // Empty for now, can be updated with image picker
+          'https://picsum.photos/seed/picsum/200/300', // Empty for now, can be updated with image picker
       vehicleType: vehicleType,
       vehicleNumber: vehicleNumber,
       vehicleCapacity: vehicleCapacity,
@@ -343,8 +353,10 @@ class OnboardingProvider extends ChangeNotifier {
   }
 
   vehiclesRulesOnTap(int ruleIndex) {
-    isChecked[ruleIndex] = !isChecked[ruleIndex];
-    notifyListeners();
+    if (ruleIndex >= 0 && ruleIndex < isChecked.length) {
+      isChecked[ruleIndex] = !isChecked[ruleIndex];
+      notifyListeners();
+    }
   }
 
   /// Create driver profile and handle result UI logic

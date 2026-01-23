@@ -1,5 +1,3 @@
-import 'package:image_picker/image_picker.dart';
-
 import '../../../../../config.dart';
 
 class DocumentsVerifyLayout extends StatelessWidget {

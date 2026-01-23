@@ -142,7 +142,7 @@ class SignUpProvider extends ChangeNotifier {
             response.error ?? response.message ?? 'Failed to send OTP';
       }
     } catch (e) {
-      sendOtpError = 'Error: [${e.toString()}';
+      sendOtpError = 'Error: ${e.toString()}';
     }
     isSendingOtp = false;
     notifyListeners();
