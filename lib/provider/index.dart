@@ -17,3 +17,4 @@ export 'package:taxify_driver_ui/provider/bottom_bar_provider/save_location_prov
 export 'package:taxify_driver_ui/provider/bottom_bar_provider/settings_provider.dart';
 export 'package:taxify_driver_ui/provider/common_providers/currency_provider.dart';
 export 'package:taxify_driver_ui/provider/common_providers/loading_provider.dart';
+export 'package:taxify_driver_ui/provider/bottom_bar_provider/user_details_update_provider.dart';
