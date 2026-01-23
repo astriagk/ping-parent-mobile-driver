@@ -5,6 +5,10 @@ class RouteName {
   final String chatScreen = '/chatScreen';
   final String signInScreen = '/signInScreen';
   final String signUpScreen = '/signUpScreen';
+  final String documentsOnboarding = '/documentsOnboarding';
+  final String userOnboarding = '/userOnboarding';
+  final String vehicleOnboarding = '/vehicleOnboarding';
+  final String bankOnboarding = '/bankOnboarding';
   final String profileScreen = '/profileScreen';
   final String withdrawScreen = '/withdrawScreen';
   final String myWalletScreen = '/myWalletScreen';

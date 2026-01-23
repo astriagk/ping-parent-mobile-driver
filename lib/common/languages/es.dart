@@ -40,7 +40,7 @@ dynamic es = {
   "category": "Categoría",
   "createYourAccount": "Crea tu cuenta",
   "documentVerify": "Verificar Documento",
-  "vehicleRegistration": "Registro del Vehículo",
+  "userRegistration": "Registro del Vehículo",
   "vehicleDetails": "Detalles del Vehículo",
   "exploreYourLife": "Explora tu vida uniéndote a Ride.",
   "userName": "Nombre de Usuario",

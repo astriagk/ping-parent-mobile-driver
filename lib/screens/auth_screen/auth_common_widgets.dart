@@ -11,7 +11,8 @@ class AuthCommonWidgets {
       style,
       TextInputType? keyboardType,
       isPerFixIcon,
-      inputFormat}) {
+      inputFormat,
+      TextEditingController? controller}) {
     return Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -19,6 +20,7 @@ class AuthCommonWidgets {
           TextWidgetCommon(text: title, color: titleColor),
           VSpace(Sizes.s9),
           TextFieldCommon(
+              controller: controller,
               inputFormat: inputFormat,
               keyboardType: keyboardType,
               style: style,
@@ -84,12 +86,12 @@ class AuthCommonWidgets {
                   color: index >= 2 ? Colors.black : Colors.white,
                   borderRadius: BorderRadius.circular(AppRadius.r6)))),
       SizedBox(width: Insets.i6),
-      Expanded(
-          child: Container(
-              height: Insets.i4,
-              decoration: BoxDecoration(
-                  color: index >= 3 ? Colors.black : Colors.white,
-                  borderRadius: BorderRadius.circular(AppRadius.r6))))
+      // Expanded(
+      //     child: Container(
+      //         height: Insets.i4,
+      //         decoration: BoxDecoration(
+      //             color: index >= 3 ? Colors.black : Colors.white,
+      //             borderRadius: BorderRadius.circular(AppRadius.r6))))
     ]).marginOnly(top: Sizes.s20, bottom: Sizes.s24);
   }
 

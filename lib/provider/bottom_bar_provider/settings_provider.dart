@@ -52,7 +52,7 @@ class SettingProvider extends ChangeNotifier {
       route.pushNamed(context, routeName.documentUpdateScreen);
     }
     if (language(context, a['subTitle']) ==
-        language(context, appFonts.vehicleRegistration)) {
+        language(context, appFonts.userRegistration)) {
       route.pushNamed(context, routeName.vehicleUpdateScreen);
     }
     if (language(context, a['subTitle']) ==

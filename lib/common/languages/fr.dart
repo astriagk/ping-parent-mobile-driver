@@ -40,7 +40,7 @@ dynamic fr = {
   "category": "Catégorie",
   "createYourAccount": "Créez votre compte",
   "documentVerify": "Vérification des documents",
-  "vehicleRegistration": "Immatriculation du véhicule",
+  "userRegistration": "Immatriculation du véhicule",
   "vehicleDetails": "Détails du véhicule",
   "exploreYourLife": "Explorez votre vie en rejoignant Ride.",
   "userName": "Nom d'utilisateur",

@@ -1,12 +1,14 @@
 class VerifyOtpRequest {
   final String phone;
   final String otp;
+  final String? role;
 
-  VerifyOtpRequest({required this.phone, required this.otp});
+  VerifyOtpRequest({required this.phone, required this.otp, this.role});
 
   Map<String, dynamic> toJson() => {
         'phone': phone,
         'otp': otp,
+        if (role != null) 'role': role,
       };
 }
 
