@@ -1,7 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
+import 'package:http/http.dart' as http;
 import '../api_client.dart';
 import '../endpoints.dart';
 import '../models/index.dart';
+import 'storage_service.dart';
 
 class OnboardingService {
   final ApiClient _apiClient;
@@ -60,26 +63,53 @@ class OnboardingService {
   /// Upload driver documents
   Future<DriverDocumentsResponse> uploadDriverDocuments({
     required String drivingLicenseNumber,
-    required String drivingLicensePhotoUrl,
+    required File drivingLicenseImage,
     required String vehicleLicenseNumber,
-    required String vehicleLicensePhotoUrl,
+    required File vehicleLicenseImage,
     required String insuranceNumber,
-    required String insurancePhotoUrl,
+    required File insuranceImage,
   }) async {
     try {
-      final request = DriverDocumentsRequest(
-        drivingLicenseNumber: drivingLicenseNumber,
-        drivingLicensePhotoUrl: drivingLicensePhotoUrl,
-        vehicleLicenseNumber: vehicleLicenseNumber,
-        vehicleLicensePhotoUrl: vehicleLicensePhotoUrl,
-        insuranceNumber: insuranceNumber,
-        insurancePhotoUrl: insurancePhotoUrl,
+      // Create multipart request
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse(Endpoints.driverDocuments),
       );
 
-      final response = await _apiClient.post(
-        Endpoints.driverDocuments,
-        body: request.toJson(),
+      // Add text fields
+      request.fields['drivingLicenseNumber'] = drivingLicenseNumber;
+      request.fields['vehicleLicenseNumber'] = vehicleLicenseNumber;
+      request.fields['insuranceNumber'] = insuranceNumber;
+
+      // Add image files
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'drivingLicenseImage',
+          drivingLicenseImage.path,
+        ),
       );
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'vehicleLicenseImage',
+          vehicleLicenseImage.path,
+        ),
+      );
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'insuranceImage',
+          insuranceImage.path,
+        ),
+      );
+
+      // Add auth headers
+      final token = await StorageService().getAuthToken();
+      if (token != null && token.isNotEmpty) {
+        request.headers['Authorization'] = 'Bearer $token';
+      }
+
+      // Send request
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return DriverDocumentsResponse.fromJson(jsonDecode(response.body));

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 import '../../config.dart';
 import '../../api/api_client.dart';
 import '../../api/services/onboarding_service.dart';
@@ -94,7 +95,11 @@ class OnboardingProvider extends ChangeNotifier {
         : null;
   }
 
-  File? image;
+  // Map to store images for each document type
+  Map<String, File?> documentImages = {};
+
+  // Getter for backward compatibility
+  File? get image => documentImages['default'];
 
   // User Data
   Map<String, dynamic> userData = {
@@ -151,14 +156,22 @@ class OnboardingProvider extends ChangeNotifier {
                             language(context, appFonts.selectFromGallery),
                             style: AppCss.lexendMedium16
                                 .textColor(appTheme.primary)),
-                        onTap: () => route.pop(context)),
+                        onTap: () async {
+                          route.pop(context);
+                          await _performImagePick(
+                              ImageSource.gallery, documentName);
+                        }),
                     ListTile(
                         leading:
                             Icon(Icons.camera_alt, color: appTheme.primary),
                         title: Text(language(context, appFonts.openCamera),
                             style: AppCss.lexendMedium16
                                 .textColor(appTheme.primary)),
-                        onTap: () => route.pop(context))
+                        onTap: () async {
+                          route.pop(context);
+                          await _performImagePick(
+                              ImageSource.camera, documentName);
+                        })
                   ])));
         });
   }
@@ -307,20 +320,35 @@ class OnboardingProvider extends ChangeNotifier {
       return;
     }
 
-    // Call API to upload documents with dummy photo URLs
+    // Validate images are picked
+    if (documentImages['Driving License'] == null) {
+      _showError(context, 'Please upload driving license image');
+      return;
+    }
+
+    if (documentImages['Vehicle License Number'] == null) {
+      _showError(context, 'Please upload vehicle license image');
+      return;
+    }
+
+    if (documentImages['Insurance Number'] == null) {
+      _showError(context, 'Please upload insurance image');
+      return;
+    }
+
+    // Call API to upload documents with actual image files
     isCreatingProfile = true;
     notifyListeners();
 
     final result = await _onboardingService.uploadDriverDocuments(
       drivingLicenseNumber: drivingLicenseNumber,
-      drivingLicensePhotoUrl:
-          'https://picsum.photos/seed/picsum/200/300', // Dummy URL
+      drivingLicenseImage:
+          documentImages['Driving License']!, // Send actual file
       vehicleLicenseNumber: vehicleLicenseNumber,
-      vehicleLicensePhotoUrl:
-          'https://picsum.photos/seed/picsum/200/300', // Dummy URL
+      vehicleLicenseImage:
+          documentImages['Vehicle License Number']!, // Send actual file
       insuranceNumber: insuranceNumber,
-      insurancePhotoUrl:
-          'https://picsum.photos/seed/picsum/200/300', // Dummy URL
+      insuranceImage: documentImages['Insurance Number']!, // Send actual file
     );
 
     isCreatingProfile = false;
@@ -399,6 +427,19 @@ class OnboardingProvider extends ChangeNotifier {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: TextWidgetCommon(text: errorMessage)),
       );
+    }
+  }
+
+  /// Helper method to perform image picking from gallery or camera
+  Future<void> _performImagePick(
+      ImageSource source, String? documentName) async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? pickedFile = await picker.pickImage(source: source);
+
+    if (pickedFile != null) {
+      final key = documentName ?? 'default';
+      documentImages[key] = File(pickedFile.path);
+      notifyListeners();
     }
   }
 
