@@ -47,15 +47,18 @@ class UserRegistrationsLayout extends StatelessWidget {
         AuthCommonWidgets().textAndTextField(
             language(context, appFonts.userName),
             language(context, appFonts.enterUserName),
-            context),
+            context,
+            controller: pvr.nameController),
         VSpace(Insets.i25),
         AuthCommonWidgets().textAndTextField(language(context, appFonts.email),
-            language(context, appFonts.enterYourEmailId), context),
+            language(context, appFonts.enterYourEmailId), context,
+            controller: pvr.emailController),
         VSpace(Insets.i25),
         AuthCommonWidgets().textAndTextField(
             language(context, appFonts.vehicleNumber),
             language(context, appFonts.enterVehicleNumber),
-            context),
+            context,
+            controller: pvr.vehicleNumberController),
         //title text and text filed layout
         // AuthCommonWidgets()
         //     .textAndTextField(language(context, appFonts.registrationDate),
@@ -86,7 +89,9 @@ class UserRegistrationsLayout extends StatelessWidget {
         AuthCommonWidgets().textAndTextField(
             language(context, appFonts.maximumSeats),
             language(context, appFonts.enterMaximumSeat),
-            context),
+            context,
+            controller: pvr.vehicleCapacityController,
+            keyboardType: TextInputType.number),
         // VSpace(Insets.i25),
         // Rules Section
         // Text(language(context, appFonts.selectYourRule),
@@ -118,7 +123,9 @@ class UserRegistrationsLayout extends StatelessWidget {
         VSpace(Insets.i30),
         CommonButton(
             text: language(context, appFonts.next),
-            onTap: () => pvr.userRegButton(context)).padding(bottom: Sizes.s20)
+            onTap: () async {
+              await pvr.handleUserRegistration(context);
+            }).padding(bottom: Sizes.s20)
       ]);
     });
   }

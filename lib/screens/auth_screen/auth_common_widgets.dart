@@ -11,7 +11,8 @@ class AuthCommonWidgets {
       style,
       TextInputType? keyboardType,
       isPerFixIcon,
-      inputFormat}) {
+      inputFormat,
+      TextEditingController? controller}) {
     return Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -19,6 +20,7 @@ class AuthCommonWidgets {
           TextWidgetCommon(text: title, color: titleColor),
           VSpace(Sizes.s9),
           TextFieldCommon(
+              controller: controller,
               inputFormat: inputFormat,
               keyboardType: keyboardType,
               style: style,

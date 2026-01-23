@@ -1,7 +1,19 @@
 import 'dart:io';
 import '../../config.dart';
+import '../../api/api_client.dart';
+import '../../api/services/onboarding_service.dart';
 
 class OnboardingProvider extends ChangeNotifier {
+  late OnboardingService _onboardingService;
+  bool isCreatingProfile = false;
+
+  // Text Controllers for user registration
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController vehicleNumberController = TextEditingController();
+  final TextEditingController vehicleCapacityController =
+      TextEditingController();
+
   // Intro onboarding (initial slides)
   final PageController pageController = PageController();
   int currentIndex = 0;
@@ -76,6 +88,7 @@ class OnboardingProvider extends ChangeNotifier {
   onInit() {
     isChecked = List<bool>.filled(rules.length, false);
     selectedVehicle = vehicleDropDownItems[0]['value'];
+    _onboardingService = OnboardingService(ApiClient());
   }
 
   void setUserData(Map<String, dynamic> data) {
@@ -145,6 +158,109 @@ class OnboardingProvider extends ChangeNotifier {
     route.pushNamed(context, routeName.documentsOnboarding);
   }
 
+  /// Validates user registration data and calls the API
+  Future<void> handleUserRegistration(BuildContext context) async {
+    FocusScope.of(context).unfocus();
+
+    // Get values from controllers
+    final name = nameController.text.trim();
+    final email = emailController.text.trim();
+    final vehicleNumber = vehicleNumberController.text.trim();
+    final vehicleCapacityStr = vehicleCapacityController.text.trim();
+
+    // Get selected vehicle type (from selectedIndex)
+    final vehicleType = selectedIndex < vehicles.length
+        ? vehicles[selectedIndex]['name']
+        : vehicles[0]['name'];
+
+    // Validation
+    if (name.isEmpty) {
+      _showError(context, 'Please enter your name');
+      return;
+    }
+
+    if (email.isEmpty) {
+      _showError(context, 'Please enter your email');
+      return;
+    }
+
+    if (!_isValidEmail(email)) {
+      _showError(context, 'Please enter a valid email address');
+      return;
+    }
+
+    if (vehicleNumber.isEmpty) {
+      _showError(context, 'Please enter vehicle number');
+      return;
+    }
+
+    if (vehicleCapacityStr.isEmpty) {
+      _showError(context, 'Please enter vehicle capacity');
+      return;
+    }
+
+    final vehicleCapacity = int.tryParse(vehicleCapacityStr);
+    if (vehicleCapacity == null || vehicleCapacity <= 0) {
+      _showError(context, 'Please enter a valid vehicle capacity');
+      return;
+    }
+
+    // Call API to create driver profile
+    isCreatingProfile = true;
+    notifyListeners();
+
+    final result = await _onboardingService.createDriverProfile(
+      name: name,
+      email: email,
+      photoUrl:
+          'https://example.com/photo.jpg', // Empty for now, can be updated with image picker
+      vehicleType: vehicleType,
+      vehicleNumber: vehicleNumber,
+      vehicleCapacity: vehicleCapacity,
+      isAvailable: false,
+    );
+
+    isCreatingProfile = false;
+    notifyListeners();
+
+    if (!context.mounted) return;
+
+    if (result.success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: TextWidgetCommon(
+            text: result.message ?? 'Driver profile created successfully',
+          ),
+        ),
+      );
+      // Navigate to next onboarding screen
+      route.pushNamed(context, routeName.documentsOnboarding);
+    } else {
+      String errorMessage = result.error ?? 'Failed to create driver profile';
+      if (result.details != null && result.details!.isNotEmpty) {
+        errorMessage = result.details!.join('\n');
+      }
+      _showError(context, errorMessage);
+    }
+  }
+
+  /// Validates email format
+  bool _isValidEmail(String email) {
+    final emailRegex =
+        RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+    return emailRegex.hasMatch(email);
+  }
+
+  /// Shows error snackbar
+  void _showError(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: TextWidgetCommon(text: message),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+
   documentVerifyButton(context) {
     route.pushNamed(context, routeName.bankOnboarding);
   }
@@ -159,9 +275,56 @@ class OnboardingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Create driver profile and handle result UI logic
+  Future<void> createDriverProfile(BuildContext context) async {
+    FocusScope.of(context).unfocus();
+
+    isCreatingProfile = true;
+    notifyListeners();
+
+    final result = await _onboardingService.createDriverProfile(
+      name: userData['name'] ?? '',
+      email: userData['email'] ?? '',
+      photoUrl: userData['photo_url'] ?? '',
+      vehicleType: userData['vehicle_type'] ?? '',
+      vehicleNumber: userData['vehicle_number'] ?? '',
+      vehicleCapacity: userData['vehicle_capacity'] ?? 0,
+      isAvailable: false,
+    );
+
+    isCreatingProfile = false;
+    notifyListeners();
+
+    if (!context.mounted) return;
+
+    if (result.success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: TextWidgetCommon(
+            text: result.message ?? 'Driver profile created successfully',
+          ),
+        ),
+      );
+      // Navigate to dashboard after successful profile creation
+      route.pushNamedAndRemoveUntil(context, routeName.commonBottomBar);
+    } else if (result.error != null) {
+      String errorMessage = result.error!;
+      if (result.details != null && result.details!.isNotEmpty) {
+        errorMessage = result.details!.join(', ');
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: TextWidgetCommon(text: errorMessage)),
+      );
+    }
+  }
+
   @override
   void dispose() {
     pageController.dispose();
+    nameController.dispose();
+    emailController.dispose();
+    vehicleNumberController.dispose();
+    vehicleCapacityController.dispose();
     super.dispose();
   }
 }
