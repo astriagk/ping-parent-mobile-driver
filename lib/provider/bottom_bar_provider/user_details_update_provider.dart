@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:taxify_driver_ui/config.dart';
 import 'package:taxify_driver_ui/api/api_client.dart';
-import 'package:taxify_driver_ui/api/models/user_details_update_request.dart';
+import 'package:taxify_driver_ui/api/models/user_details/user_details_update_request.dart';
 import 'package:taxify_driver_ui/api/services/user_details_service.dart';
 
 class UserDetailsUpdateProvider extends ChangeNotifier {
