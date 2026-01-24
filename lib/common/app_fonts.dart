@@ -299,4 +299,10 @@ class AppFonts {
   final enterVehicleLicenseNumber = 'enterVehicleLicenseNumber';
   final insuranceNumber = 'insuranceNumber';
   final enterInsuranceNumber = 'enterInsuranceNumber';
+
+  // My Assignments
+  final myAssignments = 'myAssignments';
+  final parentRequestedAssignments = "parentRequestedAssignments";
+  final completeMyAssignment = "completeMyAssignment";
+  final cancelMyAssignment = "cancelMyAssignment";
 }

@@ -281,5 +281,13 @@ dynamic en = {
   "iApologize": "I Apologize, But This Is Not A Pet",
   "pleaseNoSmoking": "Please, No Smoking In The Car",
   "noAlcoholClosed": "No Alcohol Closed/Open",
-  "registrationDetails": "Registration Details"
+  "registrationDetails": "Registration Details",
+
+  // My Assignments
+
+  "myAssignments": "My Assignments",
+  "pendingMyAssignment": "Pending",
+  "parentRequestedAssignments": "Requested",
+  "completeMyAssignment": "Complete",
+  "cancelMyAssignment": "Cancel",
 };

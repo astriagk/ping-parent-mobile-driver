@@ -126,13 +126,28 @@ class CustomerCard extends StatelessWidget {
           VSpace(Insets.i15),
           CommonLocationLayout(
               pickUpAddress: pickUpAddress, droppingAddress: dropOffAddress),
-          CommonButton(
-                  style: AppCss.lexendRegular15.textColor(appTheme.white),
-                  onTap: () {
-                    route.pushNamed(context, routeName.pickupCustomerScreen);
-                  },
-                  text: appFonts.pickupCustomer)
-              .marginOnly(top: Insets.i15)
+          Row(
+            children: [
+              Expanded(
+                child: CommonButton(
+                    style: AppCss.lexendRegular14.textColor(appTheme.textClr),
+                    color: appColor(context).appTheme.bgBox,
+                    onTap: () {
+                      // Handle reject action
+                    },
+                    text: 'Reject'),
+              ),
+              SizedBox(width: Insets.i10),
+              Expanded(
+                child: CommonButton(
+                    style: AppCss.lexendRegular15.textColor(appTheme.white),
+                    onTap: () {
+                      // route.pushNamed(context, routeName.pickupCustomerScreen);
+                    },
+                    text: 'Accept'),
+              ),
+            ],
+          ).marginOnly(top: Insets.i15)
         ]))
         .marginSymmetric(horizontal: Insets.i20, vertical: Insets.i7)
         .inkWell(onTap: onTap);

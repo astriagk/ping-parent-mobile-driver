@@ -14,7 +14,7 @@ class AppArray {
       "iconDark": svgAssets.driving
     },
     {
-      "title": appFonts.myRides,
+      "title": appFonts.myAssignments,
       "icon": svgAssets.carLight,
       "iconDark": svgAssets.carDark
     },
