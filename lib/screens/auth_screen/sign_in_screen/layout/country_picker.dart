@@ -32,7 +32,8 @@ class CountryPickerLayout extends StatelessWidget {
                         language(context, appFonts.searchByCountryNameOrCode),
                     alphabetTextColor: appColor(context).appTheme.darkText,
                     labelColor: appColor(context).appTheme.lightText,
-                    alphabetSelectedBackgroundColor: appColor(context).appTheme.primary),
+                    alphabetSelectedBackgroundColor:
+                        appColor(context).appTheme.primary),
                 initialSelection: '+91',
                 onChanged: (CountryCodeCustom? code) {
                   value.countryCode = code!.dialCode!;
