@@ -39,8 +39,8 @@ class UserRegistrationsLayout extends StatelessWidget {
                                         context, pvr.vehicles[index]['name']),
                                     style: AppCss.lexendRegular13.textColor(
                                         pvr.selectedIndex == index
-                                            ? appTheme.darkText
-                                            : appTheme.textClr))
+                                            ? appColor(context).appTheme.darkText
+                                            : appColor(context).appTheme.textClr))
                               ]))).padding(right: Insets.i12);
                 }))),
         VSpace(Insets.i25),

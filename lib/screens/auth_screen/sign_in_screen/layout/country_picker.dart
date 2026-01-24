@@ -18,7 +18,7 @@ class CountryPickerLayout extends StatelessWidget {
                         style: AppCss.lexendMedium20
                             .textColor(appColor(context).appTheme.white)),
                     elevation: 0,
-                    backgroundColor: appTheme.primary),
+                    backgroundColor: appColor(context).appTheme.primary),
                 theme: CountryTheme(
                     searchHintText: 'Search Here',
                     isShowFlag: false,
@@ -32,7 +32,7 @@ class CountryPickerLayout extends StatelessWidget {
                         language(context, appFonts.searchByCountryNameOrCode),
                     alphabetTextColor: appColor(context).appTheme.darkText,
                     labelColor: appColor(context).appTheme.lightText,
-                    alphabetSelectedBackgroundColor: appTheme.primary),
+                    alphabetSelectedBackgroundColor: appColor(context).appTheme.primary),
                 initialSelection: '+91',
                 onChanged: (CountryCodeCustom? code) {
                   value.countryCode = code!.dialCode!;
