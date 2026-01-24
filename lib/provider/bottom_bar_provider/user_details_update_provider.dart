@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 import 'package:taxify_driver_ui/config.dart';
 import 'package:taxify_driver_ui/api/api_client.dart';
 import 'package:taxify_driver_ui/api/models/user_details_update_request.dart';
@@ -8,6 +10,14 @@ class UserDetailsUpdateProvider extends ChangeNotifier {
   TextEditingController emailController = TextEditingController();
   TextEditingController vehicleNumberController = TextEditingController();
   TextEditingController vehicleCapacityController = TextEditingController();
+
+  // Text Controllers for document verification
+  final TextEditingController drivingLicenseController =
+      TextEditingController();
+  final TextEditingController vehicleLicenseNumberController =
+      TextEditingController();
+  final TextEditingController insuranceNumberController =
+      TextEditingController();
 
   int selectedIndex = 0;
   bool isLoading = false;
@@ -20,6 +30,12 @@ class UserDetailsUpdateProvider extends ChangeNotifier {
   String originalVehicleNumber = '';
   int originalVehicleCapacity = 0;
   int originalSelectedIndex = 0;
+
+  // Map to store images for each document type
+  Map<String, File?> documentImages = {};
+
+  // Getter for backward compatibility
+  File? get image => documentImages['default'];
 
   List vehicles = [
     {
@@ -151,6 +167,75 @@ class UserDetailsUpdateProvider extends ChangeNotifier {
       isLoading = false;
       notifyListeners();
       return false;
+    }
+  }
+
+  /// Pick image for document upload
+  Future<void> pickImage(
+    context, {
+    String? documentName,
+  }) async {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Dialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.0)),
+              child: Container(
+                  padding: EdgeInsets.all(16.0),
+                  child: Column(mainAxisSize: MainAxisSize.min, children: [
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                              language(context, appFonts.upload) +
+                                  (documentName != null
+                                      ? ' - $documentName'
+                                      : ''),
+                              style: AppCss.lexendMedium16
+                                  .textColor(appTheme.primary)),
+                          CommonIconButton(
+                              icon: svgAssets.close,
+                              onTap: () => route.pop(context))
+                        ]),
+                    SizedBox(height: Insets.i20),
+                    ListTile(
+                        leading:
+                            Icon(Icons.photo_library, color: appTheme.primary),
+                        title: Text(
+                            language(context, appFonts.selectFromGallery),
+                            style: AppCss.lexendMedium16
+                                .textColor(appTheme.primary)),
+                        onTap: () async {
+                          route.pop(context);
+                          await _performImagePick(
+                              ImageSource.gallery, documentName);
+                        }),
+                    ListTile(
+                        leading:
+                            Icon(Icons.camera_alt, color: appTheme.primary),
+                        title: Text(language(context, appFonts.openCamera),
+                            style: AppCss.lexendMedium16
+                                .textColor(appTheme.primary)),
+                        onTap: () async {
+                          route.pop(context);
+                          await _performImagePick(
+                              ImageSource.camera, documentName);
+                        })
+                  ])));
+        });
+  }
+
+  /// Helper method to perform image picking from gallery or camera
+  Future<void> _performImagePick(
+      ImageSource source, String? documentName) async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? pickedFile = await picker.pickImage(source: source);
+
+    if (pickedFile != null) {
+      final key = documentName ?? 'default';
+      documentImages[key] = File(pickedFile.path);
+      notifyListeners();
     }
   }
 }
