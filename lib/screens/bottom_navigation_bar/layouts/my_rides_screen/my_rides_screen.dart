@@ -13,7 +13,8 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     return Consumer<MyRidesProvider>(builder: (context, myRidesPvr, child) {
-      return Column(children: [
+      return SingleChildScrollView(
+          child: Column(children: [
         SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -100,7 +101,7 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
                           onTap: () => route.pushNamed(
                               context, routeName.cancelRideDetailsScreen));
                     })
-      ]);
+      ]));
     });
   }
 }

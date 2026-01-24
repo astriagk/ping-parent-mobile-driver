@@ -38,17 +38,14 @@ class RideDataLayout extends StatelessWidget {
                           ])
                     ])).inkWell(onTap: () {
           if (index == 0) {
-            bottomNavPvr.currentIndex = 2;
+            bottomNavPvr.tabChange(2);
             myRidesPvr.selectedIndex = 0;
-            bottomNavPvr.notifyListeners();
           } else if (index == 1) {
-            bottomNavPvr.currentIndex = 2;
+            bottomNavPvr.tabChange(2);
             myRidesPvr.selectedIndex = 1;
-            bottomNavPvr.notifyListeners();
           } else {
-            bottomNavPvr.currentIndex = 2;
+            bottomNavPvr.tabChange(2);
             myRidesPvr.selectedIndex = 2;
-            bottomNavPvr.notifyListeners();
           }
         }));
       }));
