@@ -152,6 +152,7 @@ dynamic en = {
   "swiftHint": "DBSSINBB",
   "ifsc": "Ifsc",
   "update": "Update",
+  "updating": "Updating...",
   "withdraw": "Withdraw",
   "youCanDeactivate": "You Can Deactivate And Activate This Offer At Anytime.",
   "updateProfile": "Update Profile",

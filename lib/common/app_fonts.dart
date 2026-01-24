@@ -150,6 +150,7 @@ class AppFonts {
   final swiftHint = "swiftHint";
   final ifsc = "ifsc";
   final update = "update";
+  final updating = "updating";
   final withdraw = "withdraw";
   final youCanDeactivate = "youCanDeactivate";
   final updateProfile = "updateProfile";
