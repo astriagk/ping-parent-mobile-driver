@@ -13,13 +13,14 @@ class _CommonBottomNavigationBarState extends State<CommonBottomNavigationBar> {
   @override
   Widget build(BuildContext context) {
     return Consumer<BottomBarProvider>(builder: (context, bottomNavPvr, child) {
-      return SafeArea(
+      return StatefulWrapper(
+          onInit: () => Future.delayed(DurationClass.ms150)
+              .then((value) => bottomNavPvr.notifyListeners()),
           child: Scaffold(
-              body: SingleChildScrollView(
-                  child: Column(children: [
-                DashAppBar(index: bottomNavPvr.currentIndex),
-                bottomNavPvr.screens[bottomNavPvr.currentIndex]
-              ])),
+              appBar: DashAppBar(index: bottomNavPvr.currentIndex),
+              body: SafeArea(
+                  child: SingleChildScrollView(
+                      child: bottomNavPvr.screens[bottomNavPvr.currentIndex])),
               bottomNavigationBar: Container(
                   alignment: Alignment.center,
                   padding: EdgeInsets.symmetric(horizontal: Insets.i10),

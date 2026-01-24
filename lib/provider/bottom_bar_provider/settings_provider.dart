@@ -2,7 +2,8 @@ import 'dart:developer';
 
 import 'package:taxify_driver_ui/config.dart';
 import 'package:taxify_driver_ui/screens/app_pages/app_settings/layout/common_draggable_sheet.dart';
-
+import '../../api/services/auth_service.dart';
+import '../../api/api_client.dart';
 import '../../widgets/common_confirmation_dialog.dart';
 
 class SettingProvider extends ChangeNotifier {
@@ -53,7 +54,7 @@ class SettingProvider extends ChangeNotifier {
     }
     if (language(context, a['subTitle']) ==
         language(context, appFonts.userRegistration)) {
-      route.pushNamed(context, routeName.vehicleUpdateScreen);
+      route.pushNamed(context, routeName.userUpdateScreen);
     }
     if (language(context, a['subTitle']) ==
         language(context, appFonts.deleteAccount)) {
@@ -79,7 +80,13 @@ class SettingProvider extends ChangeNotifier {
                 message: "Are you sure you want to Logout ?",
                 onConfirm: () {
                   route.pop(context);
-                  route.pushReplacementNamed(context, routeName.signInScreen);
+                  final authService = AuthService(ApiClient());
+                  authService.logout().then((_) {
+                    if (context.mounted) {
+                      route.pushReplacementNamed(
+                          context, routeName.signInScreen);
+                    }
+                  });
                 },
                 onCancel: () {
                   route.pop(context);

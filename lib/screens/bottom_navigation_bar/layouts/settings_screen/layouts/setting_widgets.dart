@@ -92,7 +92,7 @@ class SettingScreenWidgets {
       .padding(vertical: Sizes.s12);
 
   //setting screen profile image layout
-  Widget settingProfileImage(topPadding) => Align(
+  Widget settingProfileImage({double? topPadding}) => Align(
           alignment: Alignment.topCenter,
           child: Image.asset(imageAssets.profileImg,
               height: Sizes.s82, width: Sizes.s82))

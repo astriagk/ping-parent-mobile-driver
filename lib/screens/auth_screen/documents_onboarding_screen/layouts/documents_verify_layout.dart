@@ -105,7 +105,7 @@ class DocumentsVerifyLayout extends StatelessWidget {
                     radius: Radius.circular(AppRadius.r12),
                     child: Container(
                         alignment: Alignment.center,
-                        child: pvr.image == null
+                        child: pvr.documentImages[documentName] == null
                             ? Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -116,7 +116,8 @@ class DocumentsVerifyLayout extends StatelessWidget {
                                         style: AppCss.lexendRegular13
                                             .textColor(appTheme.textClr))
                                   ])
-                            : Image.file(pvr.image!, fit: BoxFit.cover))))
+                            : Image.file(pvr.documentImages[documentName]!,
+                                fit: BoxFit.cover))))
             .width(double.infinity));
   }
 
@@ -141,7 +142,7 @@ class DocumentsVerifyLayout extends StatelessWidget {
                     radius: Radius.circular(AppRadius.r12),
                     child: Container(
                         alignment: Alignment.center,
-                        child: pvr.image == null
+                        child: pvr.documentImages[documentName] == null
                             ? Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -152,7 +153,8 @@ class DocumentsVerifyLayout extends StatelessWidget {
                                         style: AppCss.lexendRegular13
                                             .textColor(appTheme.textClr))
                                   ])
-                            : Image.file(pvr.image!, fit: BoxFit.cover))))
+                            : Image.file(pvr.documentImages[documentName]!,
+                                fit: BoxFit.cover))))
             .width(double.infinity));
   }
 }
