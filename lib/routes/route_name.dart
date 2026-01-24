@@ -5,6 +5,9 @@ class RouteName {
   final String chatScreen = '/chatScreen';
   final String signInScreen = '/signInScreen';
   final String signUpScreen = '/signUpScreen';
+  final String documentsOnboarding = '/documentsOnboarding';
+  final String userOnboarding = '/userOnboarding';
+  final String bankOnboarding = '/bankOnboarding';
   final String profileScreen = '/profileScreen';
   final String withdrawScreen = '/withdrawScreen';
   final String myWalletScreen = '/myWalletScreen';
@@ -19,7 +22,7 @@ class RouteName {
   final String cancelRideDetailsScreen = '/cancelRideDetailsScreen';
   final String createOfferScreen = '/createOfferScreen';
   final String documentUpdateScreen = '/documentUpdateScreen';
-  final String vehicleUpdateScreen = '/vehicleUpdateScreen';
+  final String userUpdateScreen = '/userUpdateScreen';
   final String pickupCustomerScreen = '/pickupCustomerScreen';
   final String pickedCustomerScreen = '/pickedCustomerScreen';
   final String rideDetailsScreen = '/rideDetailsScreen';

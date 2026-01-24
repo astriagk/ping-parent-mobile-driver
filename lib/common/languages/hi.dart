@@ -40,7 +40,7 @@ dynamic hi = {
   "category": "श्रेणी",
   "createYourAccount": "अपना खाता बनाएँ",
   "documentVerify": "दस्तावेज़ सत्यापित करें",
-  "vehicleRegistration": "वाहन पंजीकरण",
+  "userRegistration": "वाहन पंजीकरण",
   "vehicleDetails": "वाहन विवरण",
   "exploreYourLife": "राइड के साथ जुड़कर अपने जीवन का अन्वेषण करें।",
   "userName": "उपयोगकर्ता नाम",

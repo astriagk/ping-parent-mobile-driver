@@ -12,13 +12,6 @@ class SettingsScreen extends StatelessWidget {
           onInit: () => Future.delayed(DurationClass.ms150)
               .then((value) => settingCtrl.init()),
           child: Stack(children: [
-            Padding(
-                padding: const EdgeInsets.only(top: 50),
-                child: Image.asset(imageAssets.rectangle,
-                    width: MediaQuery.of(context).size.width,
-                    fit: BoxFit.fill)),
-            CommonAppBarLayout(
-                isSetting: true, title: language(context, appFonts.settings)),
             Container(
                     width: MediaQuery.of(context).size.width,
                     decoration: ShapeDecoration(
@@ -38,12 +31,11 @@ class SettingsScreen extends StatelessWidget {
                       //setting screen all data list layout
                       const SettingListLayout()
                     ]).padding(
-                        top: Sizes.s46,
+                        top: Sizes.s10,
                         horizontal: Sizes.s20,
                         bottom: Sizes.s50))
-                .marginOnly(top: MediaQuery.of(context).size.height * 0.20),
-            SettingScreenWidgets()
-                .settingProfileImage(MediaQuery.of(context).size.height * 0.15)
+                .marginOnly(top: MediaQuery.of(context).size.height * 0.16),
+            SettingScreenWidgets().settingProfileImage()
           ]));
     });
   }

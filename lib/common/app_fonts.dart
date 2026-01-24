@@ -39,7 +39,7 @@ class AppFonts {
   final category = "category";
   final createYourAccount = "createYourAccount";
   final documentVerify = "documentVerify";
-  final vehicleRegistration = "vehicleRegistration";
+  final userRegistration = "userRegistration";
   final vehicleDetails = "vehicleDetails";
   final exploreYourLife = "exploreYourLife";
   final userName = "userName";
@@ -150,6 +150,7 @@ class AppFonts {
   final swiftHint = "swiftHint";
   final ifsc = "ifsc";
   final update = "update";
+  final updating = "updating";
   final withdraw = "withdraw";
   final youCanDeactivate = "youCanDeactivate";
   final updateProfile = "updateProfile";
@@ -244,7 +245,6 @@ class AppFonts {
   final withdrawHistory = 'withdrawHistory';
   final uploadImage = 'uploadImage';
   final uploadBack = 'uploadBack';
-  final drivingLicense = 'drivingLicense';
   final certificateOfRegistration = 'certificateOfRegistration';
   final birthCertificate = 'birthCertificate';
   final selectCountry = 'selectCountry';
@@ -262,7 +262,6 @@ class AppFonts {
   final lastSelectedCountry = 'lastSelectedCountry';
   final addBalance = 'addBalance';
   final car = 'car';
-  final van = 'van';
   final truck = 'truck';
   final maxInBack = "maxInBack";
   final carsAreNotPermitted = "carsAreNotPermitted";
@@ -283,4 +282,21 @@ class AppFonts {
   final dropAdd =
       '220 Yonge St, Toronto, ON M5B 2H1, ON M5B 2H1, Yonge St, Canada';
   final dropAdd1 = '17600 Yonge St, Newmarket, ON L3Y 4Z1, Canada';
+
+  final otpSentSuccessfully = 'OTP sent successfully';
+
+  // user onboarding
+  final auto = 'auto';
+  final van = 'van';
+  final bus = 'bus';
+  final enterUserName = 'enterUserName';
+
+  // document verification
+
+  final drivingLicense = 'drivingLicense';
+  final enterDrivingLicense = 'enterDrivingLicense';
+  final vehicleLicenseNumber = 'vehicleLicenseNumber';
+  final enterVehicleLicenseNumber = 'enterVehicleLicenseNumber';
+  final insuranceNumber = 'insuranceNumber';
+  final enterInsuranceNumber = 'enterInsuranceNumber';
 }

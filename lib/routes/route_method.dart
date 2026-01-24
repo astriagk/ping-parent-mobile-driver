@@ -4,7 +4,6 @@ import 'package:taxify_driver_ui/screens/app_pages/notifications_screen/notifica
 import 'package:taxify_driver_ui/screens/auth_screen/onboarding_screen/onboarding_screen.dart';
 import 'package:taxify_driver_ui/screens/auth_screen/otp_screen/otp_screen.dart';
 import 'package:taxify_driver_ui/screens/auth_screen/sign_in_screen/sign_in_screen.dart';
-import 'package:taxify_driver_ui/screens/auth_screen/sign_up_screen/sign_up_screen.dart';
 import 'package:taxify_driver_ui/screens/auth_screen/splash_screen/splash_screen.dart';
 import '../config.dart';
 import '../screens/app_pages/bank_details_screen/bank_details_screen.dart';
@@ -17,7 +16,7 @@ import '../screens/app_pages/offer_list_screen/create_offer_screen.dart';
 import '../screens/app_pages/offer_list_screen/offer_screen.dart';
 import '../screens/app_pages/profile_screen/profile_screen.dart';
 import '../screens/app_pages/save_location_screen/save_location_screen.dart';
-import '../screens/app_pages/vehicle_details_update/vehicle_details_update_screen.dart';
+import '../screens/app_pages/user_details_update/user_details_update_screen.dart';
 import '../screens/bottom_navigation_bar/bottom_bar.dart';
 import '../screens/bottom_navigation_bar/layouts/my_rides_screen/layouts/cancel_ride_details_screen.dart';
 import '../screens/bottom_navigation_bar/layouts/my_rides_screen/layouts/completed_ride_details_screen.dart';
@@ -33,6 +32,9 @@ class AppRoute {
     routeName.onBoard: (p0) => const OnboardingScreen(),
     routeName.signInScreen: (p0) => const SignInScreen(),
     routeName.signUpScreen: (p0) => const SignUpScreen(),
+    routeName.documentsOnboarding: (p0) => const DocumentsOnboardingScreen(),
+    routeName.userOnboarding: (p0) => const UserOnboardingScreen(),
+    routeName.bankOnboarding: (p0) => const BankOnboardingScreen(),
     routeName.profileScreen: (p0) => const ProfileScreen(),
     routeName.withdrawScreen: (p0) => const WithdrawScreen(),
     routeName.myWalletScreen: (p0) => const MyWalletScreen(),
@@ -47,7 +49,7 @@ class AppRoute {
     routeName.cancelRideDetailsScreen: (p0) => const CancelRideDetailsScreen(),
     routeName.createOfferScreen: (p0) => const CreateOfferScreen(),
     routeName.documentUpdateScreen: (p0) => const DocumentUpdateScreen(),
-    routeName.vehicleUpdateScreen: (p0) => const VehicleUpdateScreen(),
+    routeName.userUpdateScreen: (p0) => const UserUpdateScreen(),
     routeName.pickupCustomerScreen: (p0) => const PickUpCustomerScreen(),
     routeName.rideDetailsScreen: (p0) => const RideDetailsScreen(),
     routeName.notificationScreen: (p0) => const NotificationScreen(),

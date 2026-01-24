@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:taxify_driver_ui/config/environment.dart';
 
 import 'config.dart';
 
@@ -10,6 +11,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ScreenUtil.ensureScreenSize();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  initializeEnvironment(Environment.production);
   runApp(const MyApp());
 }
 
@@ -35,6 +37,8 @@ class MyApp extends StatelessWidget {
                   ChangeNotifierProvider(create: (_) => OtpProvider()),
                   ChangeNotifierProvider(create: (_) => OnboardingProvider()),
                   ChangeNotifierProvider(create: (_) => BottomBarProvider()),
+                  ChangeNotifierProvider(
+                      create: (_) => UserDetailsUpdateProvider()),
                   ChangeNotifierProvider(create: (_) => HomeScreenProvider()),
                   ChangeNotifierProvider(create: (_) => SettingProvider()),
                   ChangeNotifierProvider(create: (_) => SettingProvider()),

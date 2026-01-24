@@ -4,6 +4,28 @@ import 'package:taxify_driver_ui/screens/auth_screen/sign_in_screen/layout/count
 class SignInScreen extends StatelessWidget {
   const SignInScreen({super.key});
 
+  /// Handles OTP sending and result UI logic
+  Future<void> _handleSendOtp(
+      BuildContext context, SignInProvider signInPvr) async {
+    FocusScope.of(context).unfocus();
+    final phone = signInPvr.phoneController.text.trim();
+    final result = await signInPvr.sendOtp(phone);
+    if (!context.mounted) return;
+    if (result.success) {
+      signInPvr.phoneController.clear();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: TextWidgetCommon(
+                text: result.message ?? appFonts.otpSentSuccessfully)),
+      );
+      route.pushNamed(context, routeName.otpScreen);
+    } else if (result.error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: TextWidgetCommon(text: result.error!)),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<SignInProvider>(builder: (context1, signInPvr, child) {
@@ -28,11 +50,16 @@ class SignInScreen extends StatelessWidget {
                       style: AppCss.lexendMedium14
                           .textColor(appColor(context).appTheme.darkText)),
                   //country picker layout
-                  const CountryPickerLayout(),
-                  CommonButton(
-                      text: language(context, appFonts.getOTP),
-                      onTap: () =>
-                          route.pushNamed(context, routeName.otpScreen)),
+                  CountryPickerLayout(controller: signInPvr.phoneController),
+                  signInPvr.isSendingOtp
+                      ? const Center(child: CircularProgressIndicator())
+                          .paddingSymmetric(vertical: Sizes.s10)
+                      : CommonButton(
+                          text: language(context, appFonts.getOTP),
+                          onTap: () async {
+                            await _handleSendOtp(context, signInPvr);
+                          }),
+
                   //common Rich Text layout
                   AuthCommonWidgets().commonRichText(
                       context,
