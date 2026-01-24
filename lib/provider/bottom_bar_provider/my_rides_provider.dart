@@ -46,14 +46,14 @@ class MyRidesProvider extends ChangeNotifier {
           default:
             parentRequestedAssignments = response.data;
         }
-        successMessage = '${status.value} assignments loaded successfully';
+        successMessage = response.message;
         errorMessage = null;
       } else {
         errorMessage =
             response.message ?? 'Failed to fetch ${status.value} assignments';
       }
     } catch (e) {
-      errorMessage = 'An error occurred. Please try again.';
+      errorMessage = appFonts.errorOccurredWhileFetchingAssignments;
     }
 
     isLoading = false;
@@ -122,4 +122,61 @@ class MyRidesProvider extends ChangeNotifier {
     return await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
   }
+
+  /// Handle assignment status change (approve or reject)
+  Future<bool> _handleAssignmentStatusChange(
+    String assignmentId,
+    AssignmentStatus status,
+    String successDefaultMsg,
+    String errorDefaultMsg,
+  ) async {
+    isLoading = true;
+    errorMessage = null;
+    notifyListeners();
+
+    try {
+      final myRidesService = MyRidesService(ApiClient());
+      final response = await myRidesService.approveOrRejectAssignment(
+        assignmentId: assignmentId,
+        status: status,
+      );
+
+      if (response['success']) {
+        successMessage = response['message'] ?? successDefaultMsg;
+        // Refresh the list after status change
+        await fetchAssignmentsByStatus(AssignmentStatus.parentRequested);
+        isLoading = false;
+        notifyListeners();
+        return true;
+      } else {
+        errorMessage = response['message'] ?? errorDefaultMsg;
+        isLoading = false;
+        notifyListeners();
+        return false;
+      }
+    } catch (e) {
+      errorMessage = errorDefaultMsg;
+      isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Approve driver-student assignment
+  Future<bool> approveAssignment(String assignmentId) =>
+      _handleAssignmentStatusChange(
+        assignmentId,
+        AssignmentStatus.approved,
+        appFonts.assignmentApprovedSuccessfully,
+        appFonts.failedToApproveAssignment,
+      );
+
+  /// Reject driver-student assignment
+  Future<bool> rejectAssignment(String assignmentId) =>
+      _handleAssignmentStatusChange(
+        assignmentId,
+        AssignmentStatus.rejected,
+        appFonts.assignmentRejectedSuccessfully,
+        appFonts.failedToRejectAssignment,
+      );
 }

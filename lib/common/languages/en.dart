@@ -289,5 +289,14 @@ dynamic en = {
   "pendingMyAssignment": "Pending",
   "parentRequestedAssignments": "Requested",
   "completeMyAssignment": "Complete",
-  "cancelMyAssignment": "Cancel",
+  "rejectedMyAssignment": "Rejected",
+  "noAssignmentsFound": "No Assignments Found",
+  "reject": "Reject",
+  "approve": "Approve",
+  "assignmentApprovedSuccessfully": "Assignment approved successfully",
+  "failedToApproveAssignment": "Failed to approve assignment",
+  "assignmentRejectedSuccessfully": "Assignment rejected successfully",
+  "failedToRejectAssignment": "Failed to reject assignment",
+  "errorOccurredWhileFetchingAssignments":
+      "An error occurred while fetching assignments",
 };

@@ -4,7 +4,8 @@ enum AssignmentStatus {
   inactive('inactive'),
   pending('pending'),
   parentRequested('parent_requested'),
-  rejected('rejected');
+  rejected('rejected'),
+  approved('approved');
 
   final String value;
 

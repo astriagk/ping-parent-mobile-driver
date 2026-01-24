@@ -18,6 +18,33 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
     });
   }
 
+  /// Helper function to handle assignment approval/rejection
+  Future<void> _handleAssignmentAction(
+    Future<bool> Function() apiCall,
+    String successMsg,
+    String errorMsg, {
+    bool shouldNavigate = false,
+  }) async {
+    final success = await apiCall();
+    if (!mounted) return;
+
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: TextWidgetCommon(
+          text: successMsg,
+        )),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: TextWidgetCommon(
+          text: errorMsg,
+        )),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -46,7 +73,7 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
             }),
             SizedBox(width: Insets.i10),
             myRidesWidgets.buildTabButton(
-                language(context, appFonts.cancelMyAssignment),
+                language(context, appFonts.rejectedMyAssignment),
                 2,
                 screenWidth,
                 myRidesPvr.selectedIndex, () {
@@ -65,12 +92,13 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
         else if (myRidesPvr.errorMessage != null)
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Text(myRidesPvr.errorMessage!),
+            child: TextWidgetCommon(text: myRidesPvr.errorMessage!),
           )
         else if (myRidesPvr.getCurrentTabData().isEmpty)
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Text('No assignments found'),
+            child: TextWidgetCommon(
+                text: language(context, appFonts.noAssignmentsFound)),
           )
         else
           ListView.builder(
@@ -102,34 +130,27 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
                     amount: 200,
                     pickupTime: '10:00 AM',
                     dropOffAddress: dropoffAddress,
-                    onTap: () =>
-                        route.pushNamed(context, routeName.pendingRideDetails));
-                // return myRidesPvr.selectedIndex == 0
-                //     ? CustomerCard(
-                //         pickUpAddress: pickupAddress,
-                //         userName: assignment.student.studentName ?? '',
-                //         rating: 4.0,
-                //         reviews: 10,
-                //         distance: '1.2KM',
-                //         amount: 200,
-                //         pickupTime: '10:00 AM',
-                //         dropOffAddress: dropoffAddress,
-                //         onTap: () => route.pushNamed(
-                //             context, routeName.pendingRideDetails))
-                //     : myRidesWidgets.buildCommonLayout(
-                //         userName: assignment.student.studentName ?? '',
-                //         rating: 4.0,
-                //         reviews: 10,
-                //         time: '10:00 AM',
-                //         price: 200,
-                //         distance: '1.2KM',
-                //         pickUpAddress: pickupAddress,
-                //         droppingAddress: dropoffAddress,
-                //         onTap: () => myRidesPvr.selectedIndex == 1
-                //             ? route.pushNamed(
-                //                 context, routeName.completedRideDetails)
-                //             : route.pushNamed(
-                //                 context, routeName.cancelRideDetailsScreen));
+                    assignmentId: assignment.id,
+                    showActionButtons: myRidesPvr.selectedIndex == 0,
+                    onApprove: (assignmentId) => _handleAssignmentAction(
+                          () => myRidesPvr.approveAssignment(assignmentId),
+                          myRidesPvr.successMessage ??
+                              language(context,
+                                  appFonts.assignmentApprovedSuccessfully),
+                          myRidesPvr.errorMessage ??
+                              language(
+                                  context, appFonts.failedToApproveAssignment),
+                          shouldNavigate: true,
+                        ),
+                    onReject: (assignmentId) => _handleAssignmentAction(
+                          () => myRidesPvr.rejectAssignment(assignmentId),
+                          myRidesPvr.successMessage ??
+                              language(context,
+                                  appFonts.assignmentRejectedSuccessfully),
+                          myRidesPvr.errorMessage ??
+                              language(
+                                  context, appFonts.failedToRejectAssignment),
+                        ));
               })
       ]));
     });
