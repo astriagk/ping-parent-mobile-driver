@@ -1,9 +1,94 @@
 import 'package:taxify_driver_ui/config.dart';
 import 'package:taxify_driver_ui/widgets/common_bg_layout.dart';
-import 'package:taxify_driver_ui/widgets/common_location_layout.dart';
+import 'package:taxify_driver_ui/helper/date_time_helper.dart';
+import 'package:taxify_driver_ui/api/enums/trip_type_enum.dart';
 
-class ActiveRideScreen extends StatelessWidget {
+class ActiveRideScreen extends StatefulWidget {
   const ActiveRideScreen({super.key});
+
+  @override
+  State<ActiveRideScreen> createState() => _ActiveRideScreenState();
+}
+
+class _ActiveRideScreenState extends State<ActiveRideScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchAndPrintTrips();
+    });
+  }
+
+  /// Fetch and print my trips data
+  Future<void> _fetchAndPrintTrips() async {
+    final activeRideProvider = context.read<ActiveRideProvider>();
+    final success = await activeRideProvider.fetchMyTrips();
+
+    if (success) {
+      print('=== MY TRIPS DATA ===');
+      for (var trip in activeRideProvider.myTrips) {
+        print('Trip ID: ${trip.tripId}');
+        print('Driver ID: ${trip.driverId}');
+        print('Trip Type: ${trip.tripType.value}');
+        print('Trip Date: ${trip.tripDate}');
+        print('Trip Status: ${trip.tripStatus}');
+        print('Created At: ${trip.createdAt}');
+        print('---');
+      }
+      print('Total Trips: ${activeRideProvider.myTrips.length}');
+    } else {
+      print('Error fetching trips: ${activeRideProvider.errorMessage}');
+    }
+  }
+
+  /// Helper function to show SnackBar
+  void _showSnackBar(String message,
+      {Duration duration = const Duration(seconds: 2)}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: TextWidgetCommon(text: message),
+        duration: duration,
+      ),
+    );
+  }
+
+  /// Check if a trip with the same type already exists
+  bool _tripExists(TripType tripType, ActiveRideProvider activeRidePvr) {
+    return activeRidePvr.myTrips.any((trip) => trip.tripType == tripType);
+  }
+
+  /// Handle button tap - either navigate to map or create trip
+  Future<void> _onCreateTripTap(
+      TripType tripType, ActiveRideProvider activeRidePvr) async {
+    // Check if trip already exists
+    if (_tripExists(tripType, activeRidePvr)) {
+      print('Trip with type ${tripType.value} already exists');
+      print('Navigating to pickup customer screen...');
+      // Navigate to next screen if trip exists
+      route.pushNamed(context, routeName.pickupCustomerScreen);
+    } else {
+      print('Trip with type ${tripType.value} does not exist, creating...');
+      // Create new trip if it doesn't exist
+      final success = await activeRidePvr.createTrip(
+        tripType: tripType,
+        tripDate: DateTime.now(),
+      );
+
+      if (!mounted) return;
+
+      final message =
+          success ? activeRidePvr.successMessage : activeRidePvr.errorMessage;
+
+      if (message != null) {
+        _showSnackBar(message);
+      }
+
+      // If trip created successfully, navigate to next screen
+      if (success) {
+        route.pushNamed(context, routeName.pickupCustomerScreen);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +121,8 @@ class ActiveRideScreen extends StatelessWidget {
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
-                                      screensWidgets.userProfileImage(),
+                                      screensWidgets
+                                          .userProfileImage(ride['imageUrl']),
                                       HSpace(Insets.i10),
                                       Expanded(
                                           child: Column(
@@ -61,8 +147,19 @@ class ActiveRideScreen extends StatelessWidget {
                                                       ride['totalRatings'])
                                                 ])
                                           ])),
-                                      screensWidgets.priceText(ride['price'],
-                                          bottomMargin: 23.0)
+                                      TextWidgetCommon(
+                                        text: ride['tripType']
+                                            .value
+                                            .toUpperCase(),
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                        color:
+                                            ride['tripType'] == TripType.pickup
+                                                ? appTheme.primary
+                                                : appTheme.yellowIcon,
+                                      )
+                                      // screensWidgets.priceText(ride['price'],
+                                      //     bottomMargin: 23.0)
                                     ]))
                               ]),
                           VSpace(Insets.i15),
@@ -90,35 +187,43 @@ class ActiveRideScreen extends StatelessWidget {
                                 ])
                               ]),
                           VSpace(Insets.i15),
-                          CommonLocationLayout(
-                              pickUpAddress: ride['pickUpAddress'],
-                              droppingAddress: ride['droppingAddress']),
+                          // CommonLocationLayout(
+                          //     pickUpAddress: ride['pickUpAddress'],
+                          //     droppingAddress: ride['droppingAddress']),
                           Row(children: [
-                            Expanded(
-                                child: CommonButton(
-                                    onTap: () => activeRidePvr.cancelRideTap(
-                                        context, index),
-                                    style: AppCss.lexendLight15
-                                        .textColor(appTheme.textClr),
-                                    color: appTheme.bgBox,
-                                    text: language(
-                                        context, appFonts.cancelRide))),
                             HSpace(Insets.i10),
                             Expanded(
                                 child: CommonButton(
-                                    style: AppCss.lexendRegular15
-                                        .textColor(appTheme.white),
-                                    onTap: () {
-                                      myRidePvr
-                                          .determinePosition()
-                                          .then((value) {
-                                        route.pushNamed(context,
-                                            routeName.pickupCustomerScreen);
-                                      });
-                                    },
-                                    text: language(context, appFonts.viewMap)))
+                                    style: DateTimeHelper.isRideWithinOneHour(
+                                            ride['time'])
+                                        ? AppCss.lexendRegular15
+                                            .textColor(appTheme.white)
+                                        : AppCss.lexendRegular15
+                                            .textColor(appTheme.lightText),
+                                    color: DateTimeHelper.isRideWithinOneHour(
+                                            ride['time'])
+                                        ? appTheme.primary
+                                        : appTheme.bgBox,
+                                    onTap: DateTimeHelper.isRideWithinOneHour(
+                                            ride['time'])
+                                        ? () => _onCreateTripTap(
+                                            ride['tripType'], activeRidePvr)
+                                        : () {
+                                            _showSnackBar(
+                                              language(
+                                                context,
+                                                appFonts
+                                                    .ridePickupWithinOneHour,
+                                              ),
+                                            );
+                                          },
+                                    text: _tripExists(
+                                            ride['tripType'], activeRidePvr)
+                                        ? language(context, appFonts.viewMap)
+                                        : language(
+                                            context, appFonts.createTrip)))
                           ]).marginOnly(top: Insets.i15, bottom: Insets.i10)
-                        ]));
+                        ])).marginOnly(bottom: Insets.i10);
                   }))
           : Center(
               child: Text(language(context, appFonts.noActiveRide),

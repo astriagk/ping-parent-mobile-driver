@@ -4,8 +4,23 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:taxify_driver_ui/config.dart';
 import 'package:taxify_driver_ui/widgets/common_confirmation_dialog.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:taxify_driver_ui/api/services/active_ride_service.dart';
+import 'package:taxify_driver_ui/api/models/get_my_trips_response.dart';
+import 'package:taxify_driver_ui/api/enums/trip_type_enum.dart';
+import 'package:taxify_driver_ui/api/api_client.dart';
 
 class ActiveRideProvider extends ChangeNotifier {
+  late final ActiveRideService _activeRideService;
+
+  bool isLoading = false;
+  String? successMessage;
+  String? errorMessage;
+  List<TripData> myTrips = [];
+
+  ActiveRideProvider() {
+    _activeRideService = ActiveRideService(ApiClient());
+  }
+
   cancelRideTap(context, int index) {
     showDialog(
         context: context,
@@ -41,6 +56,82 @@ class ActiveRideProvider extends ChangeNotifier {
     } else if (status.isPermanentlyDenied) {
       log("Phone permission permanently denied, open app settings.");
       openAppSettings();
+    }
+  }
+
+  /// Create a new trip with the specified trip type and time
+  /// Handles API call, error management, and message setting
+  ///
+  /// Parameters:
+  ///   - tripType: Type of trip (TripType.pickup or TripType.drop)
+  ///   - tripDate: DateTime object for the trip
+  ///
+  /// Returns:
+  ///   - true if trip creation is successful, false otherwise
+  Future<bool> createTrip({
+    required TripType tripType,
+    required DateTime tripDate,
+  }) async {
+    try {
+      isLoading = true;
+      successMessage = null;
+      errorMessage = null;
+      notifyListeners();
+
+      final response = await _activeRideService.createTrip(
+        tripType: tripType,
+        tripDate: tripDate,
+      );
+
+      print('Create Trip Response: ${response.toJson()}');
+
+      if (response.success && response.data != null) {
+        successMessage = response.message;
+        isLoading = false;
+        notifyListeners();
+        return true;
+      } else {
+        errorMessage = response.message;
+        isLoading = false;
+        notifyListeners();
+        return false;
+      }
+    } catch (e) {
+      errorMessage = 'Error creating trip: ${e.toString()}';
+      isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Fetch list of trips for the current driver
+  ///
+  /// Returns:
+  ///   - true if fetch is successful, false otherwise
+  Future<bool> fetchMyTrips() async {
+    try {
+      isLoading = true;
+      errorMessage = null;
+      notifyListeners();
+
+      final response = await _activeRideService.getMyTrips();
+
+      if (response.success) {
+        myTrips = response.data;
+        isLoading = false;
+        notifyListeners();
+        return true;
+      } else {
+        errorMessage = response.message;
+        isLoading = false;
+        notifyListeners();
+        return false;
+      }
+    } catch (e) {
+      errorMessage = 'Error fetching trips: ${e.toString()}';
+      isLoading = false;
+      notifyListeners();
+      return false;
     }
   }
 }
