@@ -314,4 +314,10 @@ class AppFonts {
   final failedToRejectAssignment = "failedToRejectAssignment";
   final errorOccurredWhileFetchingAssignments =
       "errorOccurredWhileFetchingAssignments";
+
+  // Ride Details Screen
+  final createTrip = "createTrip";
+  final ridePickupWithinOneHour = 'ridePickupWithinOneHour';
+  final tripCreatedSuccessfully = "tripCreatedSuccessfully";
+  final failedToCreateTrip = "failedToCreateTrip";
 }
