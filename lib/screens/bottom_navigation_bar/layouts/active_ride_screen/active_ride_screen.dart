@@ -14,6 +14,12 @@ class _ActiveRideScreenState extends State<ActiveRideScreen> {
   @override
   void initState() {
     super.initState();
+    // Fetch trips from API when screen loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<ActiveRideProvider>().fetchMyTrips();
+      }
+    });
   }
 
   void _showSnackBar(String message,
@@ -27,7 +33,9 @@ class _ActiveRideScreenState extends State<ActiveRideScreen> {
   }
 
   bool _tripExists(TripType tripType, ActiveRideProvider activeRidePvr) {
-    return activeRidePvr.myTrips.any((trip) => trip.tripType == tripType);
+    final exists =
+        activeRidePvr.myTrips.any((trip) => trip.tripType == tripType);
+    return exists;
   }
 
   Future<void> _onCreateTripTap(
