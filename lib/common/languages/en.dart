@@ -281,5 +281,22 @@ dynamic en = {
   "iApologize": "I Apologize, But This Is Not A Pet",
   "pleaseNoSmoking": "Please, No Smoking In The Car",
   "noAlcoholClosed": "No Alcohol Closed/Open",
-  "registrationDetails": "Registration Details"
+  "registrationDetails": "Registration Details",
+
+  // My Assignments
+
+  "myAssignments": "My Assignments",
+  "pendingMyAssignment": "Pending",
+  "parentRequestedAssignments": "Requested",
+  "completeMyAssignment": "Complete",
+  "rejectedMyAssignment": "Rejected",
+  "noAssignmentsFound": "No Assignments Found",
+  "reject": "Reject",
+  "approve": "Approve",
+  "assignmentApprovedSuccessfully": "Assignment approved successfully",
+  "failedToApproveAssignment": "Failed to approve assignment",
+  "assignmentRejectedSuccessfully": "Assignment rejected successfully",
+  "failedToRejectAssignment": "Failed to reject assignment",
+  "errorOccurredWhileFetchingAssignments":
+      "An error occurred while fetching assignments",
 };

@@ -22,11 +22,14 @@ class DashAppBar extends StatelessWidget implements PreferredSizeWidget {
           flexibleSpace:
               Column(mainAxisAlignment: MainAxisAlignment.end, children: [
             _DashHeaderContent(
-                currentIndex: dashCtrl.currentIndex,
-                onToggle: () => dashCtrl.toggleOnTap(),
-                isToggled: dashCtrl.isToggled,
+                currentIndex: dashCtrl.currentTab,
+                onToggle: () {
+                  dashCtrl.isImage = !dashCtrl.isImage;
+                  dashCtrl.notifyListeners(); // Make sure this is called
+                },
+                isToggled: dashCtrl.isImage,
                 onIndexChange: (index) {
-                  dashCtrl.currentIndex = index;
+                  dashCtrl.currentTab = index;
                 })
           ]).padding(vertical: Sizes.s30));
     });

@@ -1,5 +1,6 @@
 import 'package:taxify_driver_ui/config.dart';
 import 'package:taxify_driver_ui/screens/bottom_navigation_bar/layouts/common_app_bar.dart';
+import 'package:flutter/services.dart';
 
 class CommonBottomNavigationBar extends StatefulWidget {
   const CommonBottomNavigationBar({super.key});
@@ -12,60 +13,90 @@ class CommonBottomNavigationBar extends StatefulWidget {
 class _CommonBottomNavigationBarState extends State<CommonBottomNavigationBar> {
   @override
   Widget build(BuildContext context) {
-    return Consumer<BottomBarProvider>(builder: (context, bottomNavPvr, child) {
+    return Consumer<BottomBarProvider>(builder: (context, bottomCtrl, child) {
       return StatefulWrapper(
-          onInit: () => Future.delayed(DurationClass.ms150)
-              .then((value) => bottomNavPvr.notifyListeners()),
+          onInit: () => Future.delayed(const Duration(milliseconds: 150))
+              .then((value) => bottomCtrl.onInit()),
           child: Scaffold(
-              appBar: DashAppBar(index: bottomNavPvr.currentIndex),
+              resizeToAvoidBottomInset: false,
+              backgroundColor: appTheme.screenBg,
+              extendBody: true,
+              bottomNavigationBar:
+                  _buildBottomNavigationBar(context, bottomCtrl),
+              appBar: DashAppBar(index: bottomCtrl.currentTab),
               body: SafeArea(
-                  child: SingleChildScrollView(
-                      child: bottomNavPvr.screens[bottomNavPvr.currentIndex])),
-              bottomNavigationBar: Container(
-                  alignment: Alignment.center,
-                  padding: EdgeInsets.symmetric(horizontal: Insets.i10),
-                  width: double.infinity,
-                  height: Insets.i76,
-                  decoration: BoxDecoration(
-                      boxShadow: [
-                        BoxShadow(
-                            color:
-                                appTheme.screenDarkBg.withValues(alpha: 0.12),
-                            blurStyle: BlurStyle.outer,
-                            spreadRadius: 0,
-                            offset: const Offset(0, 4),
-                            blurRadius: AppRadius.r22)
-                      ],
-                      border: Border.all(color: appTheme.primary),
-                      color: appTheme.primary,
-                      borderRadius: const SmoothBorderRadius.vertical(
-                          top: SmoothRadius(
-                              cornerRadius: 20, cornerSmoothing: 0))),
-                  child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        bottomNavPvr.buildNavItem(
-                            0,
-                            language(context, appFonts.home),
-                            svgAssets.homeDark,
-                            svgAssets.homeLight),
-                        bottomNavPvr.buildNavItem(
-                            1,
-                            language(context, appFonts.activeRide),
-                            svgAssets.driving,
-                            svgAssets.driving1),
-                        bottomNavPvr.buildNavItem(
-                            2,
-                            language(context, appFonts.myRides),
-                            svgAssets.carDark,
-                            svgAssets.carLight),
-                        bottomNavPvr.buildNavItem(
-                            3,
-                            language(context, appFonts.settings),
-                            svgAssets.settingDark,
-                            svgAssets.settingLight)
-                      ]))));
+                  child: IndexedStack(
+                      index: bottomCtrl.currentTab,
+                      children: bottomCtrl.screens))));
     });
+  }
+
+  Widget _buildBottomNavigationBar(
+      BuildContext context, BottomBarProvider bottomCtrl) {
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) {
+        if (didPop) {
+          return;
+        }
+        SystemNavigator.pop();
+      },
+      child: Container(
+          decoration: BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                    color: appTheme.primary.withValues(alpha: 0.03),
+                    blurRadius: 20,
+                    spreadRadius: 7)
+              ],
+              borderRadius: BorderRadius.circular(20),
+              border: Border(
+                  top: BorderSide(color: appTheme.borderColor, width: 1))),
+          child: ClipRRect(
+              clipBehavior: Clip.hardEdge,
+              borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+              child: BottomAppBar(
+                  shadowColor: appTheme.primary,
+                  color: appTheme.primary,
+                  height: 70,
+                  elevation: 50,
+                  child: _buildNavItems(context, bottomCtrl)))),
+    );
+  }
+
+  Widget _buildNavItems(BuildContext context, BottomBarProvider bottomCtrl) {
+    return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children:
+            bottomCtrl.bottomNavigationBarList.asMap().entries.map((entry) {
+          final index = entry.key;
+          final item = entry.value;
+          final isSelected = bottomCtrl.currentTab == index;
+
+          return InkWell(
+              onTap: () => bottomCtrl.tabChange(index),
+              radius: 10,
+              focusColor: appTheme.trans,
+              highlightColor: appTheme.trans,
+              child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SvgPicture.asset(
+                        isSelected
+                            ? (item['iconDark'] ?? '')
+                            : (item['icon'] ?? ''),
+                        width: 24,
+                        height: 24),
+                    const SizedBox(height: 2),
+                    Text(language(context, item['title'] ?? ''),
+                        style: isSelected
+                            ? AppCss.lexendLight14.textColor(appTheme.white)
+                            : AppCss.lexendMedium14
+                                .textColor(appTheme.lightText),
+                        overflow: TextOverflow.ellipsis)
+                  ]));
+        }).toList());
   }
 }

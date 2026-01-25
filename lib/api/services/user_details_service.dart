@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:taxify_driver_ui/api/api_client.dart';
 import 'package:taxify_driver_ui/api/endpoints.dart';
-import 'package:taxify_driver_ui/api/models/user_details_update_request.dart';
-import 'package:taxify_driver_ui/api/models/user_details_update_response.dart';
+import 'package:taxify_driver_ui/api/models/user_details/user_details_update_request.dart';
+import 'package:taxify_driver_ui/api/models/user_details/user_details_update_response.dart';
 
 class UserDetailsService {
   final ApiClient _apiClient;

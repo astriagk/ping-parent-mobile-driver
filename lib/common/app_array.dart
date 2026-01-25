@@ -9,12 +9,12 @@ class AppArray {
       "iconDark": svgAssets.homeDark
     },
     {
-      "title": appFonts.category,
-      "icon": svgAssets.categoryLight,
-      "iconDark": svgAssets.categoryDark
+      "title": appFonts.activeRide,
+      "icon": svgAssets.driving1,
+      "iconDark": svgAssets.driving
     },
     {
-      "title": appFonts.myRides,
+      "title": appFonts.myAssignments,
       "icon": svgAssets.carLight,
       "iconDark": svgAssets.carDark
     },

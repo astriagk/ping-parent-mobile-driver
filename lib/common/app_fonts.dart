@@ -299,4 +299,19 @@ class AppFonts {
   final enterVehicleLicenseNumber = 'enterVehicleLicenseNumber';
   final insuranceNumber = 'insuranceNumber';
   final enterInsuranceNumber = 'enterInsuranceNumber';
+
+  // My Assignments
+  final myAssignments = 'myAssignments';
+  final parentRequestedAssignments = "parentRequestedAssignments";
+  final completeMyAssignment = "completeMyAssignment";
+  final rejectedMyAssignment = "rejectedMyAssignment";
+  final noAssignmentsFound = "noAssignmentsFound";
+  final reject = "reject";
+  final approve = "approve";
+  final assignmentApprovedSuccessfully = "assignmentApprovedSuccessfully";
+  final assignmentRejectedSuccessfully = "assignmentRejectedSuccessfully";
+  final failedToApproveAssignment = "failedToApproveAssignment";
+  final failedToRejectAssignment = "failedToRejectAssignment";
+  final errorOccurredWhileFetchingAssignments =
+      "errorOccurredWhileFetchingAssignments";
 }
