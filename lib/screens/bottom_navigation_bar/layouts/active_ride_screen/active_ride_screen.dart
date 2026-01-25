@@ -14,34 +14,8 @@ class _ActiveRideScreenState extends State<ActiveRideScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _fetchAndPrintTrips();
-    });
   }
 
-  /// Fetch and print my trips data
-  Future<void> _fetchAndPrintTrips() async {
-    final activeRideProvider = context.read<ActiveRideProvider>();
-    final success = await activeRideProvider.fetchMyTrips();
-
-    if (success) {
-      print('=== MY TRIPS DATA ===');
-      for (var trip in activeRideProvider.myTrips) {
-        print('Trip ID: ${trip.tripId}');
-        print('Driver ID: ${trip.driverId}');
-        print('Trip Type: ${trip.tripType.value}');
-        print('Trip Date: ${trip.tripDate}');
-        print('Trip Status: ${trip.tripStatus}');
-        print('Created At: ${trip.createdAt}');
-        print('---');
-      }
-      print('Total Trips: ${activeRideProvider.myTrips.length}');
-    } else {
-      print('Error fetching trips: ${activeRideProvider.errorMessage}');
-    }
-  }
-
-  /// Helper function to show SnackBar
   void _showSnackBar(String message,
       {Duration duration = const Duration(seconds: 2)}) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -52,23 +26,15 @@ class _ActiveRideScreenState extends State<ActiveRideScreen> {
     );
   }
 
-  /// Check if a trip with the same type already exists
   bool _tripExists(TripType tripType, ActiveRideProvider activeRidePvr) {
     return activeRidePvr.myTrips.any((trip) => trip.tripType == tripType);
   }
 
-  /// Handle button tap - either navigate to map or create trip
   Future<void> _onCreateTripTap(
       TripType tripType, ActiveRideProvider activeRidePvr) async {
-    // Check if trip already exists
     if (_tripExists(tripType, activeRidePvr)) {
-      print('Trip with type ${tripType.value} already exists');
-      print('Navigating to pickup customer screen...');
-      // Navigate to next screen if trip exists
       route.pushNamed(context, routeName.pickupCustomerScreen);
     } else {
-      print('Trip with type ${tripType.value} does not exist, creating...');
-      // Create new trip if it doesn't exist
       final success = await activeRidePvr.createTrip(
         tripType: tripType,
         tripDate: DateTime.now(),
@@ -82,8 +48,6 @@ class _ActiveRideScreenState extends State<ActiveRideScreen> {
       if (message != null) {
         _showSnackBar(message);
       }
-
-      // If trip created successfully, navigate to next screen
       if (success) {
         route.pushNamed(context, routeName.pickupCustomerScreen);
       }
