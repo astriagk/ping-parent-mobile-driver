@@ -1,4 +1,5 @@
 import 'package:taxify_driver_ui/config.dart';
+import 'package:taxify_driver_ui/screens/maps/index.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -22,7 +23,20 @@ class HomeScreen extends StatelessWidget {
             ]).paddingOnly(left: Insets.i15)
           ]),
           VSpace(Insets.i16),
-          const RideDataLayout()
+          const RideDataLayout(),
+          VSpace(Insets.i16),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const MapExampleScreen(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.map),
+            label: const Text('Test Maps'),
+          ).marginSymmetric(horizontal: Insets.i20),
         ]).marginSymmetric(horizontal: Insets.i20),
         const UpcomingRidesList(),
         const ActiveOfferLayout()
