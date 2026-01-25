@@ -41,36 +41,6 @@ class MapMarkers {
     );
   }
 
-  /// Pickup location marker (green)
-  static Marker pickupMarker(
-    LatLng point,
-    BuildContext context, {
-    VoidCallback? onTap,
-    String? label,
-  }) {
-    return _buildMarker(
-      point: point,
-      svgAssetPath: svgAssets.location,
-      color: appTheme.online,
-      onTap: onTap,
-    );
-  }
-
-  /// Drop location marker (red)
-  static Marker dropMarker(
-    LatLng point,
-    BuildContext context, {
-    VoidCallback? onTap,
-    String? label,
-  }) {
-    return _buildMarker(
-      point: point,
-      svgAssetPath: svgAssets.location,
-      color: appTheme.alertZone,
-      onTap: onTap,
-    );
-  }
-
   /// Current location marker (blue with border)
   static Marker currentLocationMarker(
     LatLng point,
@@ -87,66 +57,6 @@ class MapMarkers {
         color: appTheme.white,
         width: 2,
       ),
-      onTap: onTap,
-    );
-  }
-
-  /// Driver location marker (purple)
-  static Marker driverMarker(
-    LatLng point,
-    BuildContext context, {
-    VoidCallback? onTap,
-    String? driverName,
-  }) {
-    return _buildMarker(
-      point: point,
-      svgAssetPath: svgAssets.carLight,
-      color: appTheme.primary,
-      onTap: onTap,
-    );
-  }
-
-  /// School location marker (orange)
-  static Marker schoolMarker(
-    LatLng point,
-    BuildContext context, {
-    VoidCallback? onTap,
-    String? schoolName,
-  }) {
-    return _buildMarker(
-      point: point,
-      svgAssetPath: svgAssets.location,
-      color: appTheme.yellowIcon,
-      onTap: onTap,
-    );
-  }
-
-  /// Home location marker (teal)
-  static Marker homeMarker(
-    LatLng point,
-    BuildContext context, {
-    VoidCallback? onTap,
-  }) {
-    return _buildMarker(
-      point: point,
-      svgAssetPath: svgAssets.home,
-      color: appTheme.primary,
-      onTap: onTap,
-    );
-  }
-
-  /// Custom marker with specified SVG asset and color
-  static Marker customMarker({
-    required LatLng point,
-    required String svgAssetPath,
-    required Color color,
-    VoidCallback? onTap,
-    String? label,
-  }) {
-    return _buildMarker(
-      point: point,
-      svgAssetPath: svgAssetPath,
-      color: color,
       onTap: onTap,
     );
   }

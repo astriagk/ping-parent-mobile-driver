@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:taxify_driver_ui/config.dart';
 
 /// Map controls widget for zoom and layer controls
@@ -24,6 +23,20 @@ class MapControls extends StatelessWidget {
     this.alignment = Alignment.bottomRight,
   });
 
+  /// Build a reusable control button
+  Widget _buildControlButton(IconData icon, VoidCallback? onPressed) {
+    return FloatingActionButton(
+      mini: true,
+      heroTag: null,
+      backgroundColor: appTheme.white,
+      onPressed: onPressed,
+      child: Icon(icon, color: appTheme.primary),
+    );
+  }
+
+  /// Build spacer between buttons
+  Widget _buildSpacer() => SizedBox(height: Insets.i8);
+
   @override
   Widget build(BuildContext context) {
     return Align(
@@ -33,49 +46,16 @@ class MapControls extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Zoom In Button
-            FloatingActionButton(
-              mini: true,
-              heroTag: 'zoom_in_btn',
-              backgroundColor: appTheme.white,
-              onPressed: onZoomIn,
-              tooltip: 'Zoom In',
-              child: Icon(Icons.add, color: appTheme.primary),
-            ),
-            SizedBox(height: Insets.i8),
-            // Zoom Out Button
-            FloatingActionButton(
-              mini: true,
-              heroTag: 'zoom_out_btn',
-              backgroundColor: appTheme.white,
-              onPressed: onZoomOut,
-              tooltip: 'Zoom Out',
-              child: Icon(Icons.remove, color: appTheme.primary),
-            ),
-            SizedBox(height: Insets.i8),
-            // My Location Button
-            FloatingActionButton(
-              mini: true,
-              heroTag: 'my_location_btn',
-              backgroundColor: appTheme.white,
-              onPressed: onMyLocation,
-              tooltip: 'My Location',
-              child: Icon(Icons.my_location, color: appTheme.primary),
-            ),
-            if (showLayersButton) SizedBox(height: Insets.i8),
-            // Layers Button
+            _buildControlButton(Icons.add, onZoomIn),
+            _buildSpacer(),
+            _buildControlButton(Icons.remove, onZoomOut),
+            _buildSpacer(),
+            _buildControlButton(Icons.my_location, onMyLocation),
+            if (showLayersButton) _buildSpacer(),
             if (showLayersButton)
               PopupMenuButton<int>(
                 onSelected: onTileSelected,
-                tooltip: 'Change Layer',
-                child: FloatingActionButton(
-                  mini: true,
-                  heroTag: 'layers_btn',
-                  backgroundColor: appTheme.white,
-                  onPressed: null,
-                  tooltip: 'Change Layer',
-                  child: Icon(Icons.layers, color: appTheme.primary),
-                ),
+                child: _buildControlButton(Icons.layers, null),
                 itemBuilder: (BuildContext context) {
                   if (tileOptions == null || tileOptions!.isEmpty) {
                     return [];

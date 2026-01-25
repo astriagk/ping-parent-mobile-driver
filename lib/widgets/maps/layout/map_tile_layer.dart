@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 
-import 'package:taxify_driver_ui/common/maps/open_free_map_config.dart';
+import 'package:taxify_driver_ui/common/maps/map_config.dart';
 
-/// OpenFreeMap TileLayer widget for reusability
-class OFMTileLayer extends StatelessWidget {
+/// Map TileLayer widget for reusability
+class MapTileLayer extends StatelessWidget {
   final String? urlTemplate;
   final Key? tileKey;
 
-  const OFMTileLayer({
+  const MapTileLayer({
     this.urlTemplate,
     this.tileKey,
     super.key,
@@ -16,13 +16,13 @@ class OFMTileLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final config = OpenFreeMapConfig();
+    final config = MapConfig();
     final url =
         urlTemplate ?? config.allTileOptions[config.selectedTileIndex]['url']!;
     return TileLayer(
       key: tileKey,
       urlTemplate: url,
-      userAgentPackageName: OpenFreeMapConfig.userAgentPackageName,
+      userAgentPackageName: MapConfig.userAgentPackageName,
       retinaMode: RetinaMode.isHighDensity(context),
       maxZoom: config.maxZoom,
     );
@@ -30,11 +30,11 @@ class OFMTileLayer extends StatelessWidget {
 }
 
 /// Adaptive tile layer that switches based on theme
-class OFMAdaptiveTileLayer extends StatelessWidget {
+class MapAdaptiveTileLayer extends StatelessWidget {
   final String? lightTileUrl;
   final String? darkTileUrl;
 
-  const OFMAdaptiveTileLayer({
+  const MapAdaptiveTileLayer({
     this.lightTileUrl,
     this.darkTileUrl,
     super.key,
@@ -42,13 +42,13 @@ class OFMAdaptiveTileLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final config = OpenFreeMapConfig();
+    final config = MapConfig();
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final url = isDark
         ? (darkTileUrl ?? config.allTileOptions[2]['url']!)
         : (lightTileUrl ??
             config.allTileOptions[config.selectedTileIndex]['url']!);
 
-    return OFMTileLayer(urlTemplate: url);
+    return MapTileLayer(urlTemplate: url);
   }
 }
