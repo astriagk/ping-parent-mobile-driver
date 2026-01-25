@@ -19,6 +19,7 @@ class CustomerCard extends StatelessWidget {
   final VoidCallback? onTap;
   final bool showActionButtons;
   final String? assignmentId;
+  final String? phoneNumber;
   final Function(String)? onApprove;
   final Function(String)? onReject;
 
@@ -35,6 +36,7 @@ class CustomerCard extends StatelessWidget {
       this.onTap,
       this.showActionButtons = false,
       this.assignmentId,
+      this.phoneNumber,
       this.onApprove,
       this.onReject});
 
@@ -111,7 +113,7 @@ class CustomerCard extends StatelessWidget {
 
                     if (status.isGranted) {
                       final Uri phoneUri =
-                          Uri(scheme: 'tel', path: appFonts.phoneNum);
+                          Uri(scheme: 'tel', path: phoneNumber ?? '');
 
                       // Try to launch the dialer
                       if (await canLaunchUrl(phoneUri)) {

@@ -131,6 +131,7 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
                     pickupTime: '10:00 AM',
                     dropOffAddress: dropoffAddress,
                     assignmentId: assignment.id,
+                    phoneNumber: '', // Get parent phone number here
                     showActionButtons: myRidesPvr.selectedIndex == 0,
                     onApprove: (assignmentId) => _handleAssignmentAction(
                           () => myRidesPvr.approveAssignment(assignmentId),
