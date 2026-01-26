@@ -307,4 +307,7 @@ dynamic en = {
       'Ride pickup will be available within 1 hour of scheduled time',
   "tripCreatedSuccessfully": "Trip created successfully",
   "failedToCreateTrip": "Failed to create trip",
+  "startTrip": "Start Trip",
+  "nextRide": "Next Ride",
+  "currenRide": "Current Ride",
 };

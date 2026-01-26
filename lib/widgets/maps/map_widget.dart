@@ -25,6 +25,7 @@ class MapWidget extends StatefulWidget {
   final List<Polyline> Function()? polylines;
   final Function(TapPosition, LatLng)? onTap;
   final PositionCallback? onPositionChanged;
+  final bool showControls;
 
   const MapWidget({
     super.key,
@@ -34,6 +35,7 @@ class MapWidget extends StatefulWidget {
     this.polylines,
     this.onTap,
     this.onPositionChanged,
+    this.showControls = false,
   });
 
   @override
@@ -130,15 +132,16 @@ class _MapWidgetState extends State<MapWidget> {
               ),
           ],
         ),
-        MapControls(
-          onZoomIn: _zoomIn,
-          onZoomOut: _zoomOut,
-          onMyLocation: () {
-            _mapController.move(_currentLocation!, 15);
-          },
-          tileOptions: widget.config.allTileOptions,
-          onTileSelected: _changeTileLayer,
-        ),
+        if (widget.showControls)
+          MapControls(
+            onZoomIn: _zoomIn,
+            onZoomOut: _zoomOut,
+            onMyLocation: () {
+              _mapController.move(_currentLocation!, 15);
+            },
+            tileOptions: widget.config.allTileOptions,
+            onTileSelected: _changeTileLayer,
+          ),
       ],
     );
   }

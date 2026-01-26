@@ -320,4 +320,7 @@ class AppFonts {
   final ridePickupWithinOneHour = 'ridePickupWithinOneHour';
   final tripCreatedSuccessfully = "tripCreatedSuccessfully";
   final failedToCreateTrip = "failedToCreateTrip";
+  final startTrip = "startTrip";
+  final nextRide = "nextRide";
+  final currenRide = "currenRide";
 }

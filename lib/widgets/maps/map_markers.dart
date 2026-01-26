@@ -60,4 +60,44 @@ class MapMarkers {
       onTap: onTap,
     );
   }
+
+  /// Pickup location marker (green)
+  static Marker pickupMarker(
+    LatLng point,
+    BuildContext context, {
+    VoidCallback? onTap,
+  }) {
+    return _buildMarker(
+      point: point,
+      svgAssetPath: svgAssets.location,
+      color: const Color(0xFF27AE60),
+      width: 40,
+      height: 40,
+      border: Border.all(
+        color: appTheme.white,
+        width: 2,
+      ),
+      onTap: onTap,
+    );
+  }
+
+  /// Drop-off location marker (red)
+  static Marker dropOffMarker(
+    LatLng point,
+    BuildContext context, {
+    VoidCallback? onTap,
+  }) {
+    return _buildMarker(
+      point: point,
+      svgAssetPath: svgAssets.location,
+      color: const Color(0xFFE74C3C),
+      width: 40,
+      height: 40,
+      border: Border.all(
+        color: appTheme.white,
+        width: 2,
+      ),
+      onTap: onTap,
+    );
+  }
 }

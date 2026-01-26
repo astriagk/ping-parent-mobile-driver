@@ -21,7 +21,7 @@ import '../screens/bottom_navigation_bar/bottom_bar.dart';
 import '../screens/bottom_navigation_bar/layouts/my_rides_screen/layouts/cancel_ride_details_screen.dart';
 import '../screens/bottom_navigation_bar/layouts/my_rides_screen/layouts/completed_ride_details_screen.dart';
 import '../screens/bottom_navigation_bar/layouts/my_rides_screen/layouts/pending_ride_details_screen.dart';
-import '../screens/bottom_navigation_bar/layouts/my_rides_screen/layouts/pick_up_customer_screen.dart';
+import '../screens/bottom_navigation_bar/layouts/pick_up_customer_screen/pick_up_customer_screen.dart';
 import '../screens/bottom_navigation_bar/layouts/my_rides_screen/layouts/ride_details_screen.dart';
 
 class AppRoute {
