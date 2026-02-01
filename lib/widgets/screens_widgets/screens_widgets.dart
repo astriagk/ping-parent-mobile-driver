@@ -36,16 +36,16 @@ class ScreensWidgets {
         style: style ?? AppCss.lexendRegular13.textColor(appTheme.primary));
   }
 
-  userProfileImage() {
+  userProfileImage(imageUrl) {
     return Container(
         height: Insets.i50,
         width: Insets.i50,
         decoration: BoxDecoration(
             border: Border.all(width: 1, color: appTheme.borderColor),
             borderRadius: BorderRadius.all(Radius.circular(Insets.i7)),
-            image: const DecorationImage(
+            image: DecorationImage(
                 fit: BoxFit.cover,
-                image: AssetImage('assets/image/home/user1.png'))));
+                image: AssetImage(imageUrl ?? 'assets/image/home/user1.png'))));
   }
 
   customToggle({required onToggle, isToggled}) {

@@ -1,5 +1,7 @@
 import '../config.dart';
 import '../models/rides_info_model.dart';
+import '../helper/date_time_helper.dart';
+import '../api/enums/trip_type_enum.dart';
 
 class AppArray {
   var bottomNavigationBarList = [
@@ -9,12 +11,12 @@ class AppArray {
       "iconDark": svgAssets.homeDark
     },
     {
-      "title": appFonts.category,
-      "icon": svgAssets.categoryLight,
-      "iconDark": svgAssets.categoryDark
+      "title": appFonts.activeRide,
+      "icon": svgAssets.driving1,
+      "iconDark": svgAssets.driving
     },
     {
-      "title": appFonts.myRides,
+      "title": appFonts.myAssignments,
       "icon": svgAssets.carLight,
       "iconDark": svgAssets.carDark
     },
@@ -584,24 +586,28 @@ class AppArray {
   ];
   final List<Map<String, dynamic>> ridesData = [
     {
-      'userName': 'Jonathan Higgins',
-      'price': '256.23',
+      'userName': 'Drop from Home to School',
+      'price': '',
       'rating': 4.8,
       'totalRatings': 127,
-      'time': '15 Dec’23 at 10:15 AM',
-      'pickUpAddress': '220 Yonge St, Toronto, ON M5B 2H1, Canada',
-      'droppingAddress': '17600 Yonge St, Newmarket, ON L3Y 4Z1, Canada',
+      'time': DateTimeHelper.getFormattedDateTime(timeOfDay: '8:00 AM'),
+      'tripType': TripType.pickup,
+      // 'pickUpAddress': '220 Yonge St, Toronto, ON M5B 2H1, Canada',
+      // 'droppingAddress': '17600 Yonge St, Newmarket, ON L3Y 4Z1, Canada',
       'contact': '+919876543210',
+      'imageUrl': 'assets/image/home/user1.png'
     },
     {
-      'userName': 'Sarah Connor',
-      'price': '350.75',
+      'userName': 'Drop from School to Home',
+      'price': '',
       'rating': 4.9,
       'totalRatings': 205,
-      'time': '16 Dec’23 at 11:45 AM',
-      'pickUpAddress': '500 King St, Toronto, ON M5V 1L9, Canada',
-      'droppingAddress': '2500 Rutherford Rd, Vaughan, ON L4K 2N6, Canada',
+      'time': DateTimeHelper.getFormattedDateTime(timeOfDay: '4:00 PM'),
+      'tripType': TripType.drop,
+      // 'pickUpAddress': '500 King St, Toronto, ON M5V 1L9, Canada',
+      // 'droppingAddress': '2500 Rutherford Rd, Vaughan, ON L4K 2N6, Canada',
       'contact': '+919876543211',
+      'imageUrl': 'assets/image/home/user2.png'
     }
   ];
 }

@@ -11,7 +11,8 @@ class SettingsScreen extends StatelessWidget {
       return StatefulWrapper(
           onInit: () => Future.delayed(DurationClass.ms150)
               .then((value) => settingCtrl.init()),
-          child: Stack(children: [
+          child: SingleChildScrollView(
+              child: Stack(children: [
             Container(
                     width: MediaQuery.of(context).size.width,
                     decoration: ShapeDecoration(
@@ -36,7 +37,7 @@ class SettingsScreen extends StatelessWidget {
                         bottom: Sizes.s50))
                 .marginOnly(top: MediaQuery.of(context).size.height * 0.16),
             SettingScreenWidgets().settingProfileImage()
-          ]));
+          ])));
     });
   }
 }

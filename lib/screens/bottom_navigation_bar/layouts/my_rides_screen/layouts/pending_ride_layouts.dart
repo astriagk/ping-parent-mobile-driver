@@ -17,6 +17,11 @@ class CustomerCard extends StatelessWidget {
   final String? pickUpAddress;
   final String? dropOffAddress;
   final VoidCallback? onTap;
+  final bool showActionButtons;
+  final String? assignmentId;
+  final String? phoneNumber;
+  final Function(String)? onApprove;
+  final Function(String)? onReject;
 
   const CustomerCard(
       {super.key,
@@ -28,7 +33,12 @@ class CustomerCard extends StatelessWidget {
       this.pickupTime,
       this.pickUpAddress,
       this.dropOffAddress,
-      this.onTap});
+      this.onTap,
+      this.showActionButtons = false,
+      this.assignmentId,
+      this.phoneNumber,
+      this.onApprove,
+      this.onReject});
 
   @override
   Widget build(BuildContext context) {
@@ -103,7 +113,7 @@ class CustomerCard extends StatelessWidget {
 
                     if (status.isGranted) {
                       final Uri phoneUri =
-                          Uri(scheme: 'tel', path: appFonts.phoneNum);
+                          Uri(scheme: 'tel', path: phoneNumber ?? '');
 
                       // Try to launch the dialer
                       if (await canLaunchUrl(phoneUri)) {
@@ -126,13 +136,25 @@ class CustomerCard extends StatelessWidget {
           VSpace(Insets.i15),
           CommonLocationLayout(
               pickUpAddress: pickUpAddress, droppingAddress: dropOffAddress),
-          CommonButton(
-                  style: AppCss.lexendRegular15.textColor(appTheme.white),
-                  onTap: () {
-                    route.pushNamed(context, routeName.pickupCustomerScreen);
-                  },
-                  text: appFonts.pickupCustomer)
-              .marginOnly(top: Insets.i15)
+          if (showActionButtons)
+            Row(
+              children: [
+                Expanded(
+                  child: CommonButton(
+                      style: AppCss.lexendRegular14.textColor(appTheme.textClr),
+                      color: appColor(context).appTheme.bgBox,
+                      onTap: () => onReject?.call(assignmentId!),
+                      text: appFonts.reject),
+                ),
+                SizedBox(width: Insets.i10),
+                Expanded(
+                  child: CommonButton(
+                      style: AppCss.lexendRegular15.textColor(appTheme.white),
+                      onTap: () => onApprove?.call(assignmentId!),
+                      text: appFonts.approve),
+                ),
+              ],
+            ).marginOnly(top: Insets.i15)
         ]))
         .marginSymmetric(horizontal: Insets.i20, vertical: Insets.i7)
         .inkWell(onTap: onTap);

@@ -65,6 +65,8 @@ dependencies:
   http: ^1.2.2
   avatar_glow: 2.0.2
   emoji_picker_flutter: ^3.1.0
+  flutter_map: ^6.1.0
+  latlong2: ^0.9.1
 
 dev_dependencies:
   flutter_test:

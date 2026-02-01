@@ -1,6 +1,5 @@
 dynamic en = {
   "skip": "Skip",
-  "activeRide": "Active Ride",
   "taxify": "Taxify",
   "myRides": "My Rides",
   "settings": "Settings",
@@ -281,5 +280,34 @@ dynamic en = {
   "iApologize": "I Apologize, But This Is Not A Pet",
   "pleaseNoSmoking": "Please, No Smoking In The Car",
   "noAlcoholClosed": "No Alcohol Closed/Open",
-  "registrationDetails": "Registration Details"
+  "registrationDetails": "Registration Details",
+
+  // My Assignments
+
+  "myAssignments": "Assignments",
+  "pendingMyAssignment": "Pending",
+  "parentRequestedAssignments": "Requested",
+  "completeMyAssignment": "Complete",
+  "rejectedMyAssignment": "Rejected",
+  "noAssignmentsFound": "No Assignments Found",
+  "reject": "Reject",
+  "approve": "Approve",
+  "assignmentApprovedSuccessfully": "Assignment approved successfully",
+  "failedToApproveAssignment": "Failed to approve assignment",
+  "assignmentRejectedSuccessfully": "Assignment rejected successfully",
+  "failedToRejectAssignment": "Failed to reject assignment",
+  "errorOccurredWhileFetchingAssignments":
+      "An error occurred while fetching assignments",
+
+  // Ride
+
+  "activeRide": "Ride",
+  "createTrip": "Create Trip",
+  "ridePickupWithinOneHour":
+      'Ride pickup will be available within 1 hour of scheduled time',
+  "tripCreatedSuccessfully": "Trip created successfully",
+  "failedToCreateTrip": "Failed to create trip",
+  "startTrip": "Start Trip",
+  "nextRide": "Next Ride",
+  "currenRide": "Current Ride",
 };

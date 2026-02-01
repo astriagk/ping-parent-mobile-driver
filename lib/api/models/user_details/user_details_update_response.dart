@@ -45,7 +45,7 @@ class DriverProfileData {
       vehicleCapacity: json['vehicle_capacity'] ?? 0,
       currentStudentCount: json['current_student_count'] ?? 0,
       approvalStatus: json['approval_status'] ?? '',
-      isAvailable: json['is_available'] ?? false,
+      isAvailable: json['is_available'] ?? true,
       rating: json['rating'] ?? 0,
       totalTrips: json['total_trips'] ?? 0,
       createdAt: json['created_at'] ?? '',

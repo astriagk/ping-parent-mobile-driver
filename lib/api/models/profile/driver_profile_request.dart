@@ -39,7 +39,7 @@ class DriverProfileRequest {
       vehicleType: json['vehicle_type'] ?? '',
       vehicleNumber: json['vehicle_number'] ?? '',
       vehicleCapacity: json['vehicle_capacity'] ?? 0,
-      isAvailable: json['is_available'] ?? false,
+      isAvailable: json['is_available'] ?? true,
     );
   }
 }
