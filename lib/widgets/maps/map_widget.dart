@@ -21,21 +21,23 @@ abstract class MapProviderConfig {
 class MapWidget extends StatefulWidget {
   final MapProviderConfig config;
   final Widget Function(String urlTemplate) tileLayerBuilder;
-  final List<Marker> Function()? additionalMarkers;
+  final List<Marker> Function()? markers;
   final List<Polyline> Function()? polylines;
   final Function(TapPosition, LatLng)? onTap;
   final PositionCallback? onPositionChanged;
   final bool showControls;
+  final bool showCurrentLocation;
 
   const MapWidget({
     super.key,
     required this.config,
     required this.tileLayerBuilder,
-    this.additionalMarkers,
+    this.markers,
     this.polylines,
     this.onTap,
     this.onPositionChanged,
     this.showControls = false,
+    this.showCurrentLocation = true,
   });
 
   @override
@@ -62,8 +64,9 @@ class _MapWidgetState extends State<MapWidget> {
       setState(() {
         _currentLocation = location;
         _markers = [
-          MapMarkers.currentLocationMarker(location, context),
-          ...?widget.additionalMarkers?.call(),
+          if (widget.showCurrentLocation)
+            MapMarkers.currentLocationMarker(location, context),
+          ...?widget.markers?.call(),
         ];
       });
       _mapController.move(location, 15);
