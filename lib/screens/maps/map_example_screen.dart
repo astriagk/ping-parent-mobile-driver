@@ -15,6 +15,7 @@ class MapExampleScreen extends StatelessWidget {
       tileLayerBuilder: (urlTemplate) => MapTileLayer(
         urlTemplate: urlTemplate,
       ),
+      showControls: true,
     );
   }
 }
