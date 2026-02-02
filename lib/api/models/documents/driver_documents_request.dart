@@ -19,11 +19,11 @@ class DriverDocumentsRequest {
   Map<String, dynamic> toJson() {
     return {
       'driving_license_number': drivingLicenseNumber,
-      'driving_license_photo_url': drivingLicensePhotoUrl,
+      'driving_license_photo': drivingLicensePhotoUrl,
       'vehicle_license_number': vehicleLicenseNumber,
-      'vehicle_license_photo_url': vehicleLicensePhotoUrl,
+      'vehicle_license_photo': vehicleLicensePhotoUrl,
       'insurance_number': insuranceNumber,
-      'insurance_photo_url': insurancePhotoUrl,
+      'insurance_photo': insurancePhotoUrl,
     };
   }
 }
