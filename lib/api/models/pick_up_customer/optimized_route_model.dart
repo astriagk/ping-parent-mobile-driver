@@ -97,6 +97,13 @@ class RouteWaypoint {
   final List<String> studentIds;
   final String studentParentId;
   final List<String> studentNames;
+  final String? studentGender;
+  final String? studentSection;
+  final String? studentClass;
+  final String? studentImage;
+  final String? parentName;
+  final String? parentEmail;
+  final String? parentPhoneNumber;
   final double? distanceFromPrevious;
   final int? durationFromPrevious;
   final DateTime? estimatedArrivalTime;
@@ -108,6 +115,13 @@ class RouteWaypoint {
     required this.studentIds,
     required this.studentParentId,
     required this.studentNames,
+    this.studentGender,
+    this.studentSection,
+    this.studentClass,
+    this.studentImage,
+    this.parentName,
+    this.parentEmail,
+    this.parentPhoneNumber,
     this.distanceFromPrevious,
     this.durationFromPrevious,
     this.estimatedArrivalTime,
@@ -121,6 +135,13 @@ class RouteWaypoint {
       studentIds: List<String>.from(json['student_id'] ?? []),
       studentParentId: json['student_parent_id'] ?? '',
       studentNames: List<String>.from(json['student_names'] ?? []),
+      studentGender: json['student_gender'],
+      studentSection: json['student_section'],
+      studentClass: json['student_class'],
+      studentImage: json['student_image'],
+      parentName: json['parent_name'],
+      parentEmail: json['parent_email'],
+      parentPhoneNumber: json['parent_phone_number'],
       distanceFromPrevious:
           (json['distance_from_previous'] as num?)?.toDouble(),
       durationFromPrevious: json['duration_from_previous'],

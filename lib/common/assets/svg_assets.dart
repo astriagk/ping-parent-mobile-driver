@@ -92,4 +92,9 @@ class SvgAssets {
   final marker = 'assets/svg/home/Group 1000003064.svg';
   final gps1 = 'assets/svg/home/gps1.svg';
   final import1 = 'assets/svg/home/import.svg';
+
+  // Map header icons
+  final distance = 'assets/svg/home/location.svg';
+  final duration = 'assets/svg/home/routing.svg';
+  final eta = 'assets/svg/home/gps1.svg';
 }

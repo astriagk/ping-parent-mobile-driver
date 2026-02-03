@@ -11,6 +11,7 @@ import 'package:taxify_driver_ui/widgets/maps/index.dart';
 import 'package:taxify_driver_ui/provider/bottom_bar_provider/pick_up_customer_provider.dart';
 import 'layout/on_the_way_sheet.dart';
 import 'layout/otp_verification_sheet.dart';
+import 'layout/common_map_header.dart';
 
 class PickUpCustomerScreen extends StatefulWidget {
   const PickUpCustomerScreen({super.key});
@@ -148,6 +149,20 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
     startDismissOtpSuccess();
   }
 
+  void _handleWaypointCompletion() {
+    final currentWaypoint = _getCurrentWaypoint(_pickUpProvider.optimizedRoute);
+    final isSchoolLocation =
+        currentWaypoint?.studentParentId == AppConstants.schoolLocationType;
+
+    if (isSchoolLocation) {
+      // For school location, navigate directly to ride details
+      route.pushNamed(context, routeName.rideDetailsScreen);
+    } else {
+      // For student pickups, show OTP verification success
+      otpSuccess();
+    }
+  }
+
   void startDismissOtpSuccess() {
     Timer(const Duration(seconds: 3), () {
       if (isOtp) {
@@ -174,17 +189,39 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
             child: Stack(children: [
               Consumer<PickUpCustomerProvider>(
                 builder: (context, pickUpProvider, _) {
-                  return MapWidget(
-                    config: config,
-                    tileLayerBuilder: (urlTemplate) => MapTileLayer(
-                      urlTemplate: urlTemplate,
-                    ),
-                    currentLocationMarkerBuilder: (position, controller) =>
-                        MapMarkers.driverLocationMarker(position, controller),
-                    markers: () =>
-                        _buildWaypointMarkers(pickUpProvider.optimizedRoute),
-                    polylineBuilder: (context) =>
-                        _buildRoutePolyline(pickUpProvider.optimizedRoute),
+                  final currentWaypoint =
+                      _getCurrentWaypoint(pickUpProvider.optimizedRoute);
+                  final totalWaypoints = pickUpProvider
+                          .optimizedRoute?.routeGeometry.waypoints.length ??
+                      0;
+
+                  return Column(
+                    children: [
+                      // Map Header with waypoint info
+                      if (isPickedUpCustomerClick && currentWaypoint != null)
+                        CommonMapHeader(
+                          waypoint: currentWaypoint,
+                          waypointIndex: currentWaypointIndex,
+                          totalWaypoints: totalWaypoints,
+                        ),
+                      // Map
+                      Expanded(
+                        child: MapWidget(
+                          config: config,
+                          tileLayerBuilder: (urlTemplate) => MapTileLayer(
+                            urlTemplate: urlTemplate,
+                          ),
+                          currentLocationMarkerBuilder:
+                              (position, controller) =>
+                                  MapMarkers.driverLocationMarker(
+                                      position, controller),
+                          markers: () => _buildWaypointMarkers(
+                              pickUpProvider.optimizedRoute),
+                          polylineBuilder: (context) => _buildRoutePolyline(
+                              pickUpProvider.optimizedRoute),
+                        ),
+                      ),
+                    ],
                   );
                 },
               ),
@@ -232,7 +269,7 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
                                       : () {},
                                   isRideComplete: isRideComplete)
                           : OtpVerificationSheet(
-                              onTap: () => otpSuccess(),
+                              onTap: () => _handleWaypointCompletion(),
                               waypoint: _getCurrentWaypoint(
                                   _pickUpProvider.optimizedRoute))
 
