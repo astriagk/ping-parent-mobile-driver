@@ -5,7 +5,7 @@ import 'package:taxify_driver_ui/config/environment.dart';
 class Endpoints {
   /// Get the base URL for the current environment
   // static String get baseUrl => appConfig.baseUrl;
-  static String get baseUrl => 'http://192.168.0.126:3000/api';
+  static String get baseUrl => 'http://192.168.1.4:3000/api';
 
   // ===== Authentication Endpoints =====
   static String get sendOtp => '$baseUrl/auth/login/send-otp';
@@ -26,4 +26,7 @@ class Endpoints {
   // ===== Trip Endpoints =====
   static String get createTrip => '$baseUrl/trips';
   static String get myTrips => '$baseUrl/trips/my-trips';
+
+  // ===== Tracking Endpoints =====
+  static String get trackingTomTom => '$baseUrl/tracking/tomtom';
 }

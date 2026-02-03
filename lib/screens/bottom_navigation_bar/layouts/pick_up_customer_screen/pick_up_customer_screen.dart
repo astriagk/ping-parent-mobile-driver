@@ -5,6 +5,7 @@ import 'package:taxify_driver_ui/common/maps/map_config.dart';
 import 'package:taxify_driver_ui/config.dart' hide Marker, Polyline, LatLng;
 import 'package:taxify_driver_ui/widgets/common_bg_layout.dart';
 import 'package:taxify_driver_ui/widgets/maps/index.dart';
+import 'package:taxify_driver_ui/provider/bottom_bar_provider/pick_up_customer_provider.dart';
 import 'layout/on_the_way_sheet.dart';
 import 'layout/otp_verification_sheet.dart';
 
@@ -17,6 +18,50 @@ class PickUpCustomerScreen extends StatefulWidget {
 
 class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
     with TickerProviderStateMixin {
+  bool _latLongFetched = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _fetchTripLatLongOnce();
+  }
+
+  Future<void> _fetchTripLatLongOnce() async {
+    if (_latLongFetched) return;
+    _latLongFetched = true;
+    final args = ModalRoute.of(context)?.settings.arguments;
+    String? tripId;
+    if (args is Map && args['tripId'] != null) {
+      tripId = args['tripId'].toString();
+    }
+
+    if (tripId != null) {
+      try {
+        // Get current location
+        final myRidesProvider = MyRidesProvider();
+        final position = await myRidesProvider.determinePosition();
+        final lat = position.latitude;
+        final lng = position.longitude;
+
+        // Call the API using PickUpCustomerProvider
+        final pickUpProvider = PickUpCustomerProvider();
+        final success = await pickUpProvider.fetchOptimizedRoute(
+          tripId: tripId,
+          currentLatitude: lat,
+          currentLongitude: lng,
+        );
+
+        if (success) {
+          // Route fetched successfully
+        } else {
+          // Error fetching route
+        }
+      } catch (e) {
+        // Error fetching location and route
+      }
+    }
+  }
+
   // bool showStartTripButton = true;
   bool isOtpVerify = false;
   bool showGif = false;
