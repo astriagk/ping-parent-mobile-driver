@@ -22,6 +22,7 @@ class OptimizedRouteResponse {
 
 class OptimizedRoute {
   final bool success;
+  final String id;
   final String tripId;
   final RouteGeometry routeGeometry;
   final double totalDistance;
@@ -31,6 +32,7 @@ class OptimizedRoute {
 
   OptimizedRoute({
     required this.success,
+    required this.id,
     required this.tripId,
     required this.routeGeometry,
     required this.totalDistance,
@@ -42,6 +44,7 @@ class OptimizedRoute {
   factory OptimizedRoute.fromJson(Map<String, dynamic> json) {
     return OptimizedRoute(
       success: json['success'] ?? false,
+      id: json['_id'] ?? '',
       tripId: json['trip_id'] ?? '',
       routeGeometry: RouteGeometry.fromJson(json['route_geometry'] ?? {}),
       totalDistance: (json['total_distance'] as num?)?.toDouble() ?? 0.0,

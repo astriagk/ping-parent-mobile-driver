@@ -1,8 +1,11 @@
 import 'dart:async';
 
+import 'package:flutter_map/flutter_map.dart';
 import 'package:gif/gif.dart';
+import 'package:taxify_driver_ui/api/models/pick_up_customer/optimized_route_model.dart';
 import 'package:taxify_driver_ui/common/maps/map_config.dart';
 import 'package:taxify_driver_ui/config.dart' hide Marker, Polyline, LatLng;
+import 'package:taxify_driver_ui/config/app_constants.dart';
 import 'package:taxify_driver_ui/widgets/common_bg_layout.dart';
 import 'package:taxify_driver_ui/widgets/maps/index.dart';
 import 'package:taxify_driver_ui/provider/bottom_bar_provider/pick_up_customer_provider.dart';
@@ -18,17 +21,55 @@ class PickUpCustomerScreen extends StatefulWidget {
 
 class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
     with TickerProviderStateMixin {
-  bool _latLongFetched = false;
+  late PickUpCustomerProvider _pickUpProvider;
+
+  bool isPickedUpCustomerClick = false;
+  bool isOtpVerify = false;
+  bool isOtp = false;
+  bool showGif = false;
+  bool isRideComplete = false;
+  int currentWaypointIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeProviders();
+    rideStart();
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _fetchTripLatLongOnce();
+  }
+
+  void _initializeProviders() {
+    _pickUpProvider = PickUpCustomerProvider();
+  }
+
+  RouteWaypoint? _getCurrentWaypoint(OptimizedRoute? route) {
+    if (route == null) return null;
+    final waypoints = route.routeGeometry.waypoints;
+    if (currentWaypointIndex >= waypoints.length) return null;
+    return waypoints[currentWaypointIndex];
+  }
+
+  void _moveToNextWaypoint(OptimizedRoute? route) {
+    if (route == null) return;
+    final waypoints = route.routeGeometry.waypoints;
+    if (currentWaypointIndex < waypoints.length - 1) {
+      setState(() {
+        currentWaypointIndex++;
+        isOtpVerify = false;
+        isOtp = false;
+      });
+    } else {
+      setState(() {
+        isRideComplete = true;
+      });
+    }
   }
 
   Future<void> _fetchTripLatLongOnce() async {
-    if (_latLongFetched) return;
-    _latLongFetched = true;
     final args = ModalRoute.of(context)?.settings.arguments;
     String? tripId;
     if (args is Map && args['tripId'] != null) {
@@ -43,39 +84,54 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
         final lat = position.latitude;
         final lng = position.longitude;
 
-        // Call the API using PickUpCustomerProvider
-        final pickUpProvider = PickUpCustomerProvider();
-        final success = await pickUpProvider.fetchOptimizedRoute(
+        // Call the API using PickUpCustomerProvider from state
+        final success = await _pickUpProvider.fetchOptimizedRoute(
           tripId: tripId,
           currentLatitude: lat,
           currentLongitude: lng,
         );
 
-        if (success) {
-          // Route fetched successfully
-        } else {
-          // Error fetching route
-        }
+        // Route fetched, UI will update via Consumer
       } catch (e) {
         // Error fetching location and route
       }
     }
   }
 
-  // bool showStartTripButton = true;
-  bool isOtpVerify = false;
-  bool showGif = false;
-  bool isRideComplete = false;
-  bool isPickedUpCustomerClick = false;
-  bool isOtp = false;
+  List<Marker> _buildWaypointMarkers(OptimizedRoute? route) {
+    if (route == null) return [];
 
-  @override
-  void initState() {
-    super.initState();
-    rideStart();
+    final waypoints = route.routeGeometry.waypoints;
+    if (waypoints.isEmpty) return [];
+
+    return waypoints.map((waypoint) {
+      final isSchoolLocation =
+          waypoint.studentParentId == AppConstants.schoolLocationType;
+
+      if (isSchoolLocation) {
+        return MapMarkers.dropOffMarker(waypoint.location, context);
+      } else {
+        return MapMarkers.waypointMarker(
+          waypoint.location,
+          waypoint.studentNames.join(', '),
+          context,
+        );
+      }
+    }).toList();
   }
 
-  rideStart() {
+  List<Polyline> _buildRoutePolyline(OptimizedRoute? route) {
+    if (route == null) return [];
+
+    final routePoints = route.routeGeometry.routePoints;
+    if (routePoints.isEmpty) return [];
+
+    return [
+      RoutePolylines.activeRoute(routePoints, context),
+    ];
+  }
+
+  void rideStart() {
     Timer(const Duration(seconds: 2), () {
       setState(() {
         showGif = false;
@@ -95,21 +151,11 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
   void startDismissOtpSuccess() {
     Timer(const Duration(seconds: 3), () {
       if (isOtp) {
-        // Make sure the timer runs only when isAccepted is true
         setState(() {
           showGif = false;
         });
-
-        isRideCompleted();
+        _moveToNextWaypoint(_pickUpProvider.optimizedRoute);
       }
-    });
-  }
-
-  isRideCompleted() {
-    Timer(const Duration(seconds: 2), () {
-      setState(() {
-        isRideComplete = true;
-      });
     });
   }
 
@@ -123,70 +169,88 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
               titleWidth: MediaQuery.of(context).size.width * 0.01,
               icon: false,
               onTap: () => route.pop(context)),
-          body: Stack(children: [
-            MapWidget(
-              config: config,
-              tileLayerBuilder: (urlTemplate) => MapTileLayer(
-                urlTemplate: urlTemplate,
+          body: ChangeNotifierProvider<PickUpCustomerProvider>.value(
+            value: _pickUpProvider,
+            child: Stack(children: [
+              Consumer<PickUpCustomerProvider>(
+                builder: (context, pickUpProvider, _) {
+                  return MapWidget(
+                    config: config,
+                    tileLayerBuilder: (urlTemplate) => MapTileLayer(
+                      urlTemplate: urlTemplate,
+                    ),
+                    currentLocationMarkerBuilder: (position, controller) =>
+                        MapMarkers.driverLocationMarker(position, controller),
+                    markers: () =>
+                        _buildWaypointMarkers(pickUpProvider.optimizedRoute),
+                    polylineBuilder: (context) =>
+                        _buildRoutePolyline(pickUpProvider.optimizedRoute),
+                  );
+                },
               ),
-            ),
-            Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: isPickedUpCustomerClick == true
-                    ? isOtpVerify == true
-                        ? showGif == true
-                            ? Container(
-                                decoration: BoxDecoration(
-                                    color: appTheme.white,
-                                    borderRadius: const BorderRadius.vertical(
-                                        top: Radius.circular(20))),
-                                padding: const EdgeInsets.all(20),
-                                child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                          language(context,
-                                              appFonts.otpVerifiedSuccess),
-                                          style: TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold)),
-                                      VSpace(Insets.i20),
-                                      CommonBgLayout(
-                                          width: double.infinity,
-                                          color: appTheme.bgBox,
-                                          child: Gif(
-                                              autostart: Autostart.loop,
-                                              height: 128,
-                                              width: 128,
-                                              duration:
-                                                  const Duration(seconds: 5),
-                                              image: const AssetImage(
-                                                  "assets/gif/successful.gif")))
-                                    ]))
-                            : OnTheWaySheet(
-                                onTap: isRideComplete == true
-                                    ? () => route.pushNamed(
-                                        context, routeName.rideDetailsScreen)
-                                    : () {},
-                                isRideComplete: isRideComplete)
-                        : OtpVerificationSheet(onTap: () => otpSuccess())
+              Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: isPickedUpCustomerClick == true
+                      ? isOtpVerify == true
+                          ? showGif == true
+                              ? Container(
+                                  decoration: BoxDecoration(
+                                      color: appTheme.white,
+                                      borderRadius: const BorderRadius.vertical(
+                                          top: Radius.circular(20))),
+                                  padding: const EdgeInsets.all(20),
+                                  child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                            language(context,
+                                                appFonts.otpVerifiedSuccess),
+                                            style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold)),
+                                        VSpace(Insets.i20),
+                                        CommonBgLayout(
+                                            width: double.infinity,
+                                            color: appTheme.bgBox,
+                                            child: Gif(
+                                                autostart: Autostart.loop,
+                                                height: 128,
+                                                width: 128,
+                                                duration:
+                                                    const Duration(seconds: 5),
+                                                image: const AssetImage(
+                                                    "assets/gif/successful.gif")))
+                                      ]))
+                              : OnTheWaySheet(
+                                  onTap: isRideComplete == true
+                                      ? () => route.pushNamed(
+                                          context, routeName.rideDetailsScreen)
+                                      : () {},
+                                  isRideComplete: isRideComplete)
+                          : OtpVerificationSheet(
+                              onTap: () => otpSuccess(),
+                              waypoint: _getCurrentWaypoint(
+                                  _pickUpProvider.optimizedRoute))
 
-                    // start trip button
-                    : CommonButton(
-                            margin:
-                                EdgeInsets.symmetric(horizontal: Insets.i20),
-                            onTap: () {
-                              setState(() {
-                                isPickedUpCustomerClick = true;
-                              });
-                            },
-                            text: language(context, appFonts.startTrip))
-                        .marginOnly(bottom: Insets.i20))
-          ]));
+                      // start trip button
+                      : CommonButton(
+                              margin:
+                                  EdgeInsets.symmetric(horizontal: Insets.i20),
+                              onTap: () {
+                                _fetchTripLatLongOnce().then((_) {
+                                  setState(() {
+                                    isPickedUpCustomerClick = true;
+                                  });
+                                });
+                              },
+                              text: language(context, appFonts.startTrip))
+                          .marginOnly(bottom: Insets.i20))
+            ]),
+          ));
     });
   }
 }

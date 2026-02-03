@@ -2,12 +2,14 @@ import 'dart:developer';
 
 import 'package:permission_handler/permission_handler.dart';
 import 'package:taxify_driver_ui/config.dart' hide Marker, Polyline, LatLng;
+import 'package:taxify_driver_ui/api/models/pick_up_customer/optimized_route_model.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class OtpVerificationSheet extends StatelessWidget {
   final GestureTapCallback? onTap;
+  final RouteWaypoint? waypoint;
 
-  const OtpVerificationSheet({super.key, this.onTap});
+  const OtpVerificationSheet({super.key, this.onTap, this.waypoint});
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +37,7 @@ class OtpVerificationSheet extends StatelessWidget {
                     radius: 20),
                 SizedBox(width: Insets.i8),
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(language(context, appFonts.peterThornton),
+                  Text(waypoint?.studentNames.join(', ') ?? '',
                       style:
                           AppCss.lexendRegular14.textColor(appTheme.primary)),
                   Row(children: [

@@ -4,35 +4,44 @@ import 'package:taxify_driver_ui/config.dart' hide Marker, Polyline, LatLng;
 
 /// Reusable marker builder for all map providers
 class MapMarkers {
-  /// Generic marker with SVG icon and color
+  /// Generic marker with SVG icon and dark color opacity background
   static Marker _buildMarker({
     required LatLng point,
     required String svgAssetPath,
     required Color color,
-    double width = 40,
-    double height = 40,
+    double width = 56,
+    double height = 56,
     Border? border,
     VoidCallback? onTap,
   }) {
     return Marker(
       point: point,
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          width: width,
-          height: height,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-            border: border,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: SvgPicture.asset(
-              svgAssetPath,
-              colorFilter: ColorFilter.mode(
-                appTheme.white,
-                BlendMode.srcIn,
+      alignment: Alignment.center,
+      child: SizedBox(
+        width: width,
+        height: height,
+        child: GestureDetector(
+          onTap: onTap,
+          child: Container(
+            width: width,
+            height: height,
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              shape: BoxShape.circle,
+              border: border ??
+                  Border.all(
+                    color: color.withOpacity(0.3),
+                    width: 2,
+                  ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: SvgPicture.asset(
+                svgAssetPath,
+                colorFilter: ColorFilter.mode(
+                  color,
+                  BlendMode.srcIn,
+                ),
               ),
             ),
           ),
@@ -41,7 +50,7 @@ class MapMarkers {
     );
   }
 
-  /// Current location marker (blue with border)
+  /// Current location marker (primary color with white border)
   static Marker currentLocationMarker(
     LatLng point,
     BuildContext context, {
@@ -50,18 +59,16 @@ class MapMarkers {
     return _buildMarker(
       point: point,
       svgAssetPath: svgAssets.gps,
-      color: appTheme.primary,
-      width: 35,
-      height: 35,
+      color: appColor(context).appTheme.primary,
       border: Border.all(
-        color: appTheme.white,
+        color: appColor(context).appTheme.white,
         width: 2,
       ),
       onTap: onTap,
     );
   }
 
-  /// Pickup location marker (green)
+  /// Pickup location marker (online/success color)
   static Marker pickupMarker(
     LatLng point,
     BuildContext context, {
@@ -70,38 +77,16 @@ class MapMarkers {
     return _buildMarker(
       point: point,
       svgAssetPath: svgAssets.location,
-      color: const Color(0xFF27AE60),
-      width: 40,
-      height: 40,
+      color: appColor(context).appTheme.online,
       border: Border.all(
-        color: appTheme.white,
+        color: appColor(context).appTheme.white,
         width: 2,
       ),
       onTap: onTap,
     );
   }
 
-  /// Drop-off location marker (red)
-  static Marker dropOffMarker(
-    LatLng point,
-    BuildContext context, {
-    VoidCallback? onTap,
-  }) {
-    return _buildMarker(
-      point: point,
-      svgAssetPath: svgAssets.location,
-      color: const Color(0xFFE74C3C),
-      width: 40,
-      height: 40,
-      border: Border.all(
-        color: appTheme.white,
-        width: 2,
-      ),
-      onTap: onTap,
-    );
-  }
-
-  /// Student/waypoint marker (orange)
+  /// Student/waypoint marker (yellow/warning color)
   static Marker waypointMarker(
     LatLng point,
     String studentName,
@@ -111,11 +96,45 @@ class MapMarkers {
     return _buildMarker(
       point: point,
       svgAssetPath: svgAssets.location,
-      color: const Color(0xFFF39C12),
-      width: 35,
-      height: 35,
+      color: appColor(context).appTheme.primary,
       border: Border.all(
-        color: appTheme.white,
+        color: appColor(context).appTheme.white,
+        width: 2,
+      ),
+      onTap: onTap,
+    );
+  }
+
+  /// Driver/Vehicle location marker (primary color)
+  static Marker driverLocationMarker(
+    LatLng point,
+    BuildContext context, {
+    VoidCallback? onTap,
+  }) {
+    return _buildMarker(
+      point: point,
+      svgAssetPath: svgAssets.carDark,
+      color: appColor(context).appTheme.primary,
+      border: Border.all(
+        color: appColor(context).appTheme.white,
+        width: 2,
+      ),
+      onTap: onTap,
+    );
+  }
+
+  /// School/Drop-off location marker (bank icon with primary color)
+  static Marker dropOffMarker(
+    LatLng point,
+    BuildContext context, {
+    VoidCallback? onTap,
+  }) {
+    return _buildMarker(
+      point: point,
+      svgAssetPath: svgAssets.bank,
+      color: appColor(context).appTheme.primary,
+      border: Border.all(
+        color: appColor(context).appTheme.white,
         width: 2,
       ),
       onTap: onTap,
