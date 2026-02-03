@@ -20,7 +20,6 @@ class SignInProvider extends ChangeNotifier {
 
   void onCountryCode(String? dialCode) {
     countryCode = dialCode ?? "";
-    debugPrint("dial code==>$dialCode");
     notifyListeners();
   }
 

@@ -30,8 +30,6 @@ class ActiveRideService {
         tripDate: tripDate,
       );
 
-      print(request.toJson());
-
       final response = await _apiClient.post(
         Endpoints.createTrip,
         body: request.toJson(),

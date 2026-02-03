@@ -41,7 +41,13 @@ class _ActiveRideScreenState extends State<ActiveRideScreen> {
   Future<void> _onCreateTripTap(
       TripType tripType, ActiveRideProvider activeRidePvr) async {
     if (_tripExists(tripType, activeRidePvr)) {
-      route.pushNamed(context, routeName.pickupCustomerScreen);
+      final trip =
+          activeRidePvr.myTrips.firstWhere((t) => t.tripType == tripType);
+      route.pushNamed(
+        context,
+        routeName.pickupCustomerScreen,
+        arg: {'tripId': trip.tripId},
+      );
     } else {
       final success = await activeRidePvr.createTrip(
         tripType: tripType,
@@ -56,8 +62,14 @@ class _ActiveRideScreenState extends State<ActiveRideScreen> {
       if (message != null) {
         _showSnackBar(message);
       }
-      if (success) {
-        route.pushNamed(context, routeName.pickupCustomerScreen);
+      if (success && activeRidePvr.myTrips.isNotEmpty) {
+        final trip =
+            activeRidePvr.myTrips.firstWhere((t) => t.tripType == tripType);
+        route.pushNamed(
+          context,
+          routeName.pickupCustomerScreen,
+          arg: {'tripId': trip.tripId},
+        );
       }
     }
   }

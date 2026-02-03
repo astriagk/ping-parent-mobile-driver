@@ -38,7 +38,6 @@ class LocationService {
 
       return LatLng(position.latitude, position.longitude);
     } catch (e) {
-      print('Error getting location: $e');
       return null;
     }
   }
@@ -60,7 +59,6 @@ class LocationService {
       return permission == LocationPermission.whileInUse ||
           permission == LocationPermission.always;
     } catch (e) {
-      print('Error requesting permission: $e');
       return false;
     }
   }
