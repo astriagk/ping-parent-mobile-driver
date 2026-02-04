@@ -38,7 +38,6 @@ class LocationService {
 
       return LatLng(position.latitude, position.longitude);
     } catch (e) {
-      print('Error getting location: $e');
       return null;
     }
   }
@@ -60,7 +59,6 @@ class LocationService {
       return permission == LocationPermission.whileInUse ||
           permission == LocationPermission.always;
     } catch (e) {
-      print('Error requesting permission: $e');
       return false;
     }
   }
@@ -73,5 +71,29 @@ class LocationService {
   /// Open location service settings
   static Future<void> openLocationServiceSettings() async {
     await Geolocator.openLocationSettings();
+  }
+
+  /// Format distance value
+  /// Returns formatted string like "50m" or "2.5km"
+  static String formatDistance(double? distance) {
+    if (distance == null) return '--';
+    return distance < 1.0
+        ? '${(distance * 1000).toStringAsFixed(0)}m'
+        : '${distance.toStringAsFixed(2)}km';
+  }
+
+  /// Format duration in seconds to minutes
+  /// Returns formatted string like "5min"
+  static String formatDuration(int? duration) {
+    if (duration == null) return '--';
+    final minutes = (duration / 60).toStringAsFixed(0);
+    return '${minutes}min';
+  }
+
+  /// Format estimated arrival time
+  /// Returns formatted string like "14:30"
+  static String formatETA(DateTime? eta) {
+    if (eta == null) return '--';
+    return '${eta.hour}:${eta.minute.toString().padLeft(2, '0')}';
   }
 }

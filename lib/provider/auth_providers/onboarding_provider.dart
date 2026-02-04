@@ -159,7 +159,7 @@ class OnboardingProvider extends ChangeNotifier {
                         onTap: () async {
                           route.pop(context);
                           await _performImagePick(
-                              ImageSource.gallery, documentName);
+                              context, ImageSource.gallery, documentName);
                         }),
                     ListTile(
                         leading:
@@ -170,7 +170,7 @@ class OnboardingProvider extends ChangeNotifier {
                         onTap: () async {
                           route.pop(context);
                           await _performImagePick(
-                              ImageSource.camera, documentName);
+                              context, ImageSource.camera, documentName);
                         })
                   ])));
         });
@@ -270,6 +270,13 @@ class OnboardingProvider extends ChangeNotifier {
           ),
         ),
       );
+      // Clear input fields
+      nameController.clear();
+      emailController.clear();
+      vehicleNumberController.clear();
+      vehicleCapacityController.clear();
+      selectedIndex = 0;
+      notifyListeners();
       // Navigate to next onboarding screen
       route.pushNamed(context, routeName.documentsOnboarding);
     } else {
@@ -364,6 +371,12 @@ class OnboardingProvider extends ChangeNotifier {
           ),
         ),
       );
+      // Clear input fields and documents
+      drivingLicenseController.clear();
+      vehicleLicenseNumberController.clear();
+      insuranceNumberController.clear();
+      documentImages.clear();
+      notifyListeners();
       // Navigate to next onboarding screen
       route.pushNamed(context, routeName.commonBottomBar);
     } else {
@@ -432,7 +445,7 @@ class OnboardingProvider extends ChangeNotifier {
 
   /// Helper method to perform image picking from gallery or camera
   Future<void> _performImagePick(
-      ImageSource source, String? documentName) async {
+      BuildContext context, ImageSource source, String? documentName) async {
     final ImagePicker picker = ImagePicker();
     final XFile? pickedFile = await picker.pickImage(source: source);
 

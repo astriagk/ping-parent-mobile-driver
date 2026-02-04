@@ -13,18 +13,27 @@ class ProfileWidgets {
       double? vSpace,
       bool isHavingSpace = false,
       TextEditingController? controller,
-      TextInputType? textInputType}) {
+      TextInputType? textInputType,
+      bool readOnly = false,
+      bool isDisabled = false}) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       TextWidgetCommon(
           text: title,
           style: AppCss.lexendMedium14
               .textColor(appColor(context).appTheme.darkText)),
       isHavingSpace == true ? VSpace(vSpace!) : Container(),
-      TextFieldCommon(
-              controller: controller,
-              hintText: hintText,
-              keyboardType: textInputType)
-          .padding(top: Sizes.s8, bottom: Sizes.s20)
+      Opacity(
+        opacity: isDisabled ? 0.6 : 1.0,
+        child: TextFieldCommon(
+                controller: controller,
+                hintText: hintText,
+                keyboardType: textInputType,
+                readOnly: readOnly,
+                color: isDisabled
+                    ? appColor(context).appTheme.lightText.withOpacity(0.15)
+                    : null)
+            .padding(top: Sizes.s8, bottom: Sizes.s20),
+      )
     ]);
   }
 

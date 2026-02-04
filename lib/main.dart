@@ -39,6 +39,8 @@ class MyApp extends StatelessWidget {
                   ChangeNotifierProvider(create: (_) => BottomBarProvider()),
                   ChangeNotifierProvider(
                       create: (_) => UserDetailsUpdateProvider()),
+                  ChangeNotifierProvider(
+                      create: (_) => DocumentUpdateProvider()),
                   ChangeNotifierProvider(create: (_) => HomeScreenProvider()),
                   ChangeNotifierProvider(create: (_) => SettingProvider()),
                   ChangeNotifierProvider(create: (_) => SettingProvider()),

@@ -83,8 +83,6 @@ class ActiveRideProvider extends ChangeNotifier {
         tripDate: tripDate,
       );
 
-      print('Create Trip Response: ${response.toJson()}');
-
       if (response.success && response.data != null) {
         successMessage = response.message;
         isLoading = false;
