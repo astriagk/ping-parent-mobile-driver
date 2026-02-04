@@ -52,4 +52,40 @@ class PickUpCustomerProvider extends ChangeNotifier {
       return false;
     }
   }
+
+  /// Update trip status (e.g., "started", "completed")
+  /// Pass the trip ID from the optimized route response (_id field)
+  Future<bool> updateTripStatus({
+    required String tripId,
+    required String tripStatus,
+  }) async {
+    try {
+      isLoading = true;
+      successMessage = null;
+      errorMessage = null;
+      notifyListeners();
+
+      final response = await _pickUpCustomerService.updateTripStatus(
+        tripId: tripId,
+        tripStatus: tripStatus,
+      );
+
+      if (response.success && response.data != null) {
+        successMessage = response.message ?? 'Trip status updated successfully';
+        isLoading = false;
+        notifyListeners();
+        return true;
+      } else {
+        errorMessage = response.message ?? 'Failed to update trip status';
+        isLoading = false;
+        notifyListeners();
+        return false;
+      }
+    } catch (e) {
+      errorMessage = 'Error updating trip status: ${e.toString()}';
+      isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
 }

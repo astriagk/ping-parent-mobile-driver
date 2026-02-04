@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_map/flutter_map.dart';
 import 'package:gif/gif.dart';
+import 'package:taxify_driver_ui/api/enums/trip_status_enum.dart';
 import 'package:taxify_driver_ui/api/models/pick_up_customer/optimized_route_model.dart';
 import 'package:taxify_driver_ui/common/maps/map_config.dart';
 import 'package:taxify_driver_ui/config.dart' hide Marker, Polyline, LatLng;
@@ -92,7 +93,14 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
           currentLongitude: lng,
         );
 
-        // Route fetched, UI will update via Consumer
+        // If route fetched successfully, trigger trip status update to "started"
+        if (success && _pickUpProvider.optimizedRoute != null) {
+          final routeId = _pickUpProvider.optimizedRoute!.id;
+          await _pickUpProvider.updateTripStatus(
+            tripId: routeId,
+            tripStatus: TripStatus.started.value,
+          );
+        }
       } catch (e) {
         // Error fetching location and route
       }
