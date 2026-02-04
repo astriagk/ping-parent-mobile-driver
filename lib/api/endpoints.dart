@@ -31,4 +31,6 @@ class Endpoints {
 
   // ===== Tracking Endpoints =====
   static String get trackingTomTom => '$baseUrl/tracking/tomtom';
+  static String updateDriverPosition(String tripId) =>
+      '$baseUrl/tracking/$tripId/position';
 }

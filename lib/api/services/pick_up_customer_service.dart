@@ -5,6 +5,8 @@ import 'package:taxify_driver_ui/api/models/pick_up_customer/optimized_route_mod
 import 'package:taxify_driver_ui/api/models/pick_up_customer/optimized_route_request.dart';
 import 'package:taxify_driver_ui/api/models/pick_up_customer/trip_status_request.dart';
 import 'package:taxify_driver_ui/api/models/pick_up_customer/trip_status_response.dart';
+import 'package:taxify_driver_ui/api/models/pick_up_customer/position_update_request.dart';
+import 'package:taxify_driver_ui/api/models/pick_up_customer/position_update_response.dart';
 
 class PickUpCustomerService {
   final ApiClient _apiClient;
@@ -95,6 +97,57 @@ class PickUpCustomerService {
         success: false,
         data: null,
         message: 'Error updating trip status: ${e.toString()}',
+      );
+    }
+  }
+
+  /// Update driver position for tracking
+  Future<PositionUpdateResponse> updateDriverPosition({
+    required String tripId,
+    required double latitude,
+    required double longitude,
+    required double speed,
+    required double heading,
+    required double accuracy,
+  }) async {
+    try {
+      final request = PositionUpdateRequest(
+        latitude: latitude,
+        longitude: longitude,
+        speed: speed,
+        heading: heading,
+        accuracy: accuracy,
+      );
+
+      final response = await _apiClient.patch(
+        Endpoints.updateDriverPosition(tripId),
+        body: request.toJson(),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        try {
+          final jsonData = jsonDecode(response.body) as Map<String, dynamic>;
+          return PositionUpdateResponse.fromJson(jsonData);
+        } catch (parseError) {
+          return PositionUpdateResponse(
+            success: false,
+            data: null,
+            message:
+                'Error parsing position update response: ${parseError.toString()}',
+          );
+        }
+      } else {
+        return PositionUpdateResponse(
+          success: false,
+          data: null,
+          message: 'Failed to update position. Status: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      return PositionUpdateResponse(
+        success: false,
+        data: null,
+        message: 'Error updating position: ${e.toString()}',
       );
     }
   }

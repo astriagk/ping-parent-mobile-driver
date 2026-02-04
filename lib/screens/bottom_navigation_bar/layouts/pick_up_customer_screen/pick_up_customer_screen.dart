@@ -22,8 +22,11 @@ class PickUpCustomerScreen extends StatefulWidget {
 }
 
 class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   late PickUpCustomerProvider _pickUpProvider;
+  late String _currentTripId;
+  Timer? _socketUpdateTimer;
+  Timer? _databaseUpdateTimer;
 
   bool isPickedUpCustomerClick = false;
   bool isOtpVerify = false;
@@ -36,12 +39,22 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
   void initState() {
     super.initState();
     _initializeProviders();
+    WidgetsBinding.instance.addObserver(this);
     rideStart();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+  }
+
+  @override
+  void dispose() {
+    // Cancel location update timers when screen is disposed
+    _socketUpdateTimer?.cancel();
+    _databaseUpdateTimer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   void _initializeProviders() {
@@ -96,15 +109,65 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
         // If route fetched successfully, trigger trip status update to "started"
         if (success && _pickUpProvider.optimizedRoute != null) {
           final routeId = _pickUpProvider.optimizedRoute!.id;
+          _currentTripId = tripId;
+
           await _pickUpProvider.updateTripStatus(
             tripId: routeId,
             tripStatus: TripStatus.started.value,
           );
+
+          // Start location tracking for live position updates
+          _startLocationTracking();
         }
       } catch (e) {
         // Error fetching location and route
       }
     }
+  }
+
+  void _startLocationTracking() {
+    final myRidesProvider = MyRidesProvider();
+
+    _socketUpdateTimer = Timer.periodic(
+      AppConstants.socketUpdateInterval,
+      (_) async {
+        try {
+          final position = await myRidesProvider.determinePosition();
+          _pickUpProvider.updateDriverPosition(
+            tripId: _currentTripId,
+            latitude: position.latitude,
+            longitude: position.longitude,
+            speed: position.speed ?? 0,
+            heading: position.heading ?? 0,
+            accuracy: position.accuracy ?? 0,
+          );
+        } catch (e) {}
+      },
+    );
+
+    _databaseUpdateTimer = Timer.periodic(
+      AppConstants.databaseUpdateInterval,
+      (_) async {
+        try {
+          final position = await myRidesProvider.determinePosition();
+          await _pickUpProvider.updateDriverPosition(
+            tripId: _currentTripId,
+            latitude: position.latitude,
+            longitude: position.longitude,
+            speed: position.speed ?? 0,
+            heading: position.heading ?? 0,
+            accuracy: position.accuracy ?? 0,
+          );
+        } catch (e) {}
+      },
+    );
+  }
+
+  void _stopLocationTracking() {
+    _socketUpdateTimer?.cancel();
+    _databaseUpdateTimer?.cancel();
+    _socketUpdateTimer = null;
+    _databaseUpdateTimer = null;
   }
 
   List<Marker> _buildWaypointMarkers(OptimizedRoute? route) {
@@ -163,7 +226,8 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
         currentWaypoint?.studentParentId == AppConstants.schoolLocationType;
 
     if (isSchoolLocation) {
-      // For school location, navigate directly to ride details
+      // For school location, stop tracking and navigate to ride details
+      _stopLocationTracking();
       route.pushNamed(context, routeName.rideDetailsScreen);
     } else {
       // For student pickups, show OTP verification success
