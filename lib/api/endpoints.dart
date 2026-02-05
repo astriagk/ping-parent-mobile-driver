@@ -26,7 +26,11 @@ class Endpoints {
   // ===== Trip Endpoints =====
   static String get createTrip => '$baseUrl/trips';
   static String get myTrips => '$baseUrl/trips/my-trips';
+  static String updateTripStatus(String tripId) =>
+      '$baseUrl/trips/$tripId/status';
 
   // ===== Tracking Endpoints =====
   static String get trackingTomTom => '$baseUrl/tracking/tomtom';
+  static String updateDriverPosition(String tripId) =>
+      '$baseUrl/tracking/$tripId/position';
 }
