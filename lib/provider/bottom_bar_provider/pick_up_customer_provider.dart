@@ -1,24 +1,63 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:taxify_driver_ui/api/services/pick_up_customer_service.dart';
 import 'package:taxify_driver_ui/api/services/socket_service.dart';
 import 'package:taxify_driver_ui/api/enums/trip_status_enum.dart';
 import 'package:taxify_driver_ui/api/models/pick_up_customer/optimized_route_model.dart';
 import 'package:taxify_driver_ui/api/api_client.dart';
+import 'package:taxify_driver_ui/helper/foreground_tracking_service.dart';
 
+/// Provider for managing trip pickup and location tracking
+/// Uses ForegroundTrackingService for reliable background location tracking
 class PickUpCustomerProvider extends ChangeNotifier {
   late final PickUpCustomerService _pickUpCustomerService;
   late final SocketService _socketService;
+  late final ForegroundTrackingService _trackingService;
 
   bool isLoading = false;
   String? successMessage;
   String? errorMessage;
   OptimizedRoute? optimizedRoute;
 
+  // Tracking state
+  bool _isTrackingActive = false;
+  StreamSubscription<Map<String, dynamic>>? _positionSubscription;
+  StreamSubscription<String>? _statusSubscription;
+
+  // Current position for UI
+  double? currentLatitude;
+  double? currentLongitude;
+
   PickUpCustomerProvider() {
     _pickUpCustomerService = PickUpCustomerService(ApiClient());
     _socketService = SocketService();
-    _socketService.initializeSocket();
+    _trackingService = ForegroundTrackingService();
+    _setupTrackingListeners();
   }
+
+  /// Setup listeners for tracking service updates
+  void _setupTrackingListeners() {
+    // Listen for position updates from background service
+    _positionSubscription = _trackingService.positionStream.listen((position) {
+      currentLatitude = position['latitude'] as double?;
+      currentLongitude = position['longitude'] as double?;
+      notifyListeners();
+    });
+
+    // Listen for tracking status changes
+    _statusSubscription = _trackingService.statusStream.listen((status) {
+      if (status == 'started') {
+        _isTrackingActive = true;
+      } else if (status == 'stopped') {
+        _isTrackingActive = false;
+      }
+      notifyListeners();
+    });
+  }
+
+  /// Get tracking active state
+  bool get isTrackingActive => _isTrackingActive;
 
   /// Fetch optimized route from TomTom tracking API
   Future<bool> fetchOptimizedRoute({
@@ -79,7 +118,9 @@ class PickUpCustomerProvider extends ChangeNotifier {
       if (response.success && response.data != null) {
         successMessage = response.message ?? 'Trip status updated successfully';
 
+        // Emit trip started via socket from main isolate
         if (tripStatus == TripStatus.started.value) {
+          await _socketService.initializeSocket(forceRefresh: true);
           _socketService.startTripViaWebSocket(tripId);
         }
 
@@ -100,36 +141,70 @@ class PickUpCustomerProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> updateDriverPosition({
-    required String tripId,
-    required double latitude,
-    required double longitude,
-    required double speed,
-    required double heading,
-    required double accuracy,
-  }) async {
+  /// Start location tracking using ForegroundTrackingService
+  /// This starts a native foreground service that:
+  /// 1. Emits position via socket every 10 seconds
+  /// 2. Sends API call every 100 meters
+  /// Works reliably in BOTH foreground and background
+  Future<void> startLocationTracking(String tripId) async {
+    if (_isTrackingActive) return;
+
     try {
-      _socketService.updateDriverPosition(
-        tripId: tripId,
-        latitude: latitude,
-        longitude: longitude,
-        speed: speed,
-        heading: heading,
-        accuracy: accuracy,
-      );
-
-      final response = await _pickUpCustomerService.updateDriverPosition(
-        tripId: tripId,
-        latitude: latitude,
-        longitude: longitude,
-        speed: speed,
-        heading: heading,
-        accuracy: accuracy,
-      );
-
-      return response.success;
+      await _trackingService.startTracking(tripId);
+      _isTrackingActive = true;
+      notifyListeners();
     } catch (e) {
-      return false;
+      errorMessage = 'Failed to start location tracking';
+      notifyListeners();
     }
+  }
+
+  /// Stop location tracking
+  Future<void> stopLocationTracking() async {
+    if (!_isTrackingActive) return;
+
+    _trackingService.stopTracking();
+    _isTrackingActive = false;
+    notifyListeners();
+  }
+
+  /// Stop the background service completely (call on logout or app close)
+  Future<void> stopTrackingService() async {
+    await _trackingService.stopService();
+  }
+
+  /// Get current position (single fetch, not stream)
+  Future<Position?> getCurrentPosition() async {
+    try {
+      return await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Get location stream for UI map updates (separate from tracking)
+  Stream<Position> getLocationStream({
+    int distanceFilter = 15,
+    Duration timeLimit = const Duration(seconds: 30),
+  }) {
+    return Geolocator.getPositionStream(
+      locationSettings: LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: distanceFilter,
+        timeLimit: timeLimit,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _positionSubscription?.cancel();
+    _statusSubscription?.cancel();
+    stopLocationTracking();
+    super.dispose();
   }
 }

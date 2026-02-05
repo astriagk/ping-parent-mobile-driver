@@ -25,8 +25,6 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
     with TickerProviderStateMixin, WidgetsBindingObserver {
   late PickUpCustomerProvider _pickUpProvider;
   late String _currentTripId;
-  Timer? _socketUpdateTimer;
-  Timer? _databaseUpdateTimer;
 
   bool isPickedUpCustomerClick = false;
   bool isOtpVerify = false;
@@ -41,24 +39,71 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
     _initializeProviders();
     WidgetsBinding.instance.addObserver(this);
     rideStart();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+    // Request location permission on screen load for map
+    _checkLocationPermission();
   }
 
   @override
   void dispose() {
-    // Cancel location update timers when screen is disposed
-    _socketUpdateTimer?.cancel();
-    _databaseUpdateTimer?.cancel();
+    _stopTracking();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
+  Future<void> _stopTracking() async {
+    await _pickUpProvider.stopLocationTracking();
+  }
+
   void _initializeProviders() {
     _pickUpProvider = PickUpCustomerProvider();
+  }
+
+  /// Show snackbar message to user
+  void _showSnackBar(String message, {bool isError = false}) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: TextWidgetCommon(text: message),
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
+  /// Check and request location permission
+  Future<bool> _checkLocationPermission() async {
+    // First check and request permission
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        _showSnackBar('Location permission denied', isError: true);
+        return false;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      _showSnackBar(
+          'Location permission permanently denied. Please enable in settings.',
+          isError: true);
+      return false;
+    }
+
+    // Then check if location services are enabled
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      _showSnackBar('Please enable location services in device settings',
+          isError: true);
+      // Try to open location settings
+      await Geolocator.openLocationSettings();
+      return false;
+    }
+
+    return true;
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Location tracking continues in both foreground and background
   }
 
   RouteWaypoint? _getCurrentWaypoint(OptimizedRoute? route) {
@@ -86,88 +131,53 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
 
   Future<void> _fetchTripLatLongOnce() async {
     final args = ModalRoute.of(context)?.settings.arguments;
+
     String? tripId;
     if (args is Map && args['tripId'] != null) {
       tripId = args['tripId'].toString();
     }
 
-    if (tripId != null) {
-      try {
-        // Get current location
-        final myRidesProvider = MyRidesProvider();
-        final position = await myRidesProvider.determinePosition();
-        final lat = position.latitude;
-        final lng = position.longitude;
+    // Check if tripId is provided
+    if (tripId == null || tripId.isEmpty) {
+      _showSnackBar('Trip ID not found. Please try again.', isError: true);
+      return;
+    }
 
-        // Call the API using PickUpCustomerProvider from state
-        final success = await _pickUpProvider.fetchOptimizedRoute(
-          tripId: tripId,
-          currentLatitude: lat,
-          currentLongitude: lng,
+    // Check location permission before starting
+    final hasPermission = await _checkLocationPermission();
+    if (!hasPermission) {
+      return;
+    }
+
+    try {
+      final myRidesProvider = MyRidesProvider();
+      final position = await myRidesProvider.determinePosition();
+
+      final success = await _pickUpProvider.fetchOptimizedRoute(
+        tripId: tripId,
+        currentLatitude: position.latitude,
+        currentLongitude: position.longitude,
+      );
+
+      if (success && _pickUpProvider.optimizedRoute != null) {
+        final routeId = _pickUpProvider.optimizedRoute!.id;
+        _currentTripId = tripId;
+
+        await _pickUpProvider.updateTripStatus(
+          tripId: routeId,
+          tripStatus: TripStatus.started.value,
         );
 
-        // If route fetched successfully, trigger trip status update to "started"
-        if (success && _pickUpProvider.optimizedRoute != null) {
-          final routeId = _pickUpProvider.optimizedRoute!.id;
-          _currentTripId = tripId;
-
-          await _pickUpProvider.updateTripStatus(
-            tripId: routeId,
-            tripStatus: TripStatus.started.value,
-          );
-
-          // Start location tracking for live position updates
-          _startLocationTracking();
-        }
-      } catch (e) {
-        // Error fetching location and route
+        await _pickUpProvider.startLocationTracking(_currentTripId);
+        _showSnackBar('Trip started successfully');
+      } else {
+        _showSnackBar(_pickUpProvider.errorMessage ?? 'Failed to start trip',
+            isError: true);
       }
+    } catch (e) {
+      print('[Screen] Error: $e');
+      _showSnackBar('Error starting trip: ${e.toString()}', isError: true);
     }
-  }
-
-  void _startLocationTracking() {
-    final myRidesProvider = MyRidesProvider();
-
-    _socketUpdateTimer = Timer.periodic(
-      AppConstants.socketUpdateInterval,
-      (_) async {
-        try {
-          final position = await myRidesProvider.determinePosition();
-          _pickUpProvider.updateDriverPosition(
-            tripId: _currentTripId,
-            latitude: position.latitude,
-            longitude: position.longitude,
-            speed: position.speed ?? 0,
-            heading: position.heading ?? 0,
-            accuracy: position.accuracy ?? 0,
-          );
-        } catch (e) {}
-      },
-    );
-
-    _databaseUpdateTimer = Timer.periodic(
-      AppConstants.databaseUpdateInterval,
-      (_) async {
-        try {
-          final position = await myRidesProvider.determinePosition();
-          await _pickUpProvider.updateDriverPosition(
-            tripId: _currentTripId,
-            latitude: position.latitude,
-            longitude: position.longitude,
-            speed: position.speed ?? 0,
-            heading: position.heading ?? 0,
-            accuracy: position.accuracy ?? 0,
-          );
-        } catch (e) {}
-      },
-    );
-  }
-
-  void _stopLocationTracking() {
-    _socketUpdateTimer?.cancel();
-    _databaseUpdateTimer?.cancel();
-    _socketUpdateTimer = null;
-    _databaseUpdateTimer = null;
   }
 
   List<Marker> _buildWaypointMarkers(OptimizedRoute? route) {
@@ -220,14 +230,14 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
     startDismissOtpSuccess();
   }
 
-  void _handleWaypointCompletion() {
+  Future<void> _handleWaypointCompletion() async {
     final currentWaypoint = _getCurrentWaypoint(_pickUpProvider.optimizedRoute);
     final isSchoolLocation =
         currentWaypoint?.studentParentId == AppConstants.schoolLocationType;
 
     if (isSchoolLocation) {
       // For school location, stop tracking and navigate to ride details
-      _stopLocationTracking();
+      await _pickUpProvider.stopLocationTracking();
       route.pushNamed(context, routeName.rideDetailsScreen);
     } else {
       // For student pickups, show OTP verification success
