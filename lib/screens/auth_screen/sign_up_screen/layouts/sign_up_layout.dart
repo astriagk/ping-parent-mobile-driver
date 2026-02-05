@@ -1,4 +1,5 @@
 import '../../../../config.dart';
+import '../../sign_in_screen/layout/country_picker.dart';
 
 class SignUpLayout extends StatelessWidget {
   const SignUpLayout({super.key});
@@ -25,11 +26,7 @@ class SignUpLayout extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           TextWidgetCommon(text: language(context, appFonts.mobileNumber)),
-          VSpace(Sizes.s9),
-          TextFieldCommon(
-            controller: signUpPvr.phoneController,
-            hintText: language(context, appFonts.enterYourNumber),
-          )
+          CountryPickerLayout(controller: signUpPvr.phoneController),
         ],
       ).padding(vertical: Sizes.s15),
       //title text and text filed layout

@@ -3,6 +3,7 @@ class DriverProfileData {
   final String driverUniqueId;
   final String name;
   final String email;
+  final String phoneNumber;
   final String? photoUrl;
   final String vehicleType;
   final String vehicleNumber;
@@ -20,6 +21,7 @@ class DriverProfileData {
     required this.driverUniqueId,
     required this.name,
     required this.email,
+    required this.phoneNumber,
     this.photoUrl,
     required this.vehicleType,
     required this.vehicleNumber,
@@ -39,6 +41,7 @@ class DriverProfileData {
       driverUniqueId: json['driver_unique_id'] ?? '',
       name: json['name'] ?? '',
       email: json['email'] ?? '',
+      phoneNumber: json['user']?['phone_number'] ?? '',
       photoUrl: json['photo_url'],
       vehicleType: json['vehicle_type'] ?? '',
       vehicleNumber: json['vehicle_number'] ?? '',

@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:taxify_driver_ui/api/api_client.dart';
 import 'package:taxify_driver_ui/api/endpoints.dart';
-import 'package:taxify_driver_ui/api/models/create_trip_request.dart';
-import 'package:taxify_driver_ui/api/models/create_trip_response.dart';
+import 'package:taxify_driver_ui/api/models/trip/create_trip_request.dart';
+import 'package:taxify_driver_ui/api/models/trip/create_trip_response.dart';
 import 'package:taxify_driver_ui/api/models/get_my_trips_response.dart';
 import 'package:taxify_driver_ui/api/enums/trip_type_enum.dart';
 
@@ -29,8 +29,6 @@ class ActiveRideService {
         tripType: tripType,
         tripDate: tripDate,
       );
-
-      print(request.toJson());
 
       final response = await _apiClient.post(
         Endpoints.createTrip,

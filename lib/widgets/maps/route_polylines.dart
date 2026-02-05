@@ -4,18 +4,16 @@ import 'package:taxify_driver_ui/config.dart' hide Marker, Polyline, LatLng;
 
 /// Reusable polyline builder for all map providers
 class RoutePolylines {
-  /// Active route (solid blue line)
   static Polyline activeRoute(List<LatLng> points, BuildContext context) {
     return Polyline(
       points: points,
-      color: appTheme.primary,
-      strokeWidth: 4.0,
-      borderColor: appTheme.primary.withOpacity(0.8),
-      borderStrokeWidth: 1.0,
+      color: appColor(context).appTheme.primary,
+      strokeWidth: Insets.i4,
+      borderColor: appColor(context).appTheme.primary.withOpacity(0.8),
+      borderStrokeWidth: Insets.i1,
     );
   }
 
-  /// Custom route with specified color and width
   static Polyline customRoute({
     required List<LatLng> points,
     required Color color,

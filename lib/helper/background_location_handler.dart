@@ -1,0 +1,385 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:math';
+import 'dart:ui';
+
+import 'package:flutter_background_service/flutter_background_service.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as http;
+import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:taxify_driver_ui/api/endpoints.dart';
+import 'package:taxify_driver_ui/api/services/position_queue_service.dart';
+import 'package:taxify_driver_ui/config/app_constants.dart';
+
+/// Background service entry point - runs in separate isolate
+@pragma('vm:entry-point')
+Future<void> onStart(ServiceInstance service) async {
+  DartPluginRegistrant.ensureInitialized();
+
+  final handler = BackgroundLocationHandler(service);
+  await handler.initialize();
+
+  service.on('stopService').listen((event) {
+    handler.dispose();
+    service.stopSelf();
+  });
+
+  service.on('startTracking').listen((event) async {
+    if (event != null && event['tripId'] != null) {
+      await handler.startTracking(event['tripId'] as String);
+    }
+  });
+
+  service.on('stopTracking').listen((event) {
+    handler.stopTracking();
+  });
+}
+
+/// iOS background fetch handler
+@pragma('vm:entry-point')
+Future<bool> onIosBackground(ServiceInstance service) async {
+  DartPluginRegistrant.ensureInitialized();
+  return true;
+}
+
+/// Handles background location tracking with socket and API updates
+class BackgroundLocationHandler {
+  BackgroundLocationHandler(this._service);
+
+  final ServiceInstance _service;
+  final _queueService = PositionQueueService();
+
+  // Must match StorageService options for data accessibility
+  FlutterSecureStorage get _secureStorage => const FlutterSecureStorage(
+        aOptions: AndroidOptions(
+          encryptedSharedPreferences: true,
+          resetOnError: true,
+        ),
+        iOptions: IOSOptions(
+          accessibility: KeychainAccessibility.first_unlock_this_device,
+        ),
+      );
+
+  IO.Socket? _socket;
+  bool _isSocketConnected = false;
+  StreamSubscription<Position>? _locationSubscription;
+  Timer? _queueSyncTimer;
+
+  bool _isTrackingActive = false;
+  String? _currentTripId;
+  Position? _lastApiPosition;
+  DateTime? _lastSocketEmitTime;
+  String _baseUrl = Endpoints.baseUrl;
+
+  Future<void> initialize() async {
+    final storedBaseUrl = await _secureStorage.read(key: 'base_url');
+    if (storedBaseUrl != null && storedBaseUrl.isNotEmpty) {
+      _baseUrl = storedBaseUrl;
+    }
+
+    await _initializeSocket();
+    _startQueueSync();
+  }
+
+  Future<void> _initializeSocket() async {
+    try {
+      final token = await _secureStorage.read(key: 'auth_token');
+      final userId = await _secureStorage.read(key: 'user_id');
+
+      if (token == null || token.isEmpty) {
+        return;
+      }
+
+      final socketUrl = _baseUrl.replaceAll('/api', '');
+
+      _socket = IO.io(socketUrl, <String, dynamic>{
+        'reconnection': true,
+        'reconnectionDelay': 1000,
+        'reconnectionDelayMax': 5000,
+        'reconnectionAttempts': 99999,
+        'transports': ['websocket'],
+        'forceNew': true,
+        'autoConnect': true,
+        'auth': {
+          'token': token,
+          'userId': userId ?? '',
+          'role': 'driver',
+        },
+      });
+
+      _socket!.onConnect((_) {
+        _isSocketConnected = true;
+        _syncPendingSocketPositions();
+      });
+
+      _socket!.onDisconnect((_) {
+        _isSocketConnected = false;
+      });
+
+      _socket!.on('connect_error', (error) {
+        _isSocketConnected = false;
+      });
+    } catch (_) {}
+  }
+
+  Future<void> startTracking(String tripId) async {
+    if (_isTrackingActive) {
+      _currentTripId = tripId;
+      return;
+    }
+
+    _isTrackingActive = true;
+    _currentTripId = tripId;
+    _lastApiPosition = null;
+    _lastSocketEmitTime = null;
+
+    print('[BG] Tracking started: $tripId');
+
+    _locationSubscription = Geolocator.getPositionStream(
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 0,
+      ),
+    ).listen(
+      _handlePositionUpdate,
+      onError: (_) {},
+    );
+
+    _service.invoke('trackingStarted', {'tripId': tripId});
+  }
+
+  void stopTracking() {
+    _isTrackingActive = false;
+    _currentTripId = null;
+    _lastApiPosition = null;
+    _lastSocketEmitTime = null;
+    _locationSubscription?.cancel();
+    _locationSubscription = null;
+
+    print('[BG] Tracking stopped');
+    _service.invoke('trackingStopped');
+  }
+
+  Future<void> _handlePositionUpdate(Position position) async {
+    if (!_isTrackingActive || _currentTripId == null) return;
+
+    final now = DateTime.now();
+    final timestamp = now.toIso8601String();
+
+    _service.invoke('positionUpdate', {
+      'latitude': position.latitude,
+      'longitude': position.longitude,
+      'speed': position.speed,
+      'heading': position.heading,
+      'accuracy': position.accuracy,
+      'timestamp': timestamp,
+    });
+
+    // Socket emit every 10 seconds
+    final shouldEmitSocket = _lastSocketEmitTime == null ||
+        now.difference(_lastSocketEmitTime!) >= AppConstants.socketEmitInterval;
+
+    if (shouldEmitSocket) {
+      _lastSocketEmitTime = now;
+      await _emitSocketPosition(position, timestamp);
+    }
+
+    // API update on 100m movement
+    if (_shouldSendApiUpdate(position)) {
+      _lastApiPosition = position;
+      await _sendApiPosition(position, timestamp);
+    }
+  }
+
+  Future<void> _emitSocketPosition(Position position, String timestamp) async {
+    final data = {
+      'tripId': _currentTripId,
+      'latitude': position.latitude,
+      'longitude': position.longitude,
+      'speed': position.speed,
+      'heading': position.heading,
+      'accuracy': position.accuracy,
+      'timestamp': timestamp,
+    };
+
+    if (_isSocketConnected && _socket != null) {
+      try {
+        _socket!.emit('driver:update_position', data);
+      } catch (e) {
+        await _queuePosition(position, timestamp, 'socket');
+      }
+    } else {
+      await _queuePosition(position, timestamp, 'socket');
+    }
+  }
+
+  Future<void> _sendApiPosition(Position position, String timestamp) async {
+    try {
+      final token = await _secureStorage.read(key: 'auth_token');
+      if (token == null) {
+        await _queuePosition(position, timestamp, 'api');
+        return;
+      }
+
+      final url = '$_baseUrl/tracking/$_currentTripId/position';
+      final response = await http
+          .patch(
+            Uri.parse(url),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $token',
+            },
+            body: jsonEncode({
+              'latitude': position.latitude,
+              'longitude': position.longitude,
+              'speed': position.speed,
+              'heading': position.heading,
+              'accuracy': position.accuracy,
+            }),
+          )
+          .timeout(const Duration(seconds: 10));
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        await _queuePosition(position, timestamp, 'api');
+      }
+    } catch (e) {
+      await _queuePosition(position, timestamp, 'api');
+    }
+  }
+
+  Future<void> _queuePosition(
+      Position position, String timestamp, String type) async {
+    try {
+      await _queueService.enqueue(
+        tripId: _currentTripId!,
+        latitude: position.latitude,
+        longitude: position.longitude,
+        speed: position.speed,
+        heading: position.heading,
+        accuracy: position.accuracy,
+        timestamp: timestamp,
+        type: type,
+      );
+    } catch (_) {}
+  }
+
+  bool _shouldSendApiUpdate(Position currentPosition) {
+    if (_lastApiPosition == null) return true;
+
+    final distance = _calculateDistance(
+      _lastApiPosition!.latitude,
+      _lastApiPosition!.longitude,
+      currentPosition.latitude,
+      currentPosition.longitude,
+    );
+
+    return distance >= AppConstants.apiUpdateDistanceFilter;
+  }
+
+  double _calculateDistance(
+      double lat1, double lon1, double lat2, double lon2) {
+    const double earthRadius = 6371000;
+    final double dLat = _toRadians(lat2 - lat1);
+    final double dLon = _toRadians(lon2 - lon1);
+
+    final double a = sin(dLat / 2) * sin(dLat / 2) +
+        cos(_toRadians(lat1)) *
+            cos(_toRadians(lat2)) *
+            sin(dLon / 2) *
+            sin(dLon / 2);
+
+    final double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+    return earthRadius * c;
+  }
+
+  double _toRadians(double degrees) => degrees * pi / 180;
+
+  void _startQueueSync() {
+    _queueSyncTimer?.cancel();
+    _queueSyncTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      _syncPendingSocketPositions();
+      _syncPendingApiPositions();
+    });
+  }
+
+  Future<void> _syncPendingSocketPositions() async {
+    if (!_isSocketConnected || _socket == null) return;
+
+    try {
+      final pending = await _queueService.getPending(type: 'socket', limit: 20);
+      if (pending.isEmpty) return;
+
+      final syncedIds = <int>[];
+      for (final pos in pending) {
+        try {
+          _socket!.emit('driver:update_position', {
+            'tripId': pos['trip_id'],
+            'latitude': pos['latitude'],
+            'longitude': pos['longitude'],
+            'speed': pos['speed'],
+            'heading': pos['heading'],
+            'accuracy': pos['accuracy'],
+            'timestamp': pos['timestamp'],
+          });
+          syncedIds.add(pos['id'] as int);
+        } catch (e) {
+          break;
+        }
+      }
+
+      if (syncedIds.isNotEmpty) {
+        await _queueService.markSynced(syncedIds);
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _syncPendingApiPositions() async {
+    try {
+      final token = await _secureStorage.read(key: 'auth_token');
+      if (token == null) return;
+
+      final pending = await _queueService.getPendingApiPositions(limit: 10);
+      if (pending.isEmpty) return;
+
+      final syncedIds = <int>[];
+      for (final pos in pending) {
+        try {
+          final url = '$_baseUrl/tracking/${pos['trip_id']}/position';
+          final response = await http
+              .patch(
+                Uri.parse(url),
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': 'Bearer $token',
+                },
+                body: jsonEncode({
+                  'latitude': pos['latitude'],
+                  'longitude': pos['longitude'],
+                  'speed': pos['speed'],
+                  'heading': pos['heading'],
+                  'accuracy': pos['accuracy'],
+                }),
+              )
+              .timeout(const Duration(seconds: 10));
+
+          if (response.statusCode == 200 || response.statusCode == 201) {
+            syncedIds.add(pos['id'] as int);
+          }
+        } catch (_) {}
+      }
+
+      if (syncedIds.isNotEmpty) {
+        await _queueService.markSynced(syncedIds);
+      }
+    } catch (_) {}
+  }
+
+  void dispose() {
+    _queueSyncTimer?.cancel();
+    _queueSyncTimer = null;
+    _locationSubscription?.cancel();
+    _socket?.disconnect();
+    _socket?.dispose();
+  }
+}

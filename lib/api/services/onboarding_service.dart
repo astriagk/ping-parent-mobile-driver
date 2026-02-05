@@ -77,26 +77,26 @@ class OnboardingService {
       );
 
       // Add text fields
-      request.fields['drivingLicenseNumber'] = drivingLicenseNumber;
-      request.fields['vehicleLicenseNumber'] = vehicleLicenseNumber;
-      request.fields['insuranceNumber'] = insuranceNumber;
+      request.fields['driving_license_number'] = drivingLicenseNumber;
+      request.fields['vehicle_license_number'] = vehicleLicenseNumber;
+      request.fields['insurance_number'] = insuranceNumber;
 
       // Add image files
       request.files.add(
         await http.MultipartFile.fromPath(
-          'drivingLicenseImage',
+          'driving_license_photo',
           drivingLicenseImage.path,
         ),
       );
       request.files.add(
         await http.MultipartFile.fromPath(
-          'vehicleLicenseImage',
+          'vehicle_license_photo',
           vehicleLicenseImage.path,
         ),
       );
       request.files.add(
         await http.MultipartFile.fromPath(
-          'insuranceImage',
+          'insurance_photo',
           insuranceImage.path,
         ),
       );

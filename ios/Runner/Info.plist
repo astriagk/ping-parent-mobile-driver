@@ -45,5 +45,24 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- Location Permissions for Trip Tracking -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app needs access to your location to track your trip and share it with parents.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>This app needs access to your location even when in background to continuously track your trip and share it with parents.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>This app needs access to your location even when in background to continuously track your trip and share it with parents.</string>
+	<!-- Background Modes for Location Tracking -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+		<string>fetch</string>
+		<string>processing</string>
+	</array>
+	<!-- Background processing task identifier -->
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>com.taxify.driver.locationTracking</string>
+	</array>
 </dict>
 </plist>

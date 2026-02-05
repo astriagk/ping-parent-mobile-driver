@@ -23,6 +23,9 @@ class MapWidget extends StatefulWidget {
   final Widget Function(String urlTemplate) tileLayerBuilder;
   final List<Marker> Function()? markers;
   final List<Polyline> Function()? polylines;
+  final List<Polyline> Function(BuildContext context)? polylineBuilder;
+  final Marker Function(LatLng point, BuildContext context)?
+      currentLocationMarkerBuilder;
   final Function(TapPosition, LatLng)? onTap;
   final PositionCallback? onPositionChanged;
   final bool showControls;
@@ -34,6 +37,8 @@ class MapWidget extends StatefulWidget {
     required this.tileLayerBuilder,
     this.markers,
     this.polylines,
+    this.polylineBuilder,
+    this.currentLocationMarkerBuilder,
     this.onTap,
     this.onPositionChanged,
     this.showControls = false,
@@ -63,13 +68,37 @@ class _MapWidgetState extends State<MapWidget> {
     if (location != null && mounted) {
       setState(() {
         _currentLocation = location;
-        _markers = [
-          if (widget.showCurrentLocation)
-            MapMarkers.currentLocationMarker(location, context),
-          ...?widget.markers?.call(),
-        ];
+        _updateMarkers();
       });
-      _mapController.move(location, 15);
+      // Delay to ensure map controller is initialized
+      await Future.delayed(const Duration(milliseconds: 300));
+      if (mounted) {
+        _mapController.move(location, 15);
+      }
+    }
+  }
+
+  void _updateMarkers() {
+    _markers = [
+      if (widget.showCurrentLocation)
+        widget.currentLocationMarkerBuilder?.call(_currentLocation!, context) ??
+            MapMarkers.currentLocationMarker(_currentLocation!, context),
+      ...?widget.markers?.call(),
+    ];
+  }
+
+  @override
+  void didUpdateWidget(MapWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Update markers if the markers callback changed or if parent data changed
+    if (oldWidget.markers != widget.markers ||
+        oldWidget.currentLocationMarkerBuilder !=
+            widget.currentLocationMarkerBuilder) {
+      if (_currentLocation != null) {
+        setState(() {
+          _updateMarkers();
+        });
+      }
     }
   }
 
@@ -125,9 +154,12 @@ class _MapWidgetState extends State<MapWidget> {
             widget.tileLayerBuilder(
               widget.config.allTileOptions[_selectedTileIndex]['url']!,
             ),
-            if (widget.polylines?.call().isNotEmpty ?? false)
+            if ((widget.polylineBuilder?.call(context).isNotEmpty ?? false) ||
+                (widget.polylines?.call().isNotEmpty ?? false))
               PolylineLayer(
-                polylines: widget.polylines!.call(),
+                polylines: widget.polylineBuilder?.call(context) ??
+                    widget.polylines?.call() ??
+                    [],
               ),
             if (_markers.isNotEmpty)
               MarkerLayer(

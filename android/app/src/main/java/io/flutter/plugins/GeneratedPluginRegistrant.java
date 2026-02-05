@@ -26,6 +26,16 @@ public final class GeneratedPluginRegistrant {
       Log.e(TAG, "Error registering plugin emoji_picker_flutter, com.fintasys.emoji_picker_flutter.EmojiPickerFlutterPlugin", e);
     }
     try {
+      flutterEngine.getPlugins().add(new id.flutter.flutter_background_service.FlutterBackgroundServicePlugin());
+    } catch (Exception e) {
+      Log.e(TAG, "Error registering plugin flutter_background_service_android, id.flutter.flutter_background_service.FlutterBackgroundServicePlugin", e);
+    }
+    try {
+      flutterEngine.getPlugins().add(new com.dexterous.flutterlocalnotifications.FlutterLocalNotificationsPlugin());
+    } catch (Exception e) {
+      Log.e(TAG, "Error registering plugin flutter_local_notifications, com.dexterous.flutterlocalnotifications.FlutterLocalNotificationsPlugin", e);
+    }
+    try {
       flutterEngine.getPlugins().add(new com.mastertipsy.flutter_localization.FlutterLocalizationPlugin());
     } catch (Exception e) {
       Log.e(TAG, "Error registering plugin flutter_localization, com.mastertipsy.flutter_localization.FlutterLocalizationPlugin", e);

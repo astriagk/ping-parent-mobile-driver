@@ -82,5 +82,4 @@ bool _isAppConfigInitialized = false;
 void initializeEnvironment(Environment env) {
   _appConfig = EnvironmentConfig.getConfig(env);
   _isAppConfigInitialized = true;
-  debugPrint('🔧 Environment initialized: $_appConfig');
 }

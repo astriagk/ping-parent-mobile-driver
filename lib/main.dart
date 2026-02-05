@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:taxify_driver_ui/config/environment.dart';
+import 'package:taxify_driver_ui/helper/foreground_tracking_service.dart';
 
 import 'config.dart';
 
@@ -12,6 +13,10 @@ void main() async {
   await ScreenUtil.ensureScreenSize();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   initializeEnvironment(Environment.production);
+
+  // Initialize background tracking service
+  await ForegroundTrackingService().initialize();
+
   runApp(const MyApp());
 }
 
@@ -39,6 +44,8 @@ class MyApp extends StatelessWidget {
                   ChangeNotifierProvider(create: (_) => BottomBarProvider()),
                   ChangeNotifierProvider(
                       create: (_) => UserDetailsUpdateProvider()),
+                  ChangeNotifierProvider(
+                      create: (_) => DocumentUpdateProvider()),
                   ChangeNotifierProvider(create: (_) => HomeScreenProvider()),
                   ChangeNotifierProvider(create: (_) => SettingProvider()),
                   ChangeNotifierProvider(create: (_) => SettingProvider()),
