@@ -9,8 +9,8 @@ class MapMarkers {
     required LatLng point,
     required String svgAssetPath,
     required Color color,
-    double width = 56,
-    double height = 56,
+    double width = 20,
+    double height = 20,
     Border? border,
     VoidCallback? onTap,
   }) {
@@ -18,26 +18,17 @@ class MapMarkers {
       point: point,
       alignment: Alignment.center,
       child: SizedBox(
-        width: width,
-        height: height,
         child: GestureDetector(
           onTap: onTap,
           child: Container(
-            width: width,
-            height: height,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              shape: BoxShape.circle,
-              border: border ??
-                  Border.all(
-                    color: color.withOpacity(0.3),
-                    width: 2,
-                  ),
-            ),
+                color: color.withOpacity(0.2), shape: BoxShape.circle),
             child: Padding(
               padding: const EdgeInsets.all(4.0),
               child: SvgPicture.asset(
                 svgAssetPath,
+                width: width,
+                height: height,
                 colorFilter: ColorFilter.mode(
                   color,
                   BlendMode.srcIn,
@@ -77,7 +68,7 @@ class MapMarkers {
     return _buildMarker(
       point: point,
       svgAssetPath: svgAssets.location,
-      color: appColor(context).appTheme.online,
+      color: appColor(context).appTheme.primary,
       border: Border.all(
         color: appColor(context).appTheme.white,
         width: 2,
@@ -115,10 +106,6 @@ class MapMarkers {
       point: point,
       svgAssetPath: svgAssets.carDark,
       color: appColor(context).appTheme.primary,
-      border: Border.all(
-        color: appColor(context).appTheme.white,
-        width: 2,
-      ),
       onTap: onTap,
     );
   }

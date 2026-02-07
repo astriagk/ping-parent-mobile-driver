@@ -83,6 +83,13 @@ class ForegroundTrackingService {
       }
     });
 
+    // Listen for debug messages from background isolate
+    _service.on('debug').listen((event) {
+      if (event != null && event['message'] != null) {
+        print('[BG-DEBUG] ${event['message']}');
+      }
+    });
+
     _service.on('trackingStarted').listen((event) {
       _statusController.add('started');
     });

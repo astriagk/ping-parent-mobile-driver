@@ -1,5 +1,6 @@
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:taxify_driver_ui/api/endpoints.dart';
+import 'package:taxify_driver_ui/api/enums/socket_events_enum.dart';
 import 'package:taxify_driver_ui/api/services/storage_service.dart';
 
 /// Socket Service for real-time communication
@@ -138,8 +139,9 @@ class SocketService {
     }
 
     try {
-      print('[Socket] 📤 Emitting: driver:trip_started for trip: $tripId');
-      _socket!.emit('driver:trip_started', {'tripId': tripId});
+      print(
+          '[Socket] 📤 Emitting: ${DriverSocketEvent.tripStarted.value} for trip: $tripId');
+      _socket!.emit(DriverSocketEvent.tripStarted.value, {'tripId': tripId});
       print('[Socket] ✅ Trip started event emitted');
     } catch (e) {
       print('[Socket] ❌ Error emitting trip_started: $e');
@@ -172,10 +174,9 @@ class SocketService {
         'timestamp': timestamp,
       };
 
-      _socket!.emit('driver:update_position', data);
-      print('[Socket] ✅ Position sent via socket');
+      _socket!.emit(DriverSocketEvent.updatePosition.value, data);
     } catch (e) {
-      print('[Socket] ❌ Error emitting position: $e');
+      print('[Socket] Error emitting position: $e');
     }
   }
 

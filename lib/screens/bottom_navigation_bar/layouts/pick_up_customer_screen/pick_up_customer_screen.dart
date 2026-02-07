@@ -353,7 +353,14 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
                           : OtpVerificationSheet(
                               onTap: () => _handleWaypointCompletion(),
                               waypoint: _getCurrentWaypoint(
-                                  _pickUpProvider.optimizedRoute))
+                                  _pickUpProvider.optimizedRoute),
+                              onEndTrip: () async {
+                                await _stopTracking();
+                                if (mounted) {
+                                  route.pop(context);
+                                }
+                              },
+                            )
 
                       // start trip button
                       : CommonButton(

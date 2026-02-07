@@ -8,9 +8,10 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:socket_io_client/socket_io_client.dart' as IO;
-import 'package:taxify_driver_ui/api/endpoints.dart';
+import 'package:taxify_driver_ui/api/enums/socket_events_enum.dart';
 import 'package:taxify_driver_ui/api/services/position_queue_service.dart';
 import 'package:taxify_driver_ui/config/app_constants.dart';
+import 'package:taxify_driver_ui/config/environment.dart';
 
 /// Background service entry point - runs in separate isolate
 @pragma('vm:entry-point')
@@ -70,12 +71,20 @@ class BackgroundLocationHandler {
   String? _currentTripId;
   Position? _lastApiPosition;
   DateTime? _lastSocketEmitTime;
-  String _baseUrl = Endpoints.baseUrl;
+  // Don't use Endpoints.baseUrl here - it requires appConfig which isn't available in background isolate
+  String _baseUrl = '';
+
+  void _debug(String message) {
+    print('[BG] $message');
+    _service.invoke('debug', {'message': message});
+  }
 
   Future<void> initialize() async {
     final storedBaseUrl = await _secureStorage.read(key: 'base_url');
     if (storedBaseUrl != null && storedBaseUrl.isNotEmpty) {
       _baseUrl = storedBaseUrl;
+    } else {
+      _baseUrl = EnvironmentConfig.production.baseUrl;
     }
 
     await _initializeSocket();
@@ -119,8 +128,11 @@ class BackgroundLocationHandler {
 
       _socket!.on('connect_error', (error) {
         _isSocketConnected = false;
+        _debug('Socket connect_error: $error');
       });
-    } catch (_) {}
+    } catch (e) {
+      _debug('Socket init exception: $e');
+    }
   }
 
   Future<void> startTracking(String tripId) async {
@@ -134,8 +146,6 @@ class BackgroundLocationHandler {
     _lastApiPosition = null;
     _lastSocketEmitTime = null;
 
-    print('[BG] Tracking started: $tripId');
-
     _locationSubscription = Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.high,
@@ -143,7 +153,7 @@ class BackgroundLocationHandler {
       ),
     ).listen(
       _handlePositionUpdate,
-      onError: (_) {},
+      onError: (error) {},
     );
 
     _service.invoke('trackingStarted', {'tripId': tripId});
@@ -157,7 +167,6 @@ class BackgroundLocationHandler {
     _locationSubscription?.cancel();
     _locationSubscription = null;
 
-    print('[BG] Tracking stopped');
     _service.invoke('trackingStopped');
   }
 
@@ -205,7 +214,7 @@ class BackgroundLocationHandler {
 
     if (_isSocketConnected && _socket != null) {
       try {
-        _socket!.emit('driver:update_position', data);
+        _socket!.emit(DriverSocketEvent.updatePosition.value, data);
       } catch (e) {
         await _queuePosition(position, timestamp, 'socket');
       }
@@ -313,7 +322,7 @@ class BackgroundLocationHandler {
       final syncedIds = <int>[];
       for (final pos in pending) {
         try {
-          _socket!.emit('driver:update_position', {
+          _socket!.emit(DriverSocketEvent.updatePosition.value, {
             'tripId': pos['trip_id'],
             'latitude': pos['latitude'],
             'longitude': pos['longitude'],

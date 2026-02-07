@@ -9,8 +9,10 @@ import 'package:url_launcher/url_launcher.dart';
 class OtpVerificationSheet extends StatelessWidget {
   final GestureTapCallback? onTap;
   final RouteWaypoint? waypoint;
+  final VoidCallback? onEndTrip;
 
-  const OtpVerificationSheet({super.key, this.onTap, this.waypoint});
+  const OtpVerificationSheet(
+      {super.key, this.onTap, this.waypoint, this.onEndTrip});
 
   @override
   Widget build(BuildContext context) {
@@ -95,9 +97,21 @@ class OtpVerificationSheet extends StatelessWidget {
               Divider(color: appTheme.stroke, height: 0),
               VSpace(Insets.i15),
               if (waypoint?.studentParentId == AppConstants.schoolLocationType)
-                CommonButton(
-                    text: language(context, appFonts.completeRide),
-                    onTap: onTap)
+                Row(children: [
+                  Expanded(
+                    child: CommonButton(
+                        text: language(context, appFonts.completeRide),
+                        onTap: onTap),
+                  ),
+                  SizedBox(width: Insets.i12),
+                  SizedBox(
+                    width: 80,
+                    child: CommonButton(
+                        text: 'End',
+                        color: appTheme.alertZone,
+                        onTap: onEndTrip),
+                  ),
+                ])
               else
                 Column(mainAxisSize: MainAxisSize.min, children: [
                   AuthCommonWidgets().textAndTextField(
@@ -107,8 +121,21 @@ class OtpVerificationSheet extends StatelessWidget {
                       context,
                       fieldBgColor: appTheme.bgBox),
                   VSpace(Insets.i25),
-                  CommonButton(
-                      text: language(context, appFonts.verifyOTP), onTap: onTap)
+                  Row(children: [
+                    Expanded(
+                      child: CommonButton(
+                          text: language(context, appFonts.verifyOTP),
+                          onTap: onTap),
+                    ),
+                    SizedBox(width: Insets.i12),
+                    SizedBox(
+                      width: 80,
+                      child: CommonButton(
+                          text: 'End',
+                          color: appTheme.alertZone,
+                          onTap: onEndTrip),
+                    ),
+                  ])
                 ])
             ]));
   }
