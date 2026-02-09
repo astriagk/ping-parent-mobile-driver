@@ -37,6 +37,8 @@ class Endpoints {
   // ===== Trip Students Endpoints =====
   static String pickupPoint(String tripId) =>
       '$baseUrl/trip-students/trip/$tripId/pickup-point';
+  static String schoolPoint(String tripId) =>
+      '$baseUrl/trip-students/trip/$tripId/school-point';
 
   // ===== Daily QR OTP Endpoints =====
   static String get verifyDailyQrOtp => '$baseUrl/daily-qr-otp/verify';

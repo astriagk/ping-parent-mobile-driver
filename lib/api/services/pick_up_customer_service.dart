@@ -9,6 +9,8 @@ import 'package:taxify_driver_ui/api/models/pick_up_customer/position_update_req
 import 'package:taxify_driver_ui/api/models/pick_up_customer/position_update_response.dart';
 import 'package:taxify_driver_ui/api/models/pick_up_customer/pickup_point_request.dart';
 import 'package:taxify_driver_ui/api/models/pick_up_customer/pickup_point_response.dart';
+import 'package:taxify_driver_ui/api/models/pick_up_customer/school_point_request.dart';
+import 'package:taxify_driver_ui/api/models/pick_up_customer/school_point_response.dart';
 import 'package:taxify_driver_ui/api/models/pick_up_customer/daily_qr_otp_request.dart';
 import 'package:taxify_driver_ui/api/models/pick_up_customer/daily_qr_otp_response.dart';
 
@@ -272,6 +274,68 @@ class PickUpCustomerService {
         success: false,
         data: null,
         message: 'Error processing pickup point: ${e.toString()}',
+      );
+    }
+  }
+
+  /// Process school point for dropping students at school
+  /// Handles bulk action for students being dropped at school location
+  Future<SchoolPointResponse> processSchoolPoint({
+    required String tripId,
+    required List<String> studentIds,
+    required double latitude,
+    required double longitude,
+  }) async {
+    try {
+      final request = SchoolPointRequest(
+        studentIds: studentIds,
+        latitude: latitude,
+        longitude: longitude,
+      );
+
+      final response = await _apiClient.post(
+        Endpoints.schoolPoint(tripId),
+        body: request.toJson(),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        try {
+          final jsonData = jsonDecode(response.body) as Map<String, dynamic>;
+          return SchoolPointResponse.fromJson(jsonData);
+        } catch (parseError) {
+          return SchoolPointResponse(
+            success: false,
+            data: null,
+            message:
+                'Error parsing school point response: ${parseError.toString()}',
+          );
+        }
+      } else {
+        // Try to parse error message from response
+        try {
+          final jsonData = jsonDecode(response.body) as Map<String, dynamic>;
+          return SchoolPointResponse(
+            success: false,
+            data: null,
+            error: jsonData['error'] ?? 'Failed to process school point',
+            details: jsonData['details'] != null
+                ? List<String>.from(jsonData['details'])
+                : null,
+          );
+        } catch (_) {
+          return SchoolPointResponse(
+            success: false,
+            data: null,
+            message:
+                'Failed to process school point. Status: ${response.statusCode}',
+          );
+        }
+      }
+    } catch (e) {
+      return SchoolPointResponse(
+        success: false,
+        data: null,
+        message: 'Error processing school point: ${e.toString()}',
       );
     }
   }

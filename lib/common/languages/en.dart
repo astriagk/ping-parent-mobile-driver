@@ -310,4 +310,5 @@ dynamic en = {
   "startTrip": "Start Trip",
   "nextRide": "Next Ride",
   "currenRide": "Current Ride",
+  "absent": "Absent",
 };

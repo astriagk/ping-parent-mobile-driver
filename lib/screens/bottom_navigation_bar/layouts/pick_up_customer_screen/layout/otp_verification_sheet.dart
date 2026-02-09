@@ -15,6 +15,8 @@ class OtpVerificationSheet extends StatefulWidget {
   final VoidCallback? onEndTrip;
   final String? tripId;
   final PickUpCustomerProvider? pickUpProvider;
+  final void Function(List<String> presentStudentIds)? onPickupSuccess;
+  final VoidCallback? onAllAbsent;
 
   const OtpVerificationSheet({
     super.key,
@@ -23,6 +25,8 @@ class OtpVerificationSheet extends StatefulWidget {
     this.onEndTrip,
     this.tripId,
     this.pickUpProvider,
+    this.onPickupSuccess,
+    this.onAllAbsent,
   });
 
   @override
@@ -32,6 +36,7 @@ class OtpVerificationSheet extends StatefulWidget {
 class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
   final TextEditingController _otpController = TextEditingController();
   bool _isLoading = false;
+  bool _isMarkingAbsent = false;
   String? _errorMessage;
 
   // Map to track student presence status (studentId -> isPresent)
@@ -158,6 +163,8 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
       });
 
       if (response != null && response.success) {
+        // Notify parent about picked up students
+        widget.onPickupSuccess?.call(presentStudentIds);
         // Call the success callback
         widget.onTap?.call();
       } else {
@@ -169,6 +176,74 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
     } catch (e) {
       setState(() {
         _isLoading = false;
+        _errorMessage = 'Error: ${e.toString()}';
+      });
+    }
+  }
+
+  /// Mark all students at this waypoint as absent and move to next
+  Future<void> _markAllStudentsAbsent() async {
+    if (widget.tripId == null ||
+        widget.waypoint == null ||
+        widget.pickUpProvider == null) {
+      setState(() {
+        _errorMessage = 'Missing trip information';
+      });
+      return;
+    }
+
+    // All students at this waypoint are absent
+    final absentStudentIds = widget.waypoint!.studentIds.toList();
+
+    if (absentStudentIds.isEmpty) {
+      setState(() {
+        _errorMessage = 'No students at this waypoint';
+      });
+      return;
+    }
+
+    setState(() {
+      _isMarkingAbsent = true;
+      _errorMessage = null;
+    });
+
+    try {
+      // Get current location
+      final currentLocation = await LocationService.getCurrentLocation();
+      if (currentLocation == null) {
+        setState(() {
+          _isMarkingAbsent = false;
+          _errorMessage = 'Unable to get current location';
+        });
+        return;
+      }
+
+      // Call pickup point API with all students as absent (no present students)
+      final response = await widget.pickUpProvider!.processPickupPoint(
+        tripId: widget.tripId!,
+        studentIds: [], // No present students
+        absentStudentIds: absentStudentIds,
+        otpCode: null, // No OTP needed when all absent
+        latitude: currentLocation.latitude,
+        longitude: currentLocation.longitude,
+      );
+
+      setState(() {
+        _isMarkingAbsent = false;
+      });
+
+      if (response != null && response.success) {
+        // Call the all absent callback to move to next waypoint
+        widget.onAllAbsent?.call();
+      } else {
+        setState(() {
+          _errorMessage = widget.pickUpProvider!.errorMessage ??
+              'Failed to mark students as absent';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _isMarkingAbsent = false;
         _errorMessage = 'Error: ${e.toString()}';
       });
     }
@@ -304,21 +379,9 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
               VSpace(Insets.i15),
               if (widget.waypoint?.studentParentId ==
                   AppConstants.schoolLocationType)
-                Row(children: [
-                  Expanded(
-                    child: CommonButton(
-                        text: language(context, appFonts.completeRide),
-                        onTap: widget.onTap),
-                  ),
-                  SizedBox(width: Insets.i12),
-                  SizedBox(
-                    width: 80,
-                    child: CommonButton(
-                        text: 'End',
-                        color: appTheme.alertZone,
-                        onTap: widget.onEndTrip),
-                  ),
-                ])
+                CommonButton(
+                    text: language(context, appFonts.completeRide),
+                    onTap: widget.onTap)
               else
                 Column(mainAxisSize: MainAxisSize.min, children: [
                   AuthCommonWidgets().textAndTextField(
@@ -352,10 +415,16 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
                     SizedBox(width: Insets.i12),
                     SizedBox(
                       width: 80,
-                      child: CommonButton(
-                          text: 'End',
-                          color: appTheme.alertZone,
-                          onTap: widget.onEndTrip),
+                      child: _isMarkingAbsent
+                          ? Center(
+                              child: CircularProgressIndicator(
+                                color: appTheme.yellowIcon,
+                              ),
+                            )
+                          : CommonButton(
+                              text: language(context, appFonts.absent),
+                              color: appTheme.yellowIcon,
+                              onTap: _markAllStudentsAbsent),
                     ),
                   ])
                 ])
