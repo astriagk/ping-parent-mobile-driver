@@ -354,6 +354,8 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
                               onTap: () => _handleWaypointCompletion(),
                               waypoint: _getCurrentWaypoint(
                                   _pickUpProvider.optimizedRoute),
+                              tripId: _currentTripId,
+                              pickUpProvider: _pickUpProvider,
                               onEndTrip: () async {
                                 await _stopTracking();
                                 if (mounted) {

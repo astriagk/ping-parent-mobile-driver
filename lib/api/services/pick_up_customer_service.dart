@@ -7,6 +7,10 @@ import 'package:taxify_driver_ui/api/models/pick_up_customer/trip_status_request
 import 'package:taxify_driver_ui/api/models/pick_up_customer/trip_status_response.dart';
 import 'package:taxify_driver_ui/api/models/pick_up_customer/position_update_request.dart';
 import 'package:taxify_driver_ui/api/models/pick_up_customer/position_update_response.dart';
+import 'package:taxify_driver_ui/api/models/pick_up_customer/pickup_point_request.dart';
+import 'package:taxify_driver_ui/api/models/pick_up_customer/pickup_point_response.dart';
+import 'package:taxify_driver_ui/api/models/pick_up_customer/daily_qr_otp_request.dart';
+import 'package:taxify_driver_ui/api/models/pick_up_customer/daily_qr_otp_response.dart';
 
 class PickUpCustomerService {
   final ApiClient _apiClient;
@@ -148,6 +152,126 @@ class PickUpCustomerService {
         success: false,
         data: null,
         message: 'Error updating position: ${e.toString()}',
+      );
+    }
+  }
+
+  /// Verify daily QR OTP before recording pickup
+  /// Returns the list of student IDs if OTP is valid
+  Future<DailyQrOtpResponse> verifyDailyQrOtp({
+    required String parentId,
+    required String tripId,
+    required String otpCode,
+  }) async {
+    try {
+      final request = DailyQrOtpRequest(
+        parentId: parentId,
+        tripId: tripId,
+        otpCode: otpCode,
+      );
+
+      final response = await _apiClient.post(
+        Endpoints.verifyDailyQrOtp,
+        body: request.toJson(),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        try {
+          final jsonData = jsonDecode(response.body) as Map<String, dynamic>;
+          return DailyQrOtpResponse.fromJson(jsonData);
+        } catch (parseError) {
+          return DailyQrOtpResponse(
+            success: false,
+            data: null,
+            message:
+                'Error parsing OTP verification response: ${parseError.toString()}',
+          );
+        }
+      } else {
+        // Try to parse error message from response
+        try {
+          final jsonData = jsonDecode(response.body) as Map<String, dynamic>;
+          return DailyQrOtpResponse(
+            success: false,
+            data: null,
+            error: jsonData['error'] ?? 'Failed to verify OTP',
+          );
+        } catch (_) {
+          return DailyQrOtpResponse(
+            success: false,
+            data: null,
+            message: 'Failed to verify OTP. Status: ${response.statusCode}',
+          );
+        }
+      }
+    } catch (e) {
+      return DailyQrOtpResponse(
+        success: false,
+        data: null,
+        message: 'Error verifying OTP: ${e.toString()}',
+      );
+    }
+  }
+
+  /// Process pickup point for multiple students at a stop
+  /// Handles both present and absent students in a single API call
+  Future<PickupPointResponse> processPickupPoint({
+    required String tripId,
+    required List<String> studentIds,
+    required List<String> absentStudentIds,
+    String? otpCode,
+    required double latitude,
+    required double longitude,
+  }) async {
+    try {
+      final request = PickupPointRequest(
+        studentIds: studentIds,
+        absentStudentIds: absentStudentIds,
+        otpCode: otpCode,
+        latitude: latitude,
+        longitude: longitude,
+      );
+
+      final response = await _apiClient.post(
+        Endpoints.pickupPoint(tripId),
+        body: request.toJson(),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        try {
+          final jsonData = jsonDecode(response.body) as Map<String, dynamic>;
+          return PickupPointResponse.fromJson(jsonData);
+        } catch (parseError) {
+          return PickupPointResponse(
+            success: false,
+            data: null,
+            message:
+                'Error parsing pickup point response: ${parseError.toString()}',
+          );
+        }
+      } else {
+        // Try to parse error message from response
+        try {
+          final jsonData = jsonDecode(response.body) as Map<String, dynamic>;
+          return PickupPointResponse(
+            success: false,
+            data: null,
+            error: jsonData['error'] ?? 'Failed to process pickup point',
+          );
+        } catch (_) {
+          return PickupPointResponse(
+            success: false,
+            data: null,
+            message:
+                'Failed to process pickup point. Status: ${response.statusCode}',
+          );
+        }
+      }
+    } catch (e) {
+      return PickupPointResponse(
+        success: false,
+        data: null,
+        message: 'Error processing pickup point: ${e.toString()}',
       );
     }
   }

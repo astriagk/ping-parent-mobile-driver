@@ -5,6 +5,7 @@ import 'package:taxify_driver_ui/api/services/pick_up_customer_service.dart';
 import 'package:taxify_driver_ui/api/services/socket_service.dart';
 import 'package:taxify_driver_ui/api/enums/trip_status_enum.dart';
 import 'package:taxify_driver_ui/api/models/pick_up_customer/optimized_route_model.dart';
+import 'package:taxify_driver_ui/api/models/pick_up_customer/pickup_point_response.dart';
 import 'package:taxify_driver_ui/api/api_client.dart';
 import 'package:taxify_driver_ui/helper/foreground_tracking_service.dart';
 
@@ -198,6 +199,93 @@ class PickUpCustomerProvider extends ChangeNotifier {
         timeLimit: timeLimit,
       ),
     );
+  }
+
+  /// Verify daily QR OTP and return student IDs if valid
+  /// Returns list of student IDs on success, null on failure
+  Future<List<String>?> verifyDailyQrOtp({
+    required String parentId,
+    required String tripId,
+    required String otpCode,
+  }) async {
+    try {
+      isLoading = true;
+      successMessage = null;
+      errorMessage = null;
+      notifyListeners();
+
+      final response = await _pickUpCustomerService.verifyDailyQrOtp(
+        parentId: parentId,
+        tripId: tripId,
+        otpCode: otpCode,
+      );
+
+      if (response.success && response.data != null) {
+        successMessage = response.message ?? 'OTP verified successfully';
+        isLoading = false;
+        notifyListeners();
+        return response.data!.studentIds;
+      } else {
+        errorMessage =
+            response.error ?? response.message ?? 'Failed to verify OTP';
+        isLoading = false;
+        notifyListeners();
+        return null;
+      }
+    } catch (e) {
+      errorMessage = 'Error verifying OTP: ${e.toString()}';
+      isLoading = false;
+      notifyListeners();
+      return null;
+    }
+  }
+
+  /// Process pickup point for multiple students
+  /// Handles present and absent students in a single API call
+  /// Returns PickupPointResponse on success, null on failure
+  Future<PickupPointResponse?> processPickupPoint({
+    required String tripId,
+    required List<String> studentIds,
+    required List<String> absentStudentIds,
+    String? otpCode,
+    required double latitude,
+    required double longitude,
+  }) async {
+    try {
+      isLoading = true;
+      successMessage = null;
+      errorMessage = null;
+      notifyListeners();
+
+      final response = await _pickUpCustomerService.processPickupPoint(
+        tripId: tripId,
+        studentIds: studentIds,
+        absentStudentIds: absentStudentIds,
+        otpCode: otpCode,
+        latitude: latitude,
+        longitude: longitude,
+      );
+
+      if (response.success && response.data != null) {
+        successMessage =
+            response.message ?? 'Pickup point processed successfully';
+        isLoading = false;
+        notifyListeners();
+        return response;
+      } else {
+        errorMessage = response.error ??
+            response.message ??
+            'Failed to process pickup point';
+        isLoading = false;
+        notifyListeners();
+        return null;
+      }
+    } catch (e) {
+      errorMessage = 'Error processing pickup point: ${e.toString()}';
+      isLoading = false;
+      notifyListeners();
+      return null;
+    }
   }
 
   @override
