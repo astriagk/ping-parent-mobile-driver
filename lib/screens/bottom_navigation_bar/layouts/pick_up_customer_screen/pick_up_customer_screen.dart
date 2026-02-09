@@ -31,7 +31,11 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
   bool isOtp = false;
   bool showGif = false;
   bool isRideComplete = false;
+  bool isSchoolDropoffSuccess = false;
   int currentWaypointIndex = 0;
+
+  // Track students who were marked as present during pickup
+  final List<String> _pickedUpStudentIds = [];
 
   @override
   void initState() {
@@ -236,13 +240,95 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
         currentWaypoint?.studentParentId == AppConstants.schoolLocationType;
 
     if (isSchoolLocation) {
-      // For school location, stop tracking and navigate to ride details
-      await _pickUpProvider.stopLocationTracking();
-      route.pushNamed(context, routeName.rideDetailsScreen);
+      // For school location, call school-point API then stop tracking and navigate
+      await _processSchoolDropoff();
     } else {
       // For student pickups, show OTP verification success
       otpSuccess();
     }
+  }
+
+  /// Process school dropoff by calling the school-point API
+  Future<void> _processSchoolDropoff() async {
+    try {
+      // Get only students who were picked up (marked as present)
+      final studentIds = _getPickedUpStudentIds();
+
+      if (studentIds.isEmpty) {
+        _showSnackBar('No students were picked up to drop off', isError: true);
+        await _pickUpProvider.stopLocationTracking();
+        route.pushNamed(context, routeName.rideDetailsScreen);
+        return;
+      }
+
+      // Get current location
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
+      );
+
+      // Call school-point API
+      final response = await _pickUpProvider.processSchoolPoint(
+        tripId: _currentTripId,
+        studentIds: studentIds,
+        latitude: position.latitude,
+        longitude: position.longitude,
+      );
+
+      if (response != null && response.success) {
+        // Check for any failed students
+        if (response.data != null && response.data!.failedStudents.isNotEmpty) {
+          final failedCount = response.data!.failedStudents.length;
+          final processedCount = response.data!.processedStudents.length;
+          _showSnackBar(
+            'Dropped $processedCount students. $failedCount failed.',
+            isError: failedCount > 0,
+          );
+        }
+
+        // Stop tracking and show success screen
+        await _pickUpProvider.stopLocationTracking();
+        if (mounted) {
+          setState(() {
+            isSchoolDropoffSuccess = true;
+          });
+        }
+      } else {
+        _showSnackBar(
+          _pickUpProvider.errorMessage ?? 'Failed to complete school dropoff',
+          isError: true,
+        );
+        // Stop tracking and navigate to ride details on error
+        await _pickUpProvider.stopLocationTracking();
+        if (mounted) {
+          route.pushNamed(context, routeName.rideDetailsScreen);
+        }
+      }
+    } catch (e) {
+      _showSnackBar('Error completing school dropoff: ${e.toString()}',
+          isError: true);
+      await _pickUpProvider.stopLocationTracking();
+      if (mounted) {
+        route.pushNamed(context, routeName.rideDetailsScreen);
+      }
+    }
+  }
+
+  /// Get the list of students who were picked up (marked as present)
+  List<String> _getPickedUpStudentIds() {
+    return List<String>.from(_pickedUpStudentIds);
+  }
+
+  /// Add picked up students to the tracking list
+  void _addPickedUpStudents(List<String> studentIds) {
+    setState(() {
+      for (final id in studentIds) {
+        if (!_pickedUpStudentIds.contains(id)) {
+          _pickedUpStudentIds.add(id);
+        }
+      }
+    });
   }
 
   void startDismissOtpSuccess() {
@@ -311,70 +397,116 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
                   bottom: 0,
                   left: 0,
                   right: 0,
-                  child: isPickedUpCustomerClick == true
-                      ? isOtpVerify == true
-                          ? showGif == true
-                              ? Container(
-                                  decoration: BoxDecoration(
-                                      color: appTheme.white,
-                                      borderRadius: const BorderRadius.vertical(
-                                          top: Radius.circular(20))),
-                                  padding: const EdgeInsets.all(20),
-                                  child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                            language(context,
-                                                appFonts.otpVerifiedSuccess),
-                                            style: TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.bold)),
-                                        VSpace(Insets.i20),
-                                        CommonBgLayout(
-                                            width: double.infinity,
-                                            color: appTheme.bgBox,
-                                            child: Gif(
-                                                autostart: Autostart.loop,
-                                                height: 128,
-                                                width: 128,
-                                                duration:
-                                                    const Duration(seconds: 5),
-                                                image: const AssetImage(
-                                                    "assets/gif/successful.gif")))
-                                      ]))
-                              : OnTheWaySheet(
-                                  onTap: isRideComplete == true
-                                      ? () => route.pushNamed(
-                                          context, routeName.rideDetailsScreen)
-                                      : () {},
-                                  isRideComplete: isRideComplete)
-                          : OtpVerificationSheet(
-                              onTap: () => _handleWaypointCompletion(),
-                              waypoint: _getCurrentWaypoint(
-                                  _pickUpProvider.optimizedRoute),
-                              onEndTrip: () async {
-                                await _stopTracking();
-                                if (mounted) {
-                                  route.pop(context);
-                                }
-                              },
-                            )
+                  child: isSchoolDropoffSuccess == true
+                      // Ride completed success screen
+                      ? Container(
+                          decoration: BoxDecoration(
+                              color: appTheme.white,
+                              borderRadius: const BorderRadius.vertical(
+                                  top: Radius.circular(20))),
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(language(context, appFonts.completeRide),
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold)),
+                                VSpace(Insets.i20),
+                                CommonBgLayout(
+                                    width: double.infinity,
+                                    color: appTheme.bgBox,
+                                    child: Gif(
+                                        autostart: Autostart.loop,
+                                        height: 128,
+                                        width: 128,
+                                        duration: const Duration(seconds: 5),
+                                        image: const AssetImage(
+                                            "assets/gif/successful.gif"))),
+                                VSpace(Insets.i20),
+                                CommonButton(
+                                    text:
+                                        language(context, appFonts.rideDetails),
+                                    onTap: () => route.pushNamed(
+                                        context, routeName.rideDetailsScreen)),
+                              ]))
+                      : isPickedUpCustomerClick == true
+                          ? isOtpVerify == true
+                              ? showGif == true
+                                  ? Container(
+                                      decoration: BoxDecoration(
+                                          color: appTheme.white,
+                                          borderRadius:
+                                              const BorderRadius.vertical(
+                                                  top: Radius.circular(20))),
+                                      padding: const EdgeInsets.all(20),
+                                      child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                                language(
+                                                    context,
+                                                    appFonts
+                                                        .otpVerifiedSuccess),
+                                                style: TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight:
+                                                        FontWeight.bold)),
+                                            VSpace(Insets.i20),
+                                            CommonBgLayout(
+                                                width: double.infinity,
+                                                color: appTheme.bgBox,
+                                                child: Gif(
+                                                    autostart: Autostart.loop,
+                                                    height: 128,
+                                                    width: 128,
+                                                    duration: const Duration(
+                                                        seconds: 5),
+                                                    image: const AssetImage(
+                                                        "assets/gif/successful.gif")))
+                                          ]))
+                                  : OnTheWaySheet(
+                                      onTap: isRideComplete == true
+                                          ? () => route.pushNamed(context,
+                                              routeName.rideDetailsScreen)
+                                          : () {},
+                                      isRideComplete: isRideComplete)
+                              : OtpVerificationSheet(
+                                  onTap: () => _handleWaypointCompletion(),
+                                  waypoint: _getCurrentWaypoint(
+                                      _pickUpProvider.optimizedRoute),
+                                  tripId: _currentTripId,
+                                  pickUpProvider: _pickUpProvider,
+                                  onPickupSuccess: _addPickedUpStudents,
+                                  onAllAbsent: () {
+                                    // Move to next waypoint when all students marked absent
+                                    _moveToNextWaypoint(
+                                        _pickUpProvider.optimizedRoute);
+                                  },
+                                  onEndTrip: () async {
+                                    await _stopTracking();
+                                    if (mounted) {
+                                      route.pop(context);
+                                    }
+                                  },
+                                )
 
-                      // start trip button
-                      : CommonButton(
-                              margin:
-                                  EdgeInsets.symmetric(horizontal: Insets.i20),
-                              onTap: () {
-                                _fetchTripLatLongOnce().then((_) {
-                                  setState(() {
-                                    isPickedUpCustomerClick = true;
-                                  });
-                                });
-                              },
-                              text: language(context, appFonts.startTrip))
-                          .marginOnly(bottom: Insets.i20))
+                          // start trip button
+                          : CommonButton(
+                                  margin: EdgeInsets.symmetric(
+                                      horizontal: Insets.i20),
+                                  onTap: () {
+                                    _fetchTripLatLongOnce().then((_) {
+                                      setState(() {
+                                        isPickedUpCustomerClick = true;
+                                      });
+                                    });
+                                  },
+                                  text: language(context, appFonts.startTrip))
+                              .marginOnly(bottom: Insets.i20))
             ]),
           ));
     });

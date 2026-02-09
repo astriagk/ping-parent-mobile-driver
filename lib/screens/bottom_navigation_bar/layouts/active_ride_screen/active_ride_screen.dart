@@ -56,20 +56,15 @@ class _ActiveRideScreenState extends State<ActiveRideScreen> {
 
       if (!mounted) return;
 
+      if (success) {
+        await activeRidePvr.fetchMyTrips();
+      }
+
       final message =
           success ? activeRidePvr.successMessage : activeRidePvr.errorMessage;
 
       if (message != null) {
         _showSnackBar(message);
-      }
-      if (success && activeRidePvr.myTrips.isNotEmpty) {
-        final trip =
-            activeRidePvr.myTrips.firstWhere((t) => t.tripType == tripType);
-        route.pushNamed(
-          context,
-          routeName.pickupCustomerScreen,
-          arg: {'tripId': trip.tripId},
-        );
       }
     }
   }
