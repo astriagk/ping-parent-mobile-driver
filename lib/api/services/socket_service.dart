@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:taxify_driver_ui/api/endpoints.dart';
 import 'package:taxify_driver_ui/api/enums/socket_events_enum.dart';
@@ -26,23 +28,15 @@ class SocketService {
   /// Initialize socket connection - Must be awaited
   /// Will fetch fresh token from storage each time
   Future<void> initializeSocket({bool forceRefresh = false}) async {
-    // If already initialized and not forcing refresh, skip
     if (_isInitialized && !forceRefresh) {
-      // But check if socket is actually connected
-      if (_socket != null && _socket!.connected) {
-        print('[Socket] ✅ Already connected, reusing existing connection');
-        return;
-      }
+      if (_socket != null && _socket!.connected) return;
     }
 
-    // Disconnect existing socket if forcing refresh
     if (forceRefresh && _socket != null) {
       try {
         _socket!.disconnect();
         _socket!.dispose();
-      } catch (e) {
-        print('[Socket] Error disposing old socket: $e');
-      }
+      } catch (_) {}
       _isInitialized = false;
       _isConnected = false;
     }
@@ -53,12 +47,9 @@ class SocketService {
       final userId = await _storageService.getUserId();
 
       if (token == null || token.isEmpty) {
-        print('[Socket] ❌ No auth token found in storage');
+        print('[Socket] ❌ No auth token');
         return;
       }
-
-      print('[Socket] Initializing connection to: $baseUrl');
-      print('[Socket] 🔑 Using token from storage (length: ${token.length})');
 
       _socket = IO.io(baseUrl, <String, dynamic>{
         'reconnection': true,
@@ -78,35 +69,45 @@ class SocketService {
       // Connection established
       _socket!.onConnect((_) {
         _isConnected = true;
-        print('[Socket] ✅ CONNECTED');
+        print('[Socket] ✅ Connected');
         onConnected?.call();
       });
 
       // Connection disconnected
       _socket!.onDisconnect((_) {
         _isConnected = false;
-        print('[Socket] ❌ DISCONNECTED');
+        print('[Socket] ❌ Disconnected');
         onDisconnected?.call();
       });
 
       // Connection error
       _socket!.on('connect_error', (error) {
         _isConnected = false;
-        print('[Socket] ⚠️ CONNECTION ERROR: $error');
+        print('[Socket] ❌ Error: $error');
       });
 
       // General error
       _socket!.on('error', (error) {
-        print('[Socket] ⚠️ ERROR: $error');
-        if (error is Map && error.containsKey('message')) {
-          if (error['message'] == 'Invalid authentication') {
-            print('[Socket] 🔍 Auth failed - Token may be expired or invalid');
-          }
+        print('[Socket] ❌ Error: $error');
+      });
+
+      // Socket/Authorization errors from server
+      _socket!.on(BroadcastSocketEvent.error.value, (data) {
+        if (data is Map && data.containsKey('message')) {
+          print('[Socket] ❌ ${data['message']}');
         }
       });
 
+      // Silent broadcast event listeners
+      _socket!.on(BroadcastSocketEvent.positionUpdate.value, (_) {});
+      _socket!.on(BroadcastSocketEvent.tripStarted.value, (_) {});
+      _socket!.on(BroadcastSocketEvent.tripCompleted.value, (_) {});
+      _socket!.on(BroadcastSocketEvent.routeCalculated.value, (_) {});
+      _socket!.on(BroadcastSocketEvent.approaching.value, (_) {});
+      _socket!.on(BroadcastSocketEvent.studentPicked.value, (_) {});
+      _socket!.on(BroadcastSocketEvent.studentDropped.value, (_) {});
+
       _isInitialized = true;
-      print('[Socket] ⏳ Waiting for connection...');
       await _waitForConnection();
     } catch (e) {
       print('[Socket] ❌ Init failed: $e');
@@ -124,28 +125,101 @@ class SocketService {
     }
 
     if (!_isConnected) {
-      print('[Socket] ⚠️ Connection timeout after 10s - will auto-reconnect');
+      print('[Socket] ⚠️ Connection timeout');
     }
   }
 
   /// Get socket connected status
   bool get isConnected => _isConnected && _socket != null && _socket!.connected;
 
-  /// Emit trip started event
-  void startTripViaWebSocket(String tripId) {
-    if (!isConnected || _socket == null) {
-      print('[Socket] ❌ Cannot emit trip_started - socket not connected');
-      return;
-    }
+  /// Subscribe to trip - Must be called after initialization
+  /// Required before sending position updates per WEBSOCKET.md v3.1.0
+  Future<bool> subscribeToTrip(String tripId) async {
+    if (!isConnected || _socket == null) return false;
 
     try {
-      print(
-          '[Socket] 📤 Emitting: ${DriverSocketEvent.tripStarted.value} for trip: $tripId');
-      _socket!.emit(DriverSocketEvent.tripStarted.value, {'tripId': tripId});
-      print('[Socket] ✅ Trip started event emitted');
-    } catch (e) {
-      print('[Socket] ❌ Error emitting trip_started: $e');
+      _socket!.emitWithAck(
+        DriverSocketEvent.subscribeTrp.value,
+        tripId,
+        ack: (dynamic result) {
+          if (!(result is bool ? result : result == true)) {
+            print('[Socket] ❌ Subscribe failed: $tripId');
+          }
+        },
+      );
+      return true;
+    } catch (_) {
+      return false;
     }
+  }
+
+  /// Unsubscribe from trip - Cleanup when trip ends
+  void unsubscribeFromTrip(String tripId) {
+    if (!isConnected || _socket == null) return;
+    try {
+      _socket!.emit(DriverSocketEvent.unsubscribeTrp.value, tripId);
+    } catch (_) {}
+  }
+
+  /// Emit trip started event
+  void startTripViaWebSocket(String tripId) {
+    if (!isConnected || _socket == null) return;
+    try {
+      _socket!.emit(DriverSocketEvent.tripStarted.value, tripId);
+      print('[Socket] 📤 Trip started: $tripId');
+    } catch (_) {}
+  }
+
+  /// Emit trip completed event
+  void completeTripViaWebSocket(String tripId) {
+    if (!isConnected || _socket == null) return;
+    try {
+      _socket!.emit(DriverSocketEvent.tripCompleted.value, tripId);
+      print('[Socket] 📤 Trip COMPLETED: $tripId → notifying all parents');
+    } catch (_) {}
+  }
+
+  /// Emit approaching waypoint event when near student location
+  void approachingWaypointViaWebSocket({
+    required String tripId,
+    required String studentId,
+    required int etaSeconds,
+  }) {
+    if (!isConnected || _socket == null) return;
+    try {
+      _socket!.emit(DriverSocketEvent.approachingWaypoint.value,
+          {'tripId': tripId, 'studentId': studentId, 'eta': etaSeconds});
+      print(
+          '[Socket] 📤 Approaching student: $studentId (ETA: ${etaSeconds}s) → notifying parent');
+    } catch (_) {}
+  }
+
+  /// Emit student picked up event
+  void studentPickedViaWebSocket({
+    required String tripId,
+    required String studentId,
+  }) {
+    if (!isConnected || _socket == null) return;
+    try {
+      _socket!.emit(DriverSocketEvent.studentPicked.value,
+          {'tripId': tripId, 'studentId': studentId});
+      print(
+          '[Socket] 📤 Student PICKED: $studentId (trip: $tripId) → notifying parent');
+    } catch (_) {}
+  }
+
+  /// Emit student dropped off event
+  void studentDroppedViaWebSocket({
+    required String tripId,
+    required String studentId,
+  }) {
+    if (!isConnected || _socket == null) return;
+    try {
+      _socket!.emit(DriverSocketEvent.studentDropped.value,
+          {'tripId': tripId, 'studentId': studentId});
+      print(
+          '[Socket] 📤 Student DROPPED: $studentId (trip: $tripId) → notifying parent');
+    } catch (_) {}
   }
 
   /// Update driver position - Main method for sending position every 10 seconds
@@ -157,27 +231,20 @@ class SocketService {
     required double heading,
     required double accuracy,
   }) {
-    final timestamp = DateTime.now().toIso8601String();
-
-    if (!isConnected || _socket == null) {
-      return;
-    }
+    if (!isConnected || _socket == null) return;
 
     try {
-      final data = {
+      _socket!.emit(DriverSocketEvent.updatePosition.value, {
         'tripId': tripId,
         'latitude': latitude,
         'longitude': longitude,
         'speed': speed,
         'heading': heading,
         'accuracy': accuracy,
-        'timestamp': timestamp,
-      };
-
-      _socket!.emit(DriverSocketEvent.updatePosition.value, data);
-    } catch (e) {
-      print('[Socket] Error emitting position: $e');
-    }
+        'timestamp': DateTime.now().toIso8601String(),
+      });
+      print('[Socket] 📍 Position: $latitude, $longitude');
+    } catch (_) {}
   }
 
   /// Disconnect socket
@@ -186,19 +253,12 @@ class SocketService {
       _socket?.disconnect();
       _isConnected = false;
       _isInitialized = false;
-      print('[Socket] ⏹️ Socket disconnected manually');
-    } catch (e) {
-      print('[Socket] Error disconnecting: $e');
-    }
+    } catch (_) {}
   }
 
-  /// Reconnect socket with fresh token from storage
   Future<void> reconnect() async {
     try {
-      print('[Socket] 🔄 Reconnecting with fresh token...');
       await initializeSocket(forceRefresh: true);
-    } catch (e) {
-      print('[Socket] Error reconnecting: $e');
-    }
+    } catch (_) {}
   }
 }

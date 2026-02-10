@@ -100,8 +100,9 @@ class PickUpCustomerProvider extends ChangeNotifier {
   }
 
   /// Update trip status (e.g., "started", "completed")
-  /// Pass the trip ID from the optimized route response (_id field)
-  /// Also broadcasts trip started event via WebSocket to parents
+  /// Pass the trip ID from the optimized route response (_id field) for REST API
+  /// Socket operations use business tripId (e.g., "TRP-123456") from optimizedRoute
+  /// Per WEBSOCKET.md v3.1.0: Must subscribe before emitting trip_started
   Future<bool> updateTripStatus({
     required String tripId,
     required String tripStatus,
@@ -112,6 +113,7 @@ class PickUpCustomerProvider extends ChangeNotifier {
       errorMessage = null;
       notifyListeners();
 
+      // REST API uses MongoDB _id (tripId parameter)
       final response = await _pickUpCustomerService.updateTripStatus(
         tripId: tripId,
         tripStatus: tripStatus,
@@ -120,10 +122,27 @@ class PickUpCustomerProvider extends ChangeNotifier {
       if (response.success && response.data != null) {
         successMessage = response.message ?? 'Trip status updated successfully';
 
+        // Socket operations use business tripId (e.g., "TRP-123456")
+        final socketTripId = optimizedRoute?.tripId ?? tripId;
+
         // Emit trip started via socket from main isolate
         if (tripStatus == TripStatus.started.value) {
           await _socketService.initializeSocket(forceRefresh: true);
-          _socketService.startTripViaWebSocket(tripId);
+
+          // IMPORTANT: Subscribe to trip before emitting events per v3.1.0
+          final subscribed = await _socketService.subscribeToTrip(socketTripId);
+          if (!subscribed) {
+            print(
+                '[Provider] ⚠️ Failed to subscribe to trip, continuing anyway');
+          }
+
+          _socketService.startTripViaWebSocket(socketTripId);
+        }
+
+        // Emit trip completed and unsubscribe from trip room
+        if (tripStatus == TripStatus.completed.value) {
+          _socketService.completeTripViaWebSocket(socketTripId);
+          _socketService.unsubscribeFromTrip(socketTripId);
         }
 
         isLoading = false;
