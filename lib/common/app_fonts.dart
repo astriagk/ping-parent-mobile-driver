@@ -324,4 +324,5 @@ class AppFonts {
   final nextRide = "nextRide";
   final currenRide = "currenRide";
   final absent = "absent";
+  final tripCancelled = "tripCancelled";
 }

@@ -287,6 +287,15 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
           );
         }
 
+        // Update trip status to completed
+        if (_pickUpProvider.optimizedRoute != null) {
+          final routeId = _pickUpProvider.optimizedRoute!.id;
+          await _pickUpProvider.updateTripStatus(
+            tripId: routeId,
+            tripStatus: TripStatus.completed.value,
+          );
+        }
+
         // Stop tracking and show success screen
         await _pickUpProvider.stopLocationTracking();
         if (mounted) {
@@ -321,7 +330,11 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
   }
 
   /// Add picked up students to the tracking list
-  void _addPickedUpStudents(List<String> studentIds) {
+  /// Also updates trip status to in_progress on first pickup
+  Future<void> _addPickedUpStudents(List<String> studentIds) async {
+    // Check if this is the first pickup (trip was just started, no students picked up yet)
+    final isFirstPickup = _pickedUpStudentIds.isEmpty && studentIds.isNotEmpty;
+
     setState(() {
       for (final id in studentIds) {
         if (!_pickedUpStudentIds.contains(id)) {
@@ -329,6 +342,15 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
         }
       }
     });
+
+    // Update trip status to in_progress after first successful pickup
+    if (isFirstPickup && _pickUpProvider.optimizedRoute != null) {
+      final routeId = _pickUpProvider.optimizedRoute!.id;
+      await _pickUpProvider.updateTripStatus(
+        tripId: routeId,
+        tripStatus: TripStatus.inProgress.value,
+      );
+    }
   }
 
   void startDismissOtpSuccess() {

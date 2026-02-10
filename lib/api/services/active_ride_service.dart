@@ -81,4 +81,41 @@ class ActiveRideService {
       );
     }
   }
+
+  /// Get list of trips for the current driver by date
+  /// GET /trips/my-trips/by-date?date=M/D/YYYY
+  ///
+  /// Parameters:
+  ///   - date: DateTime object to filter trips (defaults to current date)
+  ///
+  /// Returns:
+  ///   - GetMyTripsResponse with list of trips on success
+  Future<GetMyTripsResponse> getMyTripsByDate({DateTime? date}) async {
+    try {
+      final tripDate = date ?? DateTime.now();
+      // Format date as M/D/YYYY (e.g., 2/9/2026)
+      final formattedDate =
+          '${tripDate.month}/${tripDate.day}/${tripDate.year}';
+
+      final response =
+          await _apiClient.get(Endpoints.myTripsByDate(formattedDate));
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        return GetMyTripsResponse.fromJson(jsonResponse);
+      } else {
+        return GetMyTripsResponse(
+          success: false,
+          data: [],
+          message: 'Failed to fetch trips. Status: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      return GetMyTripsResponse(
+        success: false,
+        data: [],
+        message: 'Error fetching trips: ${e.toString()}',
+      );
+    }
+  }
 }

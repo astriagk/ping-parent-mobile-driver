@@ -26,6 +26,8 @@ class Endpoints {
   // ===== Trip Endpoints =====
   static String get createTrip => '$baseUrl/trips';
   static String get myTrips => '$baseUrl/trips/my-trips';
+  static String myTripsByDate(String date) =>
+      '$baseUrl/trips/my-trips/by-date?date=$date';
   static String updateTripStatus(String tripId) =>
       '$baseUrl/trips/$tripId/status';
 
