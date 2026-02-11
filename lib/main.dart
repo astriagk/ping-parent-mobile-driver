@@ -59,6 +59,8 @@ class MyApp extends StatelessWidget {
                   ChangeNotifierProvider(create: (_) => MyRidesProvider()),
                   ChangeNotifierProvider(create: (_) => RideDetailsProvider()),
                   ChangeNotifierProvider(create: (_) => ActiveRideProvider()),
+                  ChangeNotifierProvider(
+                      create: (_) => DropStudentSelectionProvider()),
                 ],
                 child: Consumer<ThemeService>(
                     builder: (context, themeService, child) {

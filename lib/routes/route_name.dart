@@ -24,6 +24,7 @@ class RouteName {
   final String documentUpdateScreen = '/documentUpdateScreen';
   final String userUpdateScreen = '/userUpdateScreen';
   final String pickupCustomerScreen = '/pickupCustomerScreen';
+  final String dropStudentSelectionScreen = '/dropStudentSelectionScreen';
   final String pickedCustomerScreen = '/pickedCustomerScreen';
   final String rideDetailsScreen = '/rideDetailsScreen';
   final String notificationScreen = '/notificationScreen';

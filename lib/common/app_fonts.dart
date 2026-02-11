@@ -325,4 +325,9 @@ class AppFonts {
   final currenRide = "currenRide";
   final absent = "absent";
   final tripCancelled = "tripCancelled";
+
+  // Drop Student Selection Screen
+  final selectStudents = "selectStudents";
+  final noStudentsAssigned = "noStudentsAssigned";
+  final startDrop = "startDrop";
 }

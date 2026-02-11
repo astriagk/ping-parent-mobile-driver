@@ -41,6 +41,8 @@ class Endpoints {
       '$baseUrl/trip-students/trip/$tripId/pickup-point';
   static String schoolPoint(String tripId) =>
       '$baseUrl/trip-students/trip/$tripId/school-point';
+  static String tripStudentsGroupedByParent(String tripId) =>
+      '$baseUrl/trip-students/trip/$tripId/grouped-by-parent';
 
   // ===== Daily QR OTP Endpoints =====
   static String get verifyDailyQrOtp => '$baseUrl/daily-qr-otp/verify';
