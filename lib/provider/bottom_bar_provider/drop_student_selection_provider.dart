@@ -1,0 +1,245 @@
+import 'package:flutter/material.dart';
+import 'package:taxify_driver_ui/api/api_client.dart';
+import 'package:taxify_driver_ui/api/models/drop_student_selection_model.dart';
+import 'package:taxify_driver_ui/api/services/drop_student_selection_service.dart';
+import 'package:taxify_driver_ui/helper/location_service.dart';
+
+/// Provider for managing drop student selection/attendance
+class DropStudentSelectionProvider extends ChangeNotifier {
+  // Trip data
+  String? _currentTripId;
+
+  // Parent-student data from API
+  List<ParentWithStudents> _parentsWithStudents = [];
+
+  // Attendance tracking: tripStudentId -> isMarkedPresent
+  Map<String, bool> _attendanceMap = {};
+
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  // Getters
+  String? get currentTripId => _currentTripId;
+  List<ParentWithStudents> get parentsWithStudents => _parentsWithStudents;
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+
+  /// Set current trip ID (called from active_ride_screen)
+  void setCurrentTripId(String tripId) {
+    _currentTripId = tripId;
+    notifyListeners();
+  }
+
+  /// Set parents with students from API response
+  void setParentsWithStudents(List<ParentWithStudents> parents) {
+    _parentsWithStudents = parents;
+    // Initialize attendance map for all students
+    _attendanceMap = {};
+    for (var parent in parents) {
+      for (var student in parent.students) {
+        _attendanceMap[student.tripStudentId] = student.isMarkedPresent;
+      }
+    }
+    notifyListeners();
+  }
+
+  /// Toggle student attendance status
+  void toggleStudentAttendance(String tripStudentId) {
+    if (_attendanceMap.containsKey(tripStudentId)) {
+      _attendanceMap[tripStudentId] = !_attendanceMap[tripStudentId]!;
+
+      // Update the student object as well
+      for (var parent in _parentsWithStudents) {
+        for (var student in parent.students) {
+          if (student.tripStudentId == tripStudentId) {
+            student.isMarkedPresent = _attendanceMap[tripStudentId]!;
+            break;
+          }
+        }
+      }
+      notifyListeners();
+    }
+  }
+
+  /// Check if a student is marked present
+  bool isStudentPresent(String tripStudentId) {
+    return _attendanceMap[tripStudentId] ?? false;
+  }
+
+  /// Get all selected (present) trip student IDs
+  List<String> getSelectedTripStudentIds() {
+    return _attendanceMap.entries
+        .where((entry) => entry.value)
+        .map((entry) => entry.key)
+        .toList();
+  }
+
+  /// Get all selected (present) students
+  List<TripStudent> getSelectedStudents() {
+    List<TripStudent> selected = [];
+    for (var parent in _parentsWithStudents) {
+      for (var student in parent.students) {
+        if (student.isMarkedPresent) {
+          selected.add(student);
+        }
+      }
+    }
+    return selected;
+  }
+
+  /// Get count of selected students
+  int get selectedStudentCount => getSelectedTripStudentIds().length;
+
+  /// Get total student count
+  int get totalStudentCount {
+    int total = 0;
+    for (var parent in _parentsWithStudents) {
+      total += parent.students.length;
+    }
+    return total;
+  }
+
+  /// Check if at least one student is selected
+  bool hasSelectedStudents() {
+    return _attendanceMap.values.any((isPresent) => isPresent);
+  }
+
+  /// Fetch trip students grouped by parent from API
+  /// GET /trip-students/trip/:tripId/grouped-by-parent
+  Future<bool> fetchTripStudentsGroupedByParent(String tripId) async {
+    _isLoading = true;
+    _errorMessage = null;
+    _currentTripId = tripId;
+    notifyListeners();
+
+    try {
+      final service = DropStudentSelectionService(ApiClient());
+      final response = await service.getTripStudentsGroupedByParent(tripId);
+
+      if (response.success && response.data.isNotEmpty) {
+        setParentsWithStudents(response.data);
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      } else {
+        _errorMessage = response.message ?? 'No students found for this trip';
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
+    } catch (e) {
+      _errorMessage = 'Error fetching students: ${e.toString()}';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Get selected student IDs (studentId, not tripStudentId)
+  List<String> getSelectedStudentIdsForApi() {
+    List<String> studentIds = [];
+    for (var parent in _parentsWithStudents) {
+      for (var student in parent.students) {
+        if (student.isMarkedPresent) {
+          studentIds.add(student.studentId);
+        }
+      }
+    }
+    return studentIds;
+  }
+
+  /// Mark selected students as picked from school
+  /// POST /trip-students/trip/:tripId/school-point
+  /// Gets current location and sends selected student IDs
+  Future<SchoolPointResponse> markSchoolPoint() async {
+    if (_currentTripId == null) {
+      return SchoolPointResponse(
+        success: false,
+        data: null,
+        message: 'No trip ID set',
+      );
+    }
+
+    if (!hasSelectedStudents()) {
+      return SchoolPointResponse(
+        success: false,
+        data: null,
+        message: 'No students selected',
+      );
+    }
+
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      // Get current driver location
+      final location = await LocationService.getCurrentLocation();
+      if (location == null) {
+        _isLoading = false;
+        _errorMessage = 'Unable to get current location';
+        notifyListeners();
+        return SchoolPointResponse(
+          success: false,
+          data: null,
+          message: 'Unable to get current location',
+        );
+      }
+
+      // Get selected student IDs
+      final studentIds = getSelectedStudentIdsForApi();
+
+      // Create request
+      final request = SchoolPointRequest(
+        studentIds: studentIds,
+        latitude: location.latitude,
+        longitude: location.longitude,
+      );
+
+      // Call API
+      final service = DropStudentSelectionService(ApiClient());
+      final response = await service.markSchoolPoint(
+        tripId: _currentTripId!,
+        request: request,
+      );
+
+      _isLoading = false;
+      if (!response.success) {
+        _errorMessage = response.message;
+      }
+      notifyListeners();
+
+      return response;
+    } catch (e) {
+      _isLoading = false;
+      _errorMessage = 'Error marking school point: ${e.toString()}';
+      notifyListeners();
+      return SchoolPointResponse(
+        success: false,
+        data: null,
+        message: 'Error marking school point: ${e.toString()}',
+      );
+    }
+  }
+
+  /// Reset selection
+  void resetSelection() {
+    _attendanceMap.clear();
+    _parentsWithStudents.clear();
+    _currentTripId = null;
+    _errorMessage = null;
+    notifyListeners();
+  }
+
+  /// Set loading state
+  void setLoading(bool loading) {
+    _isLoading = loading;
+    notifyListeners();
+  }
+
+  /// Set error message
+  void setErrorMessage(String? message) {
+    _errorMessage = message;
+    notifyListeners();
+  }
+}

@@ -312,4 +312,9 @@ dynamic en = {
   "currenRide": "Current Ride",
   "absent": "Absent",
   "tripCancelled": "Cancelled",
+
+  // Select students for drop
+  "selectStudents": "Select Students",
+  "startDrop": "Start Drop",
+  "noStudentsAssigned": "No students assigned",
 };

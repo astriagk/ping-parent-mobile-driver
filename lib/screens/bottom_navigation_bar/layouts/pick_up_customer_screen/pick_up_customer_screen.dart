@@ -24,15 +24,32 @@ class PickUpCustomerScreen extends StatefulWidget {
 class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
     with TickerProviderStateMixin, WidgetsBindingObserver {
   late PickUpCustomerProvider _pickUpProvider;
-  late String _currentTripId;
+  String? _currentTripId;
 
   bool isPickedUpCustomerClick = false;
   bool isOtpVerify = false;
   bool isOtp = false;
   bool showGif = false;
   bool isRideComplete = false;
-  bool isSchoolDropoffSuccess = false;
+  bool isTripComplete = false;
   int currentWaypointIndex = 0;
+
+  // Track if this is a DROP trip (school → homes) vs PICKUP trip (homes → school)
+  bool _isDropTrip = false;
+
+  /// Reset all state variables for a fresh trip
+  void _resetTripState() {
+    isPickedUpCustomerClick = false;
+    isOtpVerify = false;
+    isOtp = false;
+    showGif = false;
+    isRideComplete = false;
+    isTripComplete = false;
+    currentWaypointIndex = 0;
+    _isDropTrip = false;
+    _pickedUpStudentIds.clear();
+    _currentTripId = null;
+  }
 
   // Track students who were marked as present during pickup
   final List<String> _pickedUpStudentIds = [];
@@ -42,6 +59,8 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
     super.initState();
     _initializeProviders();
     WidgetsBinding.instance.addObserver(this);
+    // Ensure clean state for new trip
+    _resetTripState();
     rideStart();
     // Request location permission on screen load for map
     _checkLocationPermission();
@@ -139,6 +158,19 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
     String? tripId;
     if (args is Map && args['tripId'] != null) {
       tripId = args['tripId'].toString();
+      // Check if this is a DROP trip from route arguments
+      if (args['isDropTrip'] == true) {
+        _isDropTrip = true;
+      }
+    }
+
+    // If tripId not in args, try getting from DropStudentSelectionProvider (for DROP trips)
+    if (tripId == null || tripId.isEmpty) {
+      tripId = context.read<DropStudentSelectionProvider>().currentTripId;
+      // If coming from DropStudentSelectionProvider, this is a DROP trip
+      if (tripId != null && tripId.isNotEmpty) {
+        _isDropTrip = true;
+      }
     }
 
     // Check if tripId is provided
@@ -167,12 +199,18 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
         final routeId = _pickUpProvider.optimizedRoute!.id;
         _currentTripId = tripId;
 
+        // For DROP trips, school pickup is already handled in drop_student_selection_screen
+        // Skip the school waypoint (index 0) and start from first student home (index 1)
+        if (_isDropTrip) {
+          currentWaypointIndex = 1;
+        }
+
         await _pickUpProvider.updateTripStatus(
           tripId: routeId,
           tripStatus: TripStatus.started.value,
         );
 
-        await _pickUpProvider.startLocationTracking(_currentTripId);
+        await _pickUpProvider.startLocationTracking(_currentTripId!);
         _showSnackBar('Trip started successfully');
       } else {
         _showSnackBar(_pickUpProvider.errorMessage ?? 'Failed to start trip',
@@ -238,13 +276,61 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
     final currentWaypoint = _getCurrentWaypoint(_pickUpProvider.optimizedRoute);
     final isSchoolLocation =
         currentWaypoint?.studentParentId == AppConstants.schoolLocationType;
+    final isLastWaypoint = _isLastWaypoint();
 
-    if (isSchoolLocation) {
-      // For school location, call school-point API then stop tracking and navigate
-      await _processSchoolDropoff();
+    if (_isDropTrip) {
+      // DROP trip flow: school pickup already done, now dropping at student homes
+      if (isLastWaypoint) {
+        // Last student home - complete the trip
+        await _completeDropTrip();
+      } else {
+        // Student home dropoff - show success and move to next
+        otpSuccess();
+      }
     } else {
-      // For student pickups, show OTP verification success
-      otpSuccess();
+      // PICKUP trip flow: student homes (pickup) → school (dropoff)
+      if (isSchoolLocation) {
+        // Last waypoint: school - call school-point API to complete
+        await _processSchoolDropoff();
+      } else {
+        // Student home pickup - show success and move to next
+        otpSuccess();
+      }
+    }
+  }
+
+  /// Check if current waypoint is the last one
+  bool _isLastWaypoint() {
+    final waypoints = _pickUpProvider.optimizedRoute?.routeGeometry.waypoints;
+    if (waypoints == null) return false;
+    return currentWaypointIndex >= waypoints.length - 1;
+  }
+
+  /// Complete DROP trip after last student is dropped at home
+  Future<void> _completeDropTrip() async {
+    try {
+      // Update trip status to completed
+      if (_pickUpProvider.optimizedRoute != null) {
+        final routeId = _pickUpProvider.optimizedRoute!.id;
+        await _pickUpProvider.updateTripStatus(
+          tripId: routeId,
+          tripStatus: TripStatus.completed.value,
+        );
+      }
+
+      // Stop tracking and show success screen
+      await _pickUpProvider.stopLocationTracking();
+      if (mounted) {
+        setState(() {
+          isTripComplete = true;
+        });
+      }
+    } catch (e) {
+      _showSnackBar('Error completing trip: ${e.toString()}', isError: true);
+      await _pickUpProvider.stopLocationTracking();
+      if (mounted) {
+        route.pushNamed(context, routeName.rideDetailsScreen);
+      }
     }
   }
 
@@ -270,7 +356,7 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
 
       // Call school-point API
       final response = await _pickUpProvider.processSchoolPoint(
-        tripId: _currentTripId,
+        tripId: _currentTripId!,
         studentIds: studentIds,
         latitude: position.latitude,
         longitude: position.longitude,
@@ -300,7 +386,7 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
         await _pickUpProvider.stopLocationTracking();
         if (mounted) {
           setState(() {
-            isSchoolDropoffSuccess = true;
+            isTripComplete = true;
           });
         }
       } else {
@@ -422,7 +508,7 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
                   bottom: 0,
                   left: 0,
                   right: 0,
-                  child: isSchoolDropoffSuccess == true
+                  child: isTripComplete == true
                       // Ride completed success screen
                       ? Container(
                           decoration: BoxDecoration(

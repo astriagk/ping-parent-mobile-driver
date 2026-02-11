@@ -1,7 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/retry.dart';
 
 import 'package:taxify_driver_ui/common/maps/map_config.dart';
+
+/// Custom HTTP client with retry logic for tile loading
+http.BaseClient _createRetryClient() {
+  return RetryClient(
+    http.Client(),
+    retries: 3,
+    delay: (retryCount) => Duration(milliseconds: 500 * (retryCount + 1)),
+    when: (response) => response.statusCode >= 500,
+    whenError: (error, stackTrace) => true, // Retry on any error
+  );
+}
+
+/// Custom tile provider with retry logic
+class RetryTileProvider extends NetworkTileProvider {
+  RetryTileProvider() : super(httpClient: _createRetryClient());
+}
 
 /// Map TileLayer widget for reusability
 class MapTileLayer extends StatelessWidget {
@@ -25,6 +43,8 @@ class MapTileLayer extends StatelessWidget {
       userAgentPackageName: MapConfig.userAgentPackageName,
       retinaMode: RetinaMode.isHighDensity(context),
       maxZoom: config.maxZoom,
+      tileProvider: RetryTileProvider(),
+      evictErrorTileStrategy: EvictErrorTileStrategy.dispose,
     );
   }
 }
