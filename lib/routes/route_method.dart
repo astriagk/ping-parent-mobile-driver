@@ -22,6 +22,7 @@ import '../screens/bottom_navigation_bar/layouts/my_rides_screen/layouts/cancel_
 import '../screens/bottom_navigation_bar/layouts/my_rides_screen/layouts/completed_ride_details_screen.dart';
 import '../screens/bottom_navigation_bar/layouts/my_rides_screen/layouts/pending_ride_details_screen.dart';
 import '../screens/bottom_navigation_bar/layouts/pick_up_customer_screen/pick_up_customer_screen.dart';
+import '../screens/bottom_navigation_bar/layouts/drop_student_selection_screen/drop_student_selection_screen.dart';
 import '../screens/bottom_navigation_bar/layouts/my_rides_screen/layouts/ride_details_screen.dart';
 
 class AppRoute {
@@ -51,6 +52,8 @@ class AppRoute {
     routeName.documentUpdateScreen: (p0) => const DocumentUpdateScreen(),
     routeName.userUpdateScreen: (p0) => const UserUpdateScreen(),
     routeName.pickupCustomerScreen: (p0) => const PickUpCustomerScreen(),
+    routeName.dropStudentSelectionScreen: (p0) =>
+        const DropStudentSelectionScreen(),
     routeName.rideDetailsScreen: (p0) => const RideDetailsScreen(),
     routeName.notificationScreen: (p0) => const NotificationScreen(),
     routeName.emptyNotificationScreen: (p0) => const EmptyNotification()

@@ -3,6 +3,7 @@ import 'package:taxify_driver_ui/widgets/common_bg_layout.dart';
 import 'package:taxify_driver_ui/api/enums/trip_type_enum.dart';
 import 'package:taxify_driver_ui/api/enums/trip_status_enum.dart';
 import 'package:taxify_driver_ui/api/models/get_my_trips_response.dart';
+import 'package:taxify_driver_ui/provider/bottom_bar_provider/drop_student_selection_provider.dart';
 
 class ActiveRideScreen extends StatefulWidget {
   const ActiveRideScreen({super.key});
@@ -110,11 +111,23 @@ class _ActiveRideScreenState extends State<ActiveRideScreen>
     if (_tripExists(tripType, activeRidePvr)) {
       final trip =
           activeRidePvr.myTrips.firstWhere((t) => t.tripType == tripType);
-      await route.pushNamed(
-        context,
-        routeName.pickupCustomerScreen,
-        arg: {'tripId': trip.tripId},
-      );
+
+      // Set trip ID in the appropriate provider
+      if (tripType == TripType.drop) {
+        // For DROP trips, go to student selection screen
+        context
+            .read<DropStudentSelectionProvider>()
+            .setCurrentTripId(trip.tripId);
+        await route.pushNamed(context, routeName.dropStudentSelectionScreen);
+      } else {
+        // For PICKUP trips, go directly to map
+        await route.pushNamed(
+          context,
+          routeName.pickupCustomerScreen,
+          arg: {'tripId': trip.tripId},
+        );
+      }
+
       // Refresh trips when returning from map screen
       if (mounted) {
         activeRidePvr.fetchMyTripsByDate();
@@ -129,6 +142,31 @@ class _ActiveRideScreenState extends State<ActiveRideScreen>
 
       if (success) {
         await activeRidePvr.fetchMyTripsByDate();
+        // After creating the trip, fetch again to get the newly created trip
+        TripData? updatedTrip;
+        try {
+          updatedTrip =
+              activeRidePvr.myTrips.firstWhere((t) => t.tripType == tripType);
+        } catch (e) {
+          updatedTrip = null;
+        }
+
+        if (updatedTrip != null) {
+          // Automatically navigate to the appropriate screen
+          if (tripType == TripType.drop) {
+            context
+                .read<DropStudentSelectionProvider>()
+                .setCurrentTripId(updatedTrip.tripId);
+            await route.pushNamed(
+                context, routeName.dropStudentSelectionScreen);
+          } else {
+            await route.pushNamed(
+              context,
+              routeName.pickupCustomerScreen,
+              arg: {'tripId': updatedTrip.tripId},
+            );
+          }
+        }
       }
 
       final message =

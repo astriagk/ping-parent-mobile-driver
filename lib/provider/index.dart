@@ -9,6 +9,7 @@ export 'package:taxify_driver_ui/provider/bottom_bar_provider/active_ride_provid
 export 'package:taxify_driver_ui/provider/bottom_bar_provider/bank_details_provider.dart';
 export 'package:taxify_driver_ui/provider/bottom_bar_provider/bottom_bar_provider.dart';
 export 'package:taxify_driver_ui/provider/bottom_bar_provider/chat_provider.dart';
+export 'package:taxify_driver_ui/provider/bottom_bar_provider/drop_student_selection_provider.dart';
 export 'package:taxify_driver_ui/provider/bottom_bar_provider/home_screen_provider.dart';
 export 'package:taxify_driver_ui/provider/bottom_bar_provider/my_rides_provider.dart';
 export 'package:taxify_driver_ui/provider/bottom_bar_provider/my_wallet_provider.dart';
