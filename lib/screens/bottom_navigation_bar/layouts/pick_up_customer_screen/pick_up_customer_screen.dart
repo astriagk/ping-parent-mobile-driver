@@ -179,7 +179,7 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
             isError: true);
       }
     } catch (e) {
-      print('[Screen] Error: $e');
+      print('[D] Error: $e');
       _showSnackBar('Error starting trip: ${e.toString()}', isError: true);
     }
   }
@@ -331,6 +331,7 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
 
   /// Add picked up students to the tracking list
   /// Also updates trip status to in_progress on first pickup
+  /// Emits WebSocket events to notify parents in the trip room
   Future<void> _addPickedUpStudents(List<String> studentIds) async {
     // Check if this is the first pickup (trip was just started, no students picked up yet)
     final isFirstPickup = _pickedUpStudentIds.isEmpty && studentIds.isNotEmpty;
@@ -342,6 +343,8 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
         }
       }
     });
+
+    // Note: Student pickup/dropoff events are handled via REST API only
 
     // Update trip status to in_progress after first successful pickup
     if (isFirstPickup && _pickUpProvider.optimizedRoute != null) {

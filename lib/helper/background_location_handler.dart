@@ -119,19 +119,22 @@ class BackgroundLocationHandler {
 
       _socket!.onConnect((_) {
         _isSocketConnected = true;
+        if (_isTrackingActive && _currentTripId != null) {
+          _subscribeToTrip(_currentTripId!);
+        }
         _syncPendingSocketPositions();
       });
 
-      _socket!.onDisconnect((_) {
+      _socket!.onDisconnect((reason) {
         _isSocketConnected = false;
       });
 
       _socket!.on('connect_error', (error) {
         _isSocketConnected = false;
-        _debug('Socket connect_error: $error');
+        print('[D-BG] Connection error: $error');
       });
     } catch (e) {
-      _debug('Socket init exception: $e');
+      print('[D-BG] Socket init error: $e');
     }
   }
 
@@ -145,6 +148,9 @@ class BackgroundLocationHandler {
     _currentTripId = tripId;
     _lastApiPosition = null;
     _lastSocketEmitTime = null;
+
+    // CRITICAL: Subscribe to trip room BEFORE emitting any position updates
+    await _subscribeToTrip(tripId);
 
     _locationSubscription = Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
@@ -160,6 +166,11 @@ class BackgroundLocationHandler {
   }
 
   void stopTracking() {
+    // Unsubscribe from trip room before stopping
+    if (_currentTripId != null) {
+      _unsubscribeFromTrip(_currentTripId!);
+    }
+
     _isTrackingActive = false;
     _currentTripId = null;
     _lastApiPosition = null;
@@ -168,6 +179,42 @@ class BackgroundLocationHandler {
     _locationSubscription = null;
 
     _service.invoke('trackingStopped');
+  }
+
+  Future<void> _subscribeToTrip(String tripId) async {
+    if (_socket == null || !_isSocketConnected) {
+      for (int i = 0; i < 50; i++) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        if (_isSocketConnected) break;
+      }
+      if (!_isSocketConnected) {
+        print('[D-BG] Subscribe timeout for trip: $tripId');
+        return;
+      }
+    }
+
+    try {
+      _socket!.emitWithAck(
+        DriverSocketEvent.subscribeTrp.value,
+        tripId,
+        ack: (dynamic result) {
+          if (!(result is bool ? result : result == true)) {
+            print('[D-BG] Subscribe failed for trip: $tripId');
+          }
+        },
+      );
+    } catch (e) {
+      print('[D-BG] Subscribe error: $e');
+    }
+  }
+
+  void _unsubscribeFromTrip(String tripId) {
+    if (_socket == null || !_isSocketConnected) return;
+    try {
+      _socket!.emit(DriverSocketEvent.unsubscribeTrp.value, tripId);
+    } catch (e) {
+      print('[D-BG] Unsubscribe error: $e');
+    }
   }
 
   Future<void> _handlePositionUpdate(Position position) async {

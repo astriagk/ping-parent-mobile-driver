@@ -126,23 +126,16 @@ class PickUpCustomerProvider extends ChangeNotifier {
         final socketTripId = optimizedRoute?.tripId ?? tripId;
 
         // Emit trip started via socket from main isolate
+        // NOTE: Room subscription happens in BackgroundLocationHandler when tracking starts
         if (tripStatus == TripStatus.started.value) {
           await _socketService.initializeSocket(forceRefresh: true);
-
-          // IMPORTANT: Subscribe to trip before emitting events per v3.1.0
-          final subscribed = await _socketService.subscribeToTrip(socketTripId);
-          if (!subscribed) {
-            print(
-                '[Provider] ⚠️ Failed to subscribe to trip, continuing anyway');
-          }
-
           _socketService.startTripViaWebSocket(socketTripId);
         }
 
         // Emit trip completed and unsubscribe from trip room
         if (tripStatus == TripStatus.completed.value) {
           _socketService.completeTripViaWebSocket(socketTripId);
-          _socketService.unsubscribeFromTrip(socketTripId);
+          // Unsubscription happens in BackgroundLocationHandler when tracking stops
         }
 
         isLoading = false;
