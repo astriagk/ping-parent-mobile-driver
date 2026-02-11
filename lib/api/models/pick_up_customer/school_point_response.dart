@@ -30,12 +30,14 @@ class SchoolPointData {
   final String tripType;
   final String action;
   final List<String> processedStudents;
+  final List<String> skippedStudents;
   final List<FailedSchoolStudent> failedStudents;
 
   SchoolPointData({
     required this.tripType,
     required this.action,
     required this.processedStudents,
+    required this.skippedStudents,
     required this.failedStudents,
   });
 
@@ -44,6 +46,7 @@ class SchoolPointData {
       tripType: json['trip_type'] ?? '',
       action: json['action'] ?? '',
       processedStudents: List<String>.from(json['processed_students'] ?? []),
+      skippedStudents: List<String>.from(json['skipped_students'] ?? []),
       failedStudents: (json['failed_students'] as List?)
               ?.map((e) => FailedSchoolStudent.fromJson(e))
               .toList() ??

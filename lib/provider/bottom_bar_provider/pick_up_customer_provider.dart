@@ -303,11 +303,13 @@ class PickUpCustomerProvider extends ChangeNotifier {
 
   /// Process school point for dropping students at school
   /// Returns SchoolPointResponse on success, null on failure
+  /// [skippedStudentIds] is optional and only used for DROP trips
   Future<SchoolPointResponse?> processSchoolPoint({
     required String tripId,
     required List<String> studentIds,
     required double latitude,
     required double longitude,
+    List<String>? skippedStudentIds,
   }) async {
     try {
       isLoading = true;
@@ -320,6 +322,7 @@ class PickUpCustomerProvider extends ChangeNotifier {
         studentIds: studentIds,
         latitude: latitude,
         longitude: longitude,
+        skippedStudentIds: skippedStudentIds,
       );
 
       if (response.success && response.data != null) {

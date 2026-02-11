@@ -283,17 +283,20 @@ class PickUpCustomerService {
 
   /// Process school point for dropping students at school
   /// Handles bulk action for students being dropped at school location
+  /// [skippedStudentIds] is optional and only used for DROP trips (picking from school)
   Future<SchoolPointResponse> processSchoolPoint({
     required String tripId,
     required List<String> studentIds,
     required double latitude,
     required double longitude,
+    List<String>? skippedStudentIds,
   }) async {
     try {
       final request = SchoolPointRequest(
         studentIds: studentIds,
         latitude: latitude,
         longitude: longitude,
+        skippedStudentIds: skippedStudentIds,
       );
 
       final response = await _apiClient.post(

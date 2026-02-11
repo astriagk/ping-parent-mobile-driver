@@ -148,6 +148,20 @@ class DropStudentSelectionProvider extends ChangeNotifier {
     return studentIds;
   }
 
+  /// Get skipped (unselected) student IDs for DROP trips
+  /// These are students who were not picked up from school
+  List<String> getSkippedStudentIdsForApi() {
+    List<String> skippedIds = [];
+    for (var parent in _parentsWithStudents) {
+      for (var student in parent.students) {
+        if (!student.isMarkedPresent) {
+          skippedIds.add(student.studentId);
+        }
+      }
+    }
+    return skippedIds;
+  }
+
   /// Mark selected students as picked from school
   /// POST /trip-students/trip/:tripId/school-point
   /// Gets current location and sends selected student IDs
@@ -189,11 +203,16 @@ class DropStudentSelectionProvider extends ChangeNotifier {
       // Get selected student IDs
       final studentIds = getSelectedStudentIdsForApi();
 
-      // Create request
+      // Get skipped (unselected) student IDs for DROP trip
+      final skippedStudentIds = getSkippedStudentIdsForApi();
+
+      // Create request with skipped students
       final request = SchoolPointRequest(
         studentIds: studentIds,
         latitude: location.latitude,
         longitude: location.longitude,
+        skippedStudentIds:
+            skippedStudentIds.isNotEmpty ? skippedStudentIds : null,
       );
 
       // Call API
