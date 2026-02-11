@@ -116,6 +116,7 @@ class Waypoint {
   final String? parentName;
   final String? parentEmail;
   final String? parentPhoneNumber;
+  final String? parentUserId;
   final double distanceFromPrevious;
   final double durationFromPrevious;
   final DateTime estimatedArrivalTime;
@@ -134,6 +135,7 @@ class Waypoint {
     this.parentName,
     this.parentEmail,
     this.parentPhoneNumber,
+    this.parentUserId,
     required this.distanceFromPrevious,
     required this.durationFromPrevious,
     required this.estimatedArrivalTime,
@@ -154,6 +156,7 @@ class Waypoint {
       parentName: json['parent_name'],
       parentEmail: json['parent_email'],
       parentPhoneNumber: json['parent_phone_number'],
+      parentUserId: json['parent_user_id'],
       distanceFromPrevious:
           (json['distance_from_previous'] as num?)?.toDouble() ?? 0.0,
       durationFromPrevious:

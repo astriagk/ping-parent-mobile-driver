@@ -311,4 +311,5 @@ dynamic en = {
   "nextRide": "Next Ride",
   "currenRide": "Current Ride",
   "absent": "Absent",
+  "tripCancelled": "Cancelled",
 };

@@ -86,7 +86,7 @@ class ForegroundTrackingService {
     // Listen for debug messages from background isolate
     _service.on('debug').listen((event) {
       if (event != null && event['message'] != null) {
-        print('[BG-DEBUG] ${event['message']}');
+        if (event['message'] != null) print('[D] ${event['message']}');
       }
     });
 

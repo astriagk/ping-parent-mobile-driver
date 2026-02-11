@@ -132,4 +132,38 @@ class ActiveRideProvider extends ChangeNotifier {
       return false;
     }
   }
+
+  /// Fetch list of trips for the current driver by date
+  ///
+  /// Parameters:
+  ///   - date: Optional DateTime to filter trips (defaults to current date)
+  ///
+  /// Returns:
+  ///   - true if fetch is successful, false otherwise
+  Future<bool> fetchMyTripsByDate({DateTime? date}) async {
+    try {
+      isLoading = true;
+      errorMessage = null;
+      notifyListeners();
+
+      final response = await _activeRideService.getMyTripsByDate(date: date);
+
+      if (response.success) {
+        myTrips = response.data;
+        isLoading = false;
+        notifyListeners();
+        return true;
+      } else {
+        errorMessage = response.message;
+        isLoading = false;
+        notifyListeners();
+        return false;
+      }
+    } catch (e) {
+      errorMessage = 'Error fetching trips: ${e.toString()}';
+      isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
 }
