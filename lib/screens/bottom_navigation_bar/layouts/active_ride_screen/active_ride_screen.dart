@@ -1,7 +1,8 @@
 import 'package:taxify_driver_ui/config.dart';
 import 'package:taxify_driver_ui/widgets/common_bg_layout.dart';
-import 'package:taxify_driver_ui/helper/date_time_helper.dart';
 import 'package:taxify_driver_ui/api/enums/trip_type_enum.dart';
+import 'package:taxify_driver_ui/api/enums/trip_status_enum.dart';
+import 'package:taxify_driver_ui/api/models/get_my_trips_response.dart';
 
 class ActiveRideScreen extends StatefulWidget {
   const ActiveRideScreen({super.key});
@@ -10,16 +11,35 @@ class ActiveRideScreen extends StatefulWidget {
   State<ActiveRideScreen> createState() => _ActiveRideScreenState();
 }
 
-class _ActiveRideScreenState extends State<ActiveRideScreen> {
+class _ActiveRideScreenState extends State<ActiveRideScreen>
+    with WidgetsBindingObserver {
+  int? _lastTabIndex;
+
   @override
   void initState() {
     super.initState();
-    // Fetch trips from API when screen loads
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        context.read<ActiveRideProvider>().fetchMyTrips();
-      }
-    });
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Refresh data when app comes back to foreground (only if this tab is active)
+    if (state == AppLifecycleState.resumed && _lastTabIndex == 1) {
+      _fetchTrips();
+    }
+  }
+
+  /// Fetch trips from API
+  void _fetchTrips() {
+    if (mounted) {
+      context.read<ActiveRideProvider>().fetchMyTripsByDate();
+    }
   }
 
   void _showSnackBar(String message,
@@ -38,16 +58,67 @@ class _ActiveRideScreenState extends State<ActiveRideScreen> {
     return exists;
   }
 
+  /// Get trip data for the given trip type
+  TripData? _getTripForType(
+      TripType tripType, ActiveRideProvider activeRidePvr) {
+    try {
+      return activeRidePvr.myTrips
+          .firstWhere((trip) => trip.tripType == tripType);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Get the button label based on trip status
+  String _getButtonLabel(BuildContext context, TripType tripType,
+      ActiveRideProvider activeRidePvr) {
+    final trip = _getTripForType(tripType, activeRidePvr);
+
+    if (trip == null) {
+      return language(context, appFonts.createTrip);
+    }
+
+    final status = TripStatus.fromString(trip.tripStatus);
+    switch (status) {
+      case TripStatus.scheduled:
+        return language(context, appFonts.startTrip);
+      case TripStatus.started:
+      case TripStatus.inProgress:
+        return language(context, appFonts.viewMap);
+      case TripStatus.completed:
+        return language(context, appFonts.tripCompleted);
+      case TripStatus.cancelled:
+        return language(context, appFonts.tripCancelled);
+    }
+  }
+
+  /// Check if button should be enabled based on trip status
+  bool _isButtonEnabled(TripType tripType, ActiveRideProvider activeRidePvr) {
+    final trip = _getTripForType(tripType, activeRidePvr);
+
+    if (trip == null) {
+      return true; // Enable for create trip
+    }
+
+    final status = TripStatus.fromString(trip.tripStatus);
+    // Disable button for completed and cancelled trips
+    return status != TripStatus.completed && status != TripStatus.cancelled;
+  }
+
   Future<void> _onCreateTripTap(
       TripType tripType, ActiveRideProvider activeRidePvr) async {
     if (_tripExists(tripType, activeRidePvr)) {
       final trip =
           activeRidePvr.myTrips.firstWhere((t) => t.tripType == tripType);
-      route.pushNamed(
+      await route.pushNamed(
         context,
         routeName.pickupCustomerScreen,
         arg: {'tripId': trip.tripId},
       );
+      // Refresh trips when returning from map screen
+      if (mounted) {
+        activeRidePvr.fetchMyTripsByDate();
+      }
     } else {
       final success = await activeRidePvr.createTrip(
         tripType: tripType,
@@ -56,26 +127,35 @@ class _ActiveRideScreenState extends State<ActiveRideScreen> {
 
       if (!mounted) return;
 
+      if (success) {
+        await activeRidePvr.fetchMyTripsByDate();
+      }
+
       final message =
           success ? activeRidePvr.successMessage : activeRidePvr.errorMessage;
 
       if (message != null) {
         _showSnackBar(message);
       }
-      if (success && activeRidePvr.myTrips.isNotEmpty) {
-        final trip =
-            activeRidePvr.myTrips.firstWhere((t) => t.tripType == tripType);
-        route.pushNamed(
-          context,
-          routeName.pickupCustomerScreen,
-          arg: {'tripId': trip.tripId},
-        );
-      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Watch BottomBarProvider to detect tab changes
+    final bottomBarProvider = context.watch<BottomBarProvider>();
+    final currentTab = bottomBarProvider.currentTab;
+
+    // Fetch trips when this tab becomes active
+    if (currentTab == 1 && _lastTabIndex != 1) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          context.read<ActiveRideProvider>().fetchMyTripsByDate();
+        }
+      });
+    }
+    _lastTabIndex = currentTab;
+
     return Consumer2<ActiveRideProvider, MyRidesProvider>(
         builder: (context, activeRidePvr, myRidePvr, child) {
       return appArray.ridesData.isNotEmpty
@@ -178,34 +258,23 @@ class _ActiveRideScreenState extends State<ActiveRideScreen> {
                             HSpace(Insets.i10),
                             Expanded(
                                 child: CommonButton(
-                                    style: DateTimeHelper.isRideWithinOneHour(
-                                            ride['time'])
+                                    style: _isButtonEnabled(
+                                            ride['tripType'], activeRidePvr)
                                         ? AppCss.lexendRegular15
                                             .textColor(appTheme.white)
                                         : AppCss.lexendRegular15
                                             .textColor(appTheme.lightText),
-                                    color: DateTimeHelper.isRideWithinOneHour(
-                                            ride['time'])
+                                    color: _isButtonEnabled(
+                                            ride['tripType'], activeRidePvr)
                                         ? appTheme.primary
                                         : appTheme.bgBox,
-                                    onTap: DateTimeHelper.isRideWithinOneHour(
-                                            ride['time'])
+                                    onTap: _isButtonEnabled(
+                                            ride['tripType'], activeRidePvr)
                                         ? () => _onCreateTripTap(
                                             ride['tripType'], activeRidePvr)
-                                        : () {
-                                            _showSnackBar(
-                                              language(
-                                                context,
-                                                appFonts
-                                                    .ridePickupWithinOneHour,
-                                              ),
-                                            );
-                                          },
-                                    text: _tripExists(
-                                            ride['tripType'], activeRidePvr)
-                                        ? language(context, appFonts.viewMap)
-                                        : language(
-                                            context, appFonts.createTrip)))
+                                        : null,
+                                    text: _getButtonLabel(context,
+                                        ride['tripType'], activeRidePvr)))
                           ]).marginOnly(top: Insets.i15, bottom: Insets.i10)
                         ])).marginOnly(bottom: Insets.i10);
                   }))

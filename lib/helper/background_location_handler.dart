@@ -8,9 +8,10 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:socket_io_client/socket_io_client.dart' as IO;
-import 'package:taxify_driver_ui/api/endpoints.dart';
+import 'package:taxify_driver_ui/api/enums/socket_events_enum.dart';
 import 'package:taxify_driver_ui/api/services/position_queue_service.dart';
 import 'package:taxify_driver_ui/config/app_constants.dart';
+import 'package:taxify_driver_ui/config/environment.dart';
 
 /// Background service entry point - runs in separate isolate
 @pragma('vm:entry-point')
@@ -70,12 +71,20 @@ class BackgroundLocationHandler {
   String? _currentTripId;
   Position? _lastApiPosition;
   DateTime? _lastSocketEmitTime;
-  String _baseUrl = Endpoints.baseUrl;
+  // Don't use Endpoints.baseUrl here - it requires appConfig which isn't available in background isolate
+  String _baseUrl = '';
+
+  void _debug(String message) {
+    print('[BG] $message');
+    _service.invoke('debug', {'message': message});
+  }
 
   Future<void> initialize() async {
     final storedBaseUrl = await _secureStorage.read(key: 'base_url');
     if (storedBaseUrl != null && storedBaseUrl.isNotEmpty) {
       _baseUrl = storedBaseUrl;
+    } else {
+      _baseUrl = EnvironmentConfig.production.baseUrl;
     }
 
     await _initializeSocket();
@@ -110,17 +119,23 @@ class BackgroundLocationHandler {
 
       _socket!.onConnect((_) {
         _isSocketConnected = true;
+        if (_isTrackingActive && _currentTripId != null) {
+          _subscribeToTrip(_currentTripId!);
+        }
         _syncPendingSocketPositions();
       });
 
-      _socket!.onDisconnect((_) {
+      _socket!.onDisconnect((reason) {
         _isSocketConnected = false;
       });
 
       _socket!.on('connect_error', (error) {
         _isSocketConnected = false;
+        print('[D-BG] Connection error: $error');
       });
-    } catch (_) {}
+    } catch (e) {
+      print('[D-BG] Socket init error: $e');
+    }
   }
 
   Future<void> startTracking(String tripId) async {
@@ -134,7 +149,8 @@ class BackgroundLocationHandler {
     _lastApiPosition = null;
     _lastSocketEmitTime = null;
 
-    print('[BG] Tracking started: $tripId');
+    // CRITICAL: Subscribe to trip room BEFORE emitting any position updates
+    await _subscribeToTrip(tripId);
 
     _locationSubscription = Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
@@ -143,13 +159,18 @@ class BackgroundLocationHandler {
       ),
     ).listen(
       _handlePositionUpdate,
-      onError: (_) {},
+      onError: (error) {},
     );
 
     _service.invoke('trackingStarted', {'tripId': tripId});
   }
 
   void stopTracking() {
+    // Unsubscribe from trip room before stopping
+    if (_currentTripId != null) {
+      _unsubscribeFromTrip(_currentTripId!);
+    }
+
     _isTrackingActive = false;
     _currentTripId = null;
     _lastApiPosition = null;
@@ -157,8 +178,43 @@ class BackgroundLocationHandler {
     _locationSubscription?.cancel();
     _locationSubscription = null;
 
-    print('[BG] Tracking stopped');
     _service.invoke('trackingStopped');
+  }
+
+  Future<void> _subscribeToTrip(String tripId) async {
+    if (_socket == null || !_isSocketConnected) {
+      for (int i = 0; i < 50; i++) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        if (_isSocketConnected) break;
+      }
+      if (!_isSocketConnected) {
+        print('[D-BG] Subscribe timeout for trip: $tripId');
+        return;
+      }
+    }
+
+    try {
+      _socket!.emitWithAck(
+        DriverSocketEvent.subscribeTrp.value,
+        tripId,
+        ack: (dynamic result) {
+          if (!(result is bool ? result : result == true)) {
+            print('[D-BG] Subscribe failed for trip: $tripId');
+          }
+        },
+      );
+    } catch (e) {
+      print('[D-BG] Subscribe error: $e');
+    }
+  }
+
+  void _unsubscribeFromTrip(String tripId) {
+    if (_socket == null || !_isSocketConnected) return;
+    try {
+      _socket!.emit(DriverSocketEvent.unsubscribeTrp.value, tripId);
+    } catch (e) {
+      print('[D-BG] Unsubscribe error: $e');
+    }
   }
 
   Future<void> _handlePositionUpdate(Position position) async {
@@ -205,7 +261,7 @@ class BackgroundLocationHandler {
 
     if (_isSocketConnected && _socket != null) {
       try {
-        _socket!.emit('driver:update_position', data);
+        _socket!.emit(DriverSocketEvent.updatePosition.value, data);
       } catch (e) {
         await _queuePosition(position, timestamp, 'socket');
       }
@@ -313,7 +369,7 @@ class BackgroundLocationHandler {
       final syncedIds = <int>[];
       for (final pos in pending) {
         try {
-          _socket!.emit('driver:update_position', {
+          _socket!.emit(DriverSocketEvent.updatePosition.value, {
             'tripId': pos['trip_id'],
             'latitude': pos['latitude'],
             'longitude': pos['longitude'],
