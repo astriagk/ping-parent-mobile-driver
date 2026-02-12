@@ -10,6 +10,7 @@ import 'package:taxify_driver_ui/helper/location_service.dart';
 class DropStudentSelectionProvider extends ChangeNotifier {
   // Trip data
   String? _currentTripId;
+  String? _statusTripId; // _id field for status API
 
   // Parent-student data from API
   List<ParentWithStudents> _parentsWithStudents = [];
@@ -22,13 +23,17 @@ class DropStudentSelectionProvider extends ChangeNotifier {
 
   // Getters
   String? get currentTripId => _currentTripId;
+  String? get statusTripId => _statusTripId;
   List<ParentWithStudents> get parentsWithStudents => _parentsWithStudents;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
   /// Set current trip ID (called from active_ride_screen)
-  void setCurrentTripId(String tripId) {
+  /// [tripId] - the trip_id field
+  /// [statusId] - the _id field for status API
+  void setCurrentTripId(String tripId, {String? statusId}) {
     _currentTripId = tripId;
+    _statusTripId = statusId;
     notifyListeners();
   }
 
@@ -184,15 +189,12 @@ class DropStudentSelectionProvider extends ChangeNotifier {
       );
     }
 
-    _isLoading = true;
     _errorMessage = null;
-    notifyListeners();
 
     try {
       // Get current driver location
       final location = await LocationService.getCurrentLocation();
       if (location == null) {
-        _isLoading = false;
         _errorMessage = 'Unable to get current location';
         notifyListeners();
         return SchoolPointResponse(
@@ -224,15 +226,13 @@ class DropStudentSelectionProvider extends ChangeNotifier {
         request: request,
       );
 
-      _isLoading = false;
       if (!response.success) {
         _errorMessage = response.message;
+        notifyListeners();
       }
-      notifyListeners();
 
       return response;
     } catch (e) {
-      _isLoading = false;
       _errorMessage = 'Error marking school point: ${e.toString()}';
       notifyListeners();
       return SchoolPointResponse(
@@ -248,6 +248,7 @@ class DropStudentSelectionProvider extends ChangeNotifier {
     _attendanceMap.clear();
     _parentsWithStudents.clear();
     _currentTripId = null;
+    _statusTripId = null;
     _errorMessage = null;
     notifyListeners();
   }

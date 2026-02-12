@@ -322,6 +322,7 @@ class AppFonts {
   final tripCreatedSuccessfully = "tripCreatedSuccessfully";
   final failedToCreateTrip = "failedToCreateTrip";
   final startTrip = "startTrip";
+  final inProgress = "inProgress";
   final nextRide = "nextRide";
   final currenRide = "currenRide";
   final absent = "absent";
@@ -331,4 +332,9 @@ class AppFonts {
   final selectStudents = "selectStudents";
   final noStudentsAssigned = "noStudentsAssigned";
   final startDrop = "startDrop";
+
+  // Error states
+  final somethingWentWrong = "somethingWentWrong";
+  final tryAgain = "tryAgain";
+  final failedToLoadTrip = "failedToLoadTrip";
 }

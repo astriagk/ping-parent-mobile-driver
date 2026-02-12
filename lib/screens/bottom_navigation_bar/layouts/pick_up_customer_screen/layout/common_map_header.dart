@@ -6,145 +6,141 @@ class CommonMapHeader extends StatelessWidget {
   final RouteWaypoint? waypoint;
   final int waypointIndex;
   final int totalWaypoints;
+  final VoidCallback? onBack;
 
   const CommonMapHeader({
     super.key,
     this.waypoint,
     required this.waypointIndex,
     required this.totalWaypoints,
+    this.onBack,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        color: appTheme.white,
-        boxShadow: [
-          BoxShadow(
-            color: appTheme.primary.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          )
-        ],
+      decoration: ShapeDecoration(
+        color: appColor(context).appTheme.bgBox,
+        shape: SmoothRectangleBorder(
+          borderRadius: SmoothBorderRadius.only(
+            bottomRight:
+                SmoothRadius(cornerRadius: Sizes.s20, cornerSmoothing: 1),
+            bottomLeft:
+                SmoothRadius(cornerRadius: Sizes.s20, cornerSmoothing: 1),
+          ),
+        ),
       ),
-      padding: EdgeInsets.symmetric(
-        horizontal: Insets.i16,
-        vertical: Insets.i12,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Waypoint progress indicator
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: Insets.i20,
+            vertical: Insets.i12,
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Waypoint ${waypointIndex + 1} of $totalWaypoints',
-                style: AppCss.lexendRegular12.textColor(appTheme.primary),
+              // Back button
+              CommonIconButton(
+                icon: svgAssets.back,
+                bgColor: appColor(context).appTheme.white,
+                onTap: onBack ?? () => route.pop(context),
               ),
-              Flexible(
-                child: Container(
-                  constraints: BoxConstraints(
-                    maxWidth: MediaQuery.of(context).size.width * 0.5,
-                  ),
-                  padding: EdgeInsets.symmetric(
-                    horizontal: Insets.i8,
-                    vertical: Insets.i4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: appTheme.primary.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    waypoint?.address ?? 'Unknown Location',
-                    style: AppCss.lexendRegular12.textColor(appTheme.primary),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+              HSpace(Insets.i10),
+              // Waypoint info and stats
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Waypoint progress
+                    Text(
+                      'Stop ${waypointIndex + 1} of $totalWaypoints',
+                      style: AppCss.lexendSemiBold16
+                          .textColor(appColor(context).appTheme.primary),
+                    ),
+                    VSpace(Insets.i2),
+                    // Address
+                    Text(
+                      waypoint?.address ?? 'Unknown Location',
+                      style: AppCss.lexendRegular12
+                          .textColor(appColor(context).appTheme.lightText),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    VSpace(Insets.i8),
+                    // Distance, Duration, ETA - compact row
+                    Row(
+                      children: [
+                        _CompactInfoChip(
+                          icon: svgAssets.distance,
+                          value: LocationService.formatDistance(
+                              waypoint?.distanceFromPrevious),
+                        ),
+                        HSpace(Insets.i8),
+                        _CompactInfoChip(
+                          icon: svgAssets.duration,
+                          value: LocationService.formatDuration(
+                              waypoint?.durationFromPrevious),
+                        ),
+                        HSpace(Insets.i8),
+                        _CompactInfoChip(
+                          icon: svgAssets.eta,
+                          value: LocationService.formatETA(
+                              waypoint?.estimatedArrivalTime),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          VSpace(Insets.i8),
-
-          // Distance, Duration, ETA info
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _InfoCard(
-                icon: svgAssets.distance,
-                label: 'Distance',
-                value: LocationService.formatDistance(
-                    waypoint?.distanceFromPrevious),
-              ),
-              _InfoCard(
-                icon: svgAssets.duration,
-                label: 'Duration',
-                value: LocationService.formatDuration(
-                    waypoint?.durationFromPrevious),
-              ),
-              _InfoCard(
-                icon: svgAssets.eta,
-                label: 'ETA',
-                value:
-                    LocationService.formatETA(waypoint?.estimatedArrivalTime),
-              ),
-            ],
-          ),
-        ],
+        ),
       ),
     );
   }
 }
 
-class _InfoCard extends StatelessWidget {
+/// Compact info chip showing icon + value inline
+class _CompactInfoChip extends StatelessWidget {
   final String icon;
-  final String label;
   final String value;
 
-  const _InfoCard({
+  const _CompactInfoChip({
     required this.icon,
-    required this.label,
     required this.value,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal: Insets.i4),
-        padding: EdgeInsets.symmetric(
-          horizontal: Insets.i8,
-          vertical: Insets.i8,
-        ),
-        decoration: BoxDecoration(
-          color: appTheme.bgBox,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SvgPicture.asset(
-              icon,
-              height: Insets.i16,
-              colorFilter: ColorFilter.mode(
-                appTheme.primary,
-                BlendMode.srcIn,
-              ),
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: Insets.i8,
+        vertical: Insets.i4,
+      ),
+      decoration: BoxDecoration(
+        color: appColor(context).appTheme.white,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SvgPicture.asset(
+            icon,
+            height: 14,
+            colorFilter: ColorFilter.mode(
+              appColor(context).appTheme.primary,
+              BlendMode.srcIn,
             ),
-            VSpace(Insets.i4),
-            Text(
-              label,
-              style: AppCss.lexendRegular12.textColor(appTheme.textClr),
-            ),
-            VSpace(Insets.i2),
-            Text(
-              value,
-              style: AppCss.lexendBold14.textColor(appTheme.primary),
-            ),
-          ],
-        ),
+          ),
+          HSpace(Insets.i4),
+          Text(
+            value,
+            style: AppCss.lexendMedium12
+                .textColor(appColor(context).appTheme.primary),
+          ),
+        ],
       ),
     );
   }

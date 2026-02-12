@@ -133,8 +133,26 @@ class _MapWidgetState extends State<MapWidget> {
 
   Widget _buildMapBody() {
     if (_currentLocation == null) {
-      return const Center(
-        child: CircularProgressIndicator(),
+      // Show map placeholder while loading location
+      return Container(
+        color: appTheme.white,
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.map_outlined,
+                size: 48,
+                color: appTheme.primary.withOpacity(0.5),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Loading map...',
+                style: AppCss.lexendRegular14.textColor(appTheme.lightText),
+              ),
+            ],
+          ),
+        ),
       );
     }
 

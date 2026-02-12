@@ -309,6 +309,7 @@ dynamic en = {
   "tripCreatedSuccessfully": "Trip created successfully",
   "failedToCreateTrip": "Failed to create trip",
   "startTrip": "Start Trip",
+  "inProgress": "In Progress",
   "nextRide": "Next Ride",
   "currenRide": "Current Ride",
   "absent": "Absent",
@@ -318,4 +319,9 @@ dynamic en = {
   "selectStudents": "Select Students",
   "startDrop": "Start Drop",
   "noStudentsAssigned": "No students assigned",
+
+  // Error states
+  "somethingWentWrong": "Something went wrong",
+  "tryAgain": "Try Again",
+  "failedToLoadTrip": "Failed to load trip data",
 };

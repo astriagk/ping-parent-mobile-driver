@@ -22,6 +22,7 @@ class CustomerCard extends StatelessWidget {
   final String? phoneNumber;
   final Function(String)? onApprove;
   final Function(String)? onReject;
+  final bool isActionLoading;
 
   const CustomerCard(
       {super.key,
@@ -38,7 +39,8 @@ class CustomerCard extends StatelessWidget {
       this.assignmentId,
       this.phoneNumber,
       this.onApprove,
-      this.onReject});
+      this.onReject,
+      this.isActionLoading = false});
 
   @override
   Widget build(BuildContext context) {
@@ -143,14 +145,19 @@ class CustomerCard extends StatelessWidget {
                   child: CommonButton(
                       style: AppCss.lexendRegular14.textColor(appTheme.textClr),
                       color: appColor(context).appTheme.bgBox,
-                      onTap: () => onReject?.call(assignmentId!),
+                      onTap: isActionLoading
+                          ? null
+                          : () => onReject?.call(assignmentId!),
                       text: appFonts.reject),
                 ),
                 SizedBox(width: Insets.i10),
                 Expanded(
                   child: CommonButton(
                       style: AppCss.lexendRegular15.textColor(appTheme.white),
-                      onTap: () => onApprove?.call(assignmentId!),
+                      onTap: isActionLoading
+                          ? null
+                          : () => onApprove?.call(assignmentId!),
+                      isLoading: isActionLoading,
                       text: appFonts.approve),
                 ),
               ],

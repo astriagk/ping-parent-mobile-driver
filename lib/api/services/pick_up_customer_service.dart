@@ -13,6 +13,7 @@ import 'package:taxify_driver_ui/api/models/pick_up_customer/school_point_reques
 import 'package:taxify_driver_ui/api/models/pick_up_customer/school_point_response.dart';
 import 'package:taxify_driver_ui/api/models/pick_up_customer/daily_qr_otp_request.dart';
 import 'package:taxify_driver_ui/api/models/pick_up_customer/daily_qr_otp_response.dart';
+import 'package:taxify_driver_ui/api/models/pick_up_customer/trip_progress_response.dart';
 
 class PickUpCustomerService {
   final ApiClient _apiClient;
@@ -342,6 +343,55 @@ class PickUpCustomerService {
         success: false,
         data: null,
         message: 'Error processing school point: ${e.toString()}',
+      );
+    }
+  }
+
+  /// Get trip progress information
+  /// Returns current waypoint index, processed/in-transit/absent students
+  Future<TripProgressResponse> getTripProgress({
+    required String tripId,
+  }) async {
+    try {
+      final response = await _apiClient.get(
+        Endpoints.tripProgress(tripId),
+      );
+
+      if (response.statusCode == 200) {
+        try {
+          final jsonData = jsonDecode(response.body) as Map<String, dynamic>;
+          return TripProgressResponse.fromJson(jsonData);
+        } catch (parseError) {
+          return TripProgressResponse(
+            success: false,
+            data: null,
+            message:
+                'Error parsing trip progress response: ${parseError.toString()}',
+          );
+        }
+      } else {
+        // Try to parse error message from response
+        try {
+          final jsonData = jsonDecode(response.body) as Map<String, dynamic>;
+          return TripProgressResponse(
+            success: false,
+            data: null,
+            error: jsonData['error'] ?? 'Failed to get trip progress',
+          );
+        } catch (_) {
+          return TripProgressResponse(
+            success: false,
+            data: null,
+            message:
+                'Failed to get trip progress. Status: ${response.statusCode}',
+          );
+        }
+      }
+    } catch (e) {
+      return TripProgressResponse(
+        success: false,
+        data: null,
+        message: 'Error getting trip progress: ${e.toString()}',
       );
     }
   }

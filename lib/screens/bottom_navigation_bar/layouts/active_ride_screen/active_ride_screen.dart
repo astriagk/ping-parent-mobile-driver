@@ -92,8 +92,9 @@ class _ActiveRideScreenState extends State<ActiveRideScreen>
       case TripStatus.scheduled:
         return language(context, appFonts.startTrip);
       case TripStatus.started:
-      case TripStatus.inProgress:
         return language(context, appFonts.viewMap);
+      case TripStatus.inProgress:
+        return language(context, appFonts.inProgress);
       case TripStatus.completed:
         return language(context, appFonts.tripCompleted);
       case TripStatus.cancelled:
@@ -119,13 +120,23 @@ class _ActiveRideScreenState extends State<ActiveRideScreen>
     if (_tripExists(tripType, activeRidePvr)) {
       final trip =
           activeRidePvr.myTrips.firstWhere((t) => t.tripType == tripType);
+      final status = TripStatus.fromString(trip.tripStatus);
 
-      // Set trip ID in the appropriate provider
-      if (tripType == TripType.drop) {
-        // For DROP trips, go to student selection screen
+      // If trip is in-progress, go directly to map for both PICKUP and DROP
+      if (status == TripStatus.inProgress) {
+        await route.pushNamed(
+          context,
+          routeName.pickupCustomerScreen,
+          arg: {
+            'tripId': trip.tripId,
+            if (tripType == TripType.drop) 'isDropTrip': true,
+          },
+        );
+      } else if (tripType == TripType.drop) {
+        // For DROP trips (not in-progress), go to student selection screen
         context
             .read<DropStudentSelectionProvider>()
-            .setCurrentTripId(trip.tripId);
+            .setCurrentTripId(trip.tripId, statusId: trip.id);
         await route.pushNamed(context, routeName.dropStudentSelectionScreen);
       } else {
         // For PICKUP trips, go directly to map
@@ -136,9 +147,9 @@ class _ActiveRideScreenState extends State<ActiveRideScreen>
         );
       }
 
-      // Refresh trips when returning from map screen
+      // Refresh trips silently when returning from map screen
       if (mounted) {
-        activeRidePvr.fetchMyTripsByDate();
+        activeRidePvr.fetchMyTripsByDate(showLoading: false);
       }
     } else {
       final success = await activeRidePvr.createTrip(
@@ -149,7 +160,7 @@ class _ActiveRideScreenState extends State<ActiveRideScreen>
       if (!mounted) return;
 
       if (success) {
-        await activeRidePvr.fetchMyTripsByDate();
+        await activeRidePvr.fetchMyTripsByDate(showLoading: false);
         // After creating the trip, fetch again to get the newly created trip
         TripData? updatedTrip;
         try {
@@ -164,7 +175,7 @@ class _ActiveRideScreenState extends State<ActiveRideScreen>
           if (tripType == TripType.drop) {
             context
                 .read<DropStudentSelectionProvider>()
-                .setCurrentTripId(updatedTrip.tripId);
+                .setCurrentTripId(updatedTrip.tripId, statusId: updatedTrip.id);
             await route.pushNamed(
                 context, routeName.dropStudentSelectionScreen);
           } else {

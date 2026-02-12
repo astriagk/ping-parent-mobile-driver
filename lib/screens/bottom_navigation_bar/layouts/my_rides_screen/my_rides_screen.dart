@@ -135,6 +135,8 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
                     assignmentId: assignment.id,
                     phoneNumber: '', // Get parent phone number here
                     showActionButtons: myRidesPvr.selectedIndex == 0,
+                    isActionLoading:
+                        myRidesPvr.actionLoadingId == assignment.id,
                     onApprove: (assignmentId) => _handleAssignmentAction(
                           () => myRidesPvr.approveAssignment(assignmentId),
                           myRidesPvr.successMessage ??
