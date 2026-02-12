@@ -32,6 +32,7 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
   bool showGif = false;
   bool isRideComplete = false;
   bool isTripComplete = false;
+  bool isStartingTrip = false;
   int currentWaypointIndex = 0;
 
   // Track if this is a DROP trip (school → homes) vs PICKUP trip (homes → school)
@@ -45,6 +46,7 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
     showGif = false;
     isRideComplete = false;
     isTripComplete = false;
+    isStartingTrip = false;
     currentWaypointIndex = 0;
     _isDropTrip = false;
     _pickedUpStudentIds.clear();
@@ -205,9 +207,13 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
           currentWaypointIndex = 1;
         }
 
+        // For DROP trips, status is already 'started' from drop_student_selection_screen
+        // So we update to 'in_progress' here. For PICKUP trips, we set 'started'
         await _pickUpProvider.updateTripStatus(
           tripId: routeId,
-          tripStatus: TripStatus.started.value,
+          tripStatus: _isDropTrip
+              ? TripStatus.inProgress.value
+              : TripStatus.started.value,
         );
 
         await _pickUpProvider.startLocationTracking(_currentTripId!);
@@ -340,12 +346,10 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
       // Get only students who were picked up (marked as present)
       final studentIds = _getPickedUpStudentIds();
 
-      if (studentIds.isEmpty) {
-        _showSnackBar('No students were picked up to drop off', isError: true);
-        await _pickUpProvider.stopLocationTracking();
-        route.pushNamed(context, routeName.rideDetailsScreen);
-        return;
-      }
+      // Get all student IDs from non-school waypoints to calculate skipped/absent students
+      final allStudentIds = _getAllStudentIdsFromWaypoints();
+      final skippedStudentIds =
+          allStudentIds.where((id) => !studentIds.contains(id)).toList();
 
       // Get current location
       final position = await Geolocator.getCurrentPosition(
@@ -355,11 +359,15 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
       );
 
       // Call school-point API
+      // Only pass skipped_student_ids when all students are absent (student_ids is empty)
       final response = await _pickUpProvider.processSchoolPoint(
         tripId: _currentTripId!,
         studentIds: studentIds,
         latitude: position.latitude,
         longitude: position.longitude,
+        skippedStudentIds: studentIds.isEmpty && skippedStudentIds.isNotEmpty
+            ? skippedStudentIds
+            : null,
       );
 
       if (response != null && response.success) {
@@ -413,6 +421,20 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
   /// Get the list of students who were picked up (marked as present)
   List<String> _getPickedUpStudentIds() {
     return List<String>.from(_pickedUpStudentIds);
+  }
+
+  /// Get all student IDs from non-school waypoints
+  List<String> _getAllStudentIdsFromWaypoints() {
+    final waypoints = _pickUpProvider.optimizedRoute?.routeGeometry.waypoints;
+    if (waypoints == null) return [];
+
+    final allIds = <String>[];
+    for (final waypoint in waypoints) {
+      // Skip school location waypoint
+      if (waypoint.studentParentId == AppConstants.schoolLocationType) continue;
+      allIds.addAll(waypoint.studentIds);
+    }
+    return allIds;
   }
 
   /// Add picked up students to the tracking list
@@ -592,6 +614,8 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
                                   tripId: _currentTripId,
                                   pickUpProvider: _pickUpProvider,
                                   onPickupSuccess: _addPickedUpStudents,
+                                  isFirstWaypointInteraction:
+                                      _pickedUpStudentIds.isEmpty,
                                   onAllAbsent: () {
                                     // Move to next waypoint when all students marked absent
                                     _moveToNextWaypoint(
@@ -609,11 +633,16 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
                           : CommonButton(
                                   margin: EdgeInsets.symmetric(
                                       horizontal: Insets.i20),
+                                  isLoading: isStartingTrip,
                                   onTap: () {
+                                    setState(() => isStartingTrip = true);
                                     _fetchTripLatLongOnce().then((_) {
                                       setState(() {
+                                        isStartingTrip = false;
                                         isPickedUpCustomerClick = true;
                                       });
+                                    }).catchError((_) {
+                                      setState(() => isStartingTrip = false);
                                     });
                                   },
                                   text: language(context, appFonts.startTrip))

@@ -283,7 +283,7 @@ class PickUpCustomerService {
 
   /// Process school point for dropping students at school
   /// Handles bulk action for students being dropped at school location
-  /// [skippedStudentIds] is optional and only used for DROP trips (picking from school)
+  /// [skippedStudentIds] is optional - used for both PICKUP and DROP trips when students are absent/skipped
   Future<SchoolPointResponse> processSchoolPoint({
     required String tripId,
     required List<String> studentIds,

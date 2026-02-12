@@ -303,7 +303,7 @@ class PickUpCustomerProvider extends ChangeNotifier {
 
   /// Process school point for dropping students at school
   /// Returns SchoolPointResponse on success, null on failure
-  /// [skippedStudentIds] is optional and only used for DROP trips
+  /// [skippedStudentIds] is optional - used for both PICKUP and DROP trips when students are absent/skipped
   Future<SchoolPointResponse?> processSchoolPoint({
     required String tripId,
     required List<String> studentIds,

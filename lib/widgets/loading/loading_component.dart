@@ -1,4 +1,4 @@
-import '../config.dart';
+import '../../config.dart';
 
 class LoadingComponent extends StatelessWidget {
   final Widget child;

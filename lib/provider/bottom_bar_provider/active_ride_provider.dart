@@ -13,6 +13,9 @@ class ActiveRideProvider extends ChangeNotifier {
   late final ActiveRideService _activeRideService;
 
   bool isLoading = false;
+
+  /// Track loading state per trip type for individual button loading
+  TripType? loadingTripType;
   String? successMessage;
   String? errorMessage;
   List<TripData> myTrips = [];
@@ -20,6 +23,9 @@ class ActiveRideProvider extends ChangeNotifier {
   ActiveRideProvider() {
     _activeRideService = ActiveRideService(ApiClient());
   }
+
+  /// Check if a specific trip type button is loading
+  bool isLoadingForType(TripType tripType) => loadingTripType == tripType;
 
   cancelRideTap(context, int index) {
     showDialog(
@@ -74,6 +80,7 @@ class ActiveRideProvider extends ChangeNotifier {
   }) async {
     try {
       isLoading = true;
+      loadingTripType = tripType;
       successMessage = null;
       errorMessage = null;
       notifyListeners();
@@ -86,17 +93,20 @@ class ActiveRideProvider extends ChangeNotifier {
       if (response.success && response.data != null) {
         successMessage = response.message;
         isLoading = false;
+        loadingTripType = null;
         notifyListeners();
         return true;
       } else {
         errorMessage = response.message;
         isLoading = false;
+        loadingTripType = null;
         notifyListeners();
         return false;
       }
     } catch (e) {
       errorMessage = 'Error creating trip: ${e.toString()}';
       isLoading = false;
+      loadingTripType = null;
       notifyListeners();
       return false;
     }

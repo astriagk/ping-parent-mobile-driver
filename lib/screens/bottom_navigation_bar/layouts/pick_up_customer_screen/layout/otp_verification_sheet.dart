@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:permission_handler/permission_handler.dart';
+import 'package:taxify_driver_ui/api/enums/trip_status_enum.dart';
 import 'package:taxify_driver_ui/config.dart' hide Marker, Polyline, LatLng;
 import 'package:taxify_driver_ui/api/models/pick_up_customer/optimized_route_model.dart';
 import 'package:taxify_driver_ui/config/app_constants.dart';
@@ -18,6 +19,9 @@ class OtpVerificationSheet extends StatefulWidget {
   final void Function(List<String> presentStudentIds)? onPickupSuccess;
   final VoidCallback? onAllAbsent;
 
+  /// Whether this is the first waypoint interaction (no students picked up yet)
+  final bool isFirstWaypointInteraction;
+
   const OtpVerificationSheet({
     super.key,
     this.onTap,
@@ -27,6 +31,7 @@ class OtpVerificationSheet extends StatefulWidget {
     this.pickUpProvider,
     this.onPickupSuccess,
     this.onAllAbsent,
+    this.isFirstWaypointInteraction = false,
   });
 
   @override
@@ -233,6 +238,15 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
       });
 
       if (response != null && response.success) {
+        // Update trip status to in_progress if this is the first waypoint interaction
+        if (widget.isFirstWaypointInteraction &&
+            widget.pickUpProvider?.optimizedRoute != null) {
+          final routeId = widget.pickUpProvider!.optimizedRoute!.id;
+          await widget.pickUpProvider!.updateTripStatus(
+            tripId: routeId,
+            tripStatus: TripStatus.inProgress.value,
+          );
+        }
         // Call the all absent callback to move to next waypoint
         widget.onAllAbsent?.call();
       } else {
@@ -401,30 +415,22 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
                   ],
                   VSpace(Insets.i25),
                   Row(children: [
-                    Expanded(
-                      child: _isLoading
-                          ? Center(
-                              child: CircularProgressIndicator(
-                                color: appTheme.primary,
-                              ),
-                            )
-                          : CommonButton(
-                              text: language(context, appFonts.verifyOTP),
-                              onTap: _verifyAndPickupStudent),
-                    ),
-                    SizedBox(width: Insets.i12),
                     SizedBox(
                       width: 80,
-                      child: _isMarkingAbsent
-                          ? Center(
-                              child: CircularProgressIndicator(
-                                color: appTheme.yellowIcon,
-                              ),
-                            )
-                          : CommonButton(
-                              text: language(context, appFonts.absent),
-                              color: appTheme.yellowIcon,
-                              onTap: _markAllStudentsAbsent),
+                      child: CommonButton(
+                        text: language(context, appFonts.absent),
+                        color: appTheme.yellowIcon,
+                        onTap: _markAllStudentsAbsent,
+                        isLoading: _isMarkingAbsent,
+                      ),
+                    ),
+                    SizedBox(width: Insets.i12),
+                    Expanded(
+                      child: CommonButton(
+                        text: language(context, appFonts.verifyOTP),
+                        onTap: _verifyAndPickupStudent,
+                        isLoading: _isLoading,
+                      ),
                     ),
                   ])
                 ])

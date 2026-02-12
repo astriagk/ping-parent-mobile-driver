@@ -1,3 +1,4 @@
+import 'package:taxify_driver_ui/api/enums/trip_status_enum.dart';
 import 'package:taxify_driver_ui/config.dart';
 import 'package:taxify_driver_ui/screens/bottom_navigation_bar/layouts/drop_student_selection_screen/layout/student_card.dart';
 
@@ -53,6 +54,14 @@ class _DropStudentSelectionScreenState
     if (!mounted) return;
 
     if (response.success) {
+      // Update trip status to started
+      if (_provider.currentTripId != null) {
+        await _provider.updateTripStatus(
+          tripId: _provider.currentTripId!,
+          tripStatus: TripStatus.started.value,
+        );
+      }
+
       // Navigate to pickup/drop screen with selected students
       // Pass tripId and isDropTrip flag as route arguments
       route.pushNamed(

@@ -3,7 +3,7 @@ class SchoolPointRequest {
   final double latitude;
   final double longitude;
 
-  /// Optional: Student IDs that were skipped/absent (only for DROP trips)
+  /// Optional: Student IDs that were skipped/absent (for both PICKUP and DROP trips)
   final List<String>? skippedStudentIds;
 
   SchoolPointRequest({
@@ -15,11 +15,14 @@ class SchoolPointRequest {
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{
-      'student_ids': studentIds,
       'latitude': latitude,
       'longitude': longitude,
     };
-    // Only include skipped_student_ids if provided (for DROP trips)
+    // Only include student_ids if not empty
+    if (studentIds.isNotEmpty) {
+      json['student_ids'] = studentIds;
+    }
+    // Only include skipped_student_ids if provided
     if (skippedStudentIds != null && skippedStudentIds!.isNotEmpty) {
       json['skipped_student_ids'] = skippedStudentIds;
     }

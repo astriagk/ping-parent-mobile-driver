@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:taxify_driver_ui/api/api_client.dart';
 import 'package:taxify_driver_ui/api/models/drop_student_selection_model.dart';
+import 'package:taxify_driver_ui/api/models/pick_up_customer/trip_status_response.dart';
 import 'package:taxify_driver_ui/api/services/drop_student_selection_service.dart';
+import 'package:taxify_driver_ui/api/services/pick_up_customer_service.dart';
 import 'package:taxify_driver_ui/helper/location_service.dart';
 
 /// Provider for managing drop student selection/attendance
@@ -260,5 +262,24 @@ class DropStudentSelectionProvider extends ChangeNotifier {
   void setErrorMessage(String? message) {
     _errorMessage = message;
     notifyListeners();
+  }
+
+  /// Update trip status (e.g., "started", "in_progress", "completed")
+  Future<TripStatusResponse?> updateTripStatus({
+    required String tripId,
+    required String tripStatus,
+  }) async {
+    try {
+      final service = PickUpCustomerService(ApiClient());
+      final response = await service.updateTripStatus(
+        tripId: tripId,
+        tripStatus: tripStatus,
+      );
+      return response;
+    } catch (e) {
+      _errorMessage = 'Error updating trip status: ${e.toString()}';
+      notifyListeners();
+      return null;
+    }
   }
 }

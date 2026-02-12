@@ -3,7 +3,6 @@ import 'package:taxify_driver_ui/widgets/common_bg_layout.dart';
 import 'package:taxify_driver_ui/api/enums/trip_type_enum.dart';
 import 'package:taxify_driver_ui/api/enums/trip_status_enum.dart';
 import 'package:taxify_driver_ui/api/models/get_my_trips_response.dart';
-import 'package:taxify_driver_ui/provider/bottom_bar_provider/drop_student_selection_provider.dart';
 
 class ActiveRideScreen extends StatefulWidget {
   const ActiveRideScreen({super.key});
@@ -296,8 +295,7 @@ class _ActiveRideScreenState extends State<ActiveRideScreen>
                             HSpace(Insets.i10),
                             Expanded(
                                 child: CommonButton(
-                                    style: _isButtonEnabled(
-                                            ride['tripType'], activeRidePvr)
+                                    style: _isButtonEnabled(ride['tripType'], activeRidePvr)
                                         ? AppCss.lexendRegular15
                                             .textColor(appTheme.white)
                                         : AppCss.lexendRegular15
@@ -312,7 +310,9 @@ class _ActiveRideScreenState extends State<ActiveRideScreen>
                                             ride['tripType'], activeRidePvr)
                                         : null,
                                     text: _getButtonLabel(context,
-                                        ride['tripType'], activeRidePvr)))
+                                        ride['tripType'], activeRidePvr),
+                                    isLoading: activeRidePvr
+                                        .isLoadingForType(ride['tripType'])))
                           ]).marginOnly(top: Insets.i15, bottom: Insets.i10)
                         ])).marginOnly(bottom: Insets.i10);
                   }))
