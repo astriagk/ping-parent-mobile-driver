@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:taxify_driver_ui/helper/location_service.dart';
@@ -24,12 +26,25 @@ class MapWidget extends StatefulWidget {
   final List<Marker> Function()? markers;
   final List<Polyline> Function()? polylines;
   final List<Polyline> Function(BuildContext context)? polylineBuilder;
-  final Marker Function(LatLng point, BuildContext context)?
+
+  /// Builder for current location marker - receives position, context, and heading
+  final Marker Function(LatLng point, BuildContext context, {double heading})?
       currentLocationMarkerBuilder;
   final Function(TapPosition, LatLng)? onTap;
   final PositionCallback? onPositionChanged;
   final bool showControls;
   final bool showCurrentLocation;
+
+  /// Enable continuous location tracking for the current location marker
+  /// When true, subscribes to GPS stream and updates marker position in real-time
+  final bool trackCurrentLocation;
+
+  /// Enable navigation mode - map rotates so heading always points UP
+  /// Like Google Maps navigation mode
+  final bool navigationMode;
+
+  /// Callback when map is ready with center on current location method
+  final void Function(VoidCallback centerOnCurrentLocation)? onMapReady;
 
   const MapWidget({
     super.key,
@@ -43,6 +58,9 @@ class MapWidget extends StatefulWidget {
     this.onPositionChanged,
     this.showControls = false,
     this.showCurrentLocation = true,
+    this.trackCurrentLocation = false,
+    this.navigationMode = false,
+    this.onMapReady,
   });
 
   @override
@@ -54,6 +72,8 @@ class _MapWidgetState extends State<MapWidget> {
   List<Marker> _markers = [];
   late int _selectedTileIndex;
   LatLng? _currentLocation;
+  double _currentHeading = 0.0;
+  StreamSubscription<Position>? _locationSubscription;
 
   @override
   void initState() {
@@ -61,6 +81,52 @@ class _MapWidgetState extends State<MapWidget> {
     _selectedTileIndex = widget.config.selectedTileIndex;
     _mapController = MapController();
     _getUserLocation();
+
+    // Start continuous location tracking if enabled
+    if (widget.trackCurrentLocation) {
+      _startLocationTracking();
+    }
+  }
+
+  /// Start listening to GPS position stream for continuous marker updates
+  void _startLocationTracking() {
+    _locationSubscription = Geolocator.getPositionStream(
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 5, // Update every 5 meters
+      ),
+    ).listen((Position position) {
+      if (mounted) {
+        final newLocation = LatLng(position.latitude, position.longitude);
+        final newHeading =
+            position.heading >= 0 ? position.heading : _currentHeading;
+
+        setState(() {
+          _currentLocation = newLocation;
+          _currentHeading = newHeading;
+          _updateMarkers();
+        });
+
+        // In navigation mode, rotate map and keep driver centered
+        if (widget.navigationMode) {
+          // Rotate map so heading points UP (negate heading for map rotation)
+          _mapController.rotate(-newHeading);
+          // Keep driver position centered
+          _mapController.move(newLocation, _mapController.camera.zoom);
+        }
+      }
+    });
+  }
+
+  /// Center map on current location (called via onMapReady callback)
+  void _centerOnCurrentLocation() {
+    if (_currentLocation != null) {
+      final zoom = widget.navigationMode ? 18.0 : widget.config.defaultZoom;
+      _mapController.move(_currentLocation!, zoom);
+      if (widget.navigationMode) {
+        _mapController.rotate(-_currentHeading);
+      }
+    }
   }
 
   Future<void> _getUserLocation() async {
@@ -74,14 +140,20 @@ class _MapWidgetState extends State<MapWidget> {
       await Future.delayed(const Duration(milliseconds: 300));
       if (mounted) {
         _mapController.move(location, 15);
+        // Notify parent that map is ready with center method
+        widget.onMapReady?.call(_centerOnCurrentLocation);
       }
     }
   }
 
   void _updateMarkers() {
     _markers = [
-      if (widget.showCurrentLocation)
-        widget.currentLocationMarkerBuilder?.call(_currentLocation!, context) ??
+      if (widget.showCurrentLocation && _currentLocation != null)
+        widget.currentLocationMarkerBuilder?.call(
+              _currentLocation!,
+              context,
+              heading: _currentHeading,
+            ) ??
             MapMarkers.currentLocationMarker(_currentLocation!, context),
       ...?widget.markers?.call(),
     ];
@@ -201,6 +273,7 @@ class _MapWidgetState extends State<MapWidget> {
 
   @override
   void dispose() {
+    _locationSubscription?.cancel();
     _mapController.dispose();
     super.dispose();
   }

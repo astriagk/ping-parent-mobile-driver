@@ -43,6 +43,9 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
   // Track if this is a resumed trip (not a fresh start)
   bool _isResuming = false;
 
+  // Callback to center map on current location
+  VoidCallback? _centerOnCurrentLocation;
+
   /// Reset all state variables for a fresh trip
   void _resetTripState() {
     isLoading = true;
@@ -58,6 +61,7 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
     _isResuming = false;
     _pickedUpStudentIds.clear();
     _currentTripId = null;
+    _centerOnCurrentLocation = null;
   }
 
   // Track students who were marked as present during pickup
@@ -621,15 +625,24 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
                                 tileLayerBuilder: (urlTemplate) => MapTileLayer(
                                   urlTemplate: urlTemplate,
                                 ),
+                                trackCurrentLocation: true,
+                                navigationMode: true,
                                 currentLocationMarkerBuilder:
-                                    (position, controller) =>
+                                    (position, context,
+                                            {double heading = 0.0}) =>
                                         MapMarkers.driverLocationMarker(
-                                            position, controller),
+                                  position,
+                                  context,
+                                  heading: heading,
+                                ),
                                 markers: () => _buildWaypointMarkers(
                                     pickUpProvider.optimizedRoute),
                                 polylineBuilder: (context) =>
                                     _buildRoutePolyline(
                                         pickUpProvider.optimizedRoute),
+                                onMapReady: (centerCallback) {
+                                  _centerOnCurrentLocation = centerCallback;
+                                },
                               ),
                             ),
                             // Spacer to push map content above bottom sheet
@@ -637,6 +650,16 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
                           ],
                         );
                       },
+                    ),
+                    // Current location floating button - above bottom sheet on right
+                    Positioned(
+                      bottom: Insets.i360,
+                      right: Insets.i16,
+                      child: CommonIconButton(
+                        icon: svgAssets.gps,
+                        bgColor: appTheme.white,
+                        onTap: () => _centerOnCurrentLocation?.call(),
+                      ),
                     ),
                     Positioned(
                         bottom: 0,

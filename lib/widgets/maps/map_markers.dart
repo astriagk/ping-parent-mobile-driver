@@ -214,6 +214,11 @@ class _PulsingDriverMarkerState extends State<_PulsingDriverMarker>
               },
             ),
             // Main icon container with rotation based on heading
+            // GPS heading: 0° = North (up), 90° = East (right), 180° = South, 270° = West
+            // Adjust the offset based on your car SVG's default direction:
+            // - If car points UP by default: use heading directly (offset = 0)
+            // - If car points RIGHT by default: subtract 90 (offset = -90)
+            // - If car points DOWN by default: subtract 180 (offset = -180)
             Transform.rotate(
               angle: widget.heading *
                   (math.pi / 180), // Convert degrees to radians
