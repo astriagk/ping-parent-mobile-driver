@@ -284,11 +284,12 @@ dynamic en = {
 
   // My Assignments
 
-  "myAssignments": "Assignments",
-  "pendingMyAssignment": "Pending",
-  "parentRequestedAssignments": "Requested",
-  "completeMyAssignment": "Complete",
-  "rejectedMyAssignment": "Rejected",
+  "myAssignments": "My Assignments",
+  "assignments": "Assignments",
+  "pendingAssignments": "Pending",
+  "requestedAssignments": "Requested",
+  "completeAssignments": "Completed",
+  "rejectedAssignments": "Rejected",
   "noAssignmentsFound": "No Assignments Found",
   "reject": "Reject",
   "approve": "Approve",

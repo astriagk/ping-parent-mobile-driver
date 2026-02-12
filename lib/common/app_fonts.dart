@@ -2,7 +2,6 @@ class AppFonts {
   final skip = "skip";
   final activeRide = "activeRide";
   final taxify = "taxify";
-  final myRides = "myRides";
   final settings = "settings";
   final pendingRide = "pendingRide";
   final completeRide = "completeRide";
@@ -301,10 +300,12 @@ class AppFonts {
   final enterInsuranceNumber = 'enterInsuranceNumber';
 
   // My Assignments
-  final myAssignments = 'myAssignments';
-  final parentRequestedAssignments = "parentRequestedAssignments";
-  final completeMyAssignment = "completeMyAssignment";
-  final rejectedMyAssignment = "rejectedMyAssignment";
+
+  final myAssignments = "myAssignments";
+  final assignments = 'assignments';
+  final requestedAssignments = "requestedAssignments";
+  final completeAssignments = "completeAssignments";
+  final rejectedAssignments = "rejectedAssignments";
   final noAssignmentsFound = "noAssignmentsFound";
   final reject = "reject";
   final approve = "approve";

@@ -25,18 +25,26 @@ class HomeScreen extends StatelessWidget {
           VSpace(Insets.i16),
           const RideDataLayout(),
           VSpace(Insets.i16),
-          ElevatedButton.icon(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const MapExampleScreen(),
-                ),
-              );
-            },
-            icon: const Icon(Icons.map),
-            label: const Text('Test Maps'),
-          ).marginSymmetric(horizontal: Insets.i20),
+          // ElevatedButton.icon(
+          //   onPressed: () {
+          //     Navigator.push(
+          //       context,
+          //       MaterialPageRoute(
+          //         builder: (context) => const MapExampleScreen(),
+          //       ),
+          //     );
+          //   },
+          //   icon: const Icon(Icons.map),
+          //   label: const Text('Test Maps'),
+          // ).marginSymmetric(horizontal: Insets.i20),
+          // VSpace(Insets.i10),
+          // ElevatedButton.icon(
+          //   onPressed: () {
+          //     route.pushNamed(context, routeName.rideDetailsScreen);
+          //   },
+          //   icon: const Icon(Icons.directions_car),
+          //   label: const Text('Ride Details'),
+          // ).marginSymmetric(horizontal: Insets.i20),
         ]).marginSymmetric(horizontal: Insets.i20),
         const UpcomingRidesList(),
         const ActiveOfferLayout()
