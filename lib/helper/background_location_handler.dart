@@ -369,6 +369,10 @@ class BackgroundLocationHandler {
       final syncedIds = <int>[];
       for (final pos in pending) {
         try {
+          // Only sync positions for the current active trip
+          // Skip if this position belongs to a different trip
+          if (pos['trip_id'] != _currentTripId) continue;
+
           _socket!.emit(DriverSocketEvent.updatePosition.value, {
             'tripId': pos['trip_id'],
             'latitude': pos['latitude'],
@@ -401,6 +405,10 @@ class BackgroundLocationHandler {
       final syncedIds = <int>[];
       for (final pos in pending) {
         try {
+          // Only sync positions for the current active trip
+          // Skip if this position belongs to a different trip
+          if (pos['trip_id'] != _currentTripId) continue;
+
           final url = '$_baseUrl/tracking/${pos['trip_id']}/position';
           final response = await http
               .patch(

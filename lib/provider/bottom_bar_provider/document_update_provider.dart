@@ -15,6 +15,7 @@ class DocumentUpdateProvider extends ChangeNotifier {
       TextEditingController();
 
   bool isLoading = false;
+  bool isUpdating = false;
   String? errorMessage;
   String? successMessage;
 
@@ -89,10 +90,13 @@ class DocumentUpdateProvider extends ChangeNotifier {
       return true;
     }
 
-    isLoading = true;
+    isUpdating = true;
     errorMessage = null;
     successMessage = null;
     notifyListeners();
+
+    // Allow UI to update before API call
+    await Future.delayed(Duration.zero);
 
     try {
       final documentUpdateService = DocumentUpdateService(ApiClient());
@@ -118,18 +122,18 @@ class DocumentUpdateProvider extends ChangeNotifier {
         originalVehicleLicenseNumber = vehicleLicenseNumberController.text;
         originalInsuranceNumber = insuranceNumberController.text;
 
-        isLoading = false;
+        isUpdating = false;
         notifyListeners();
         return true;
       } else {
         errorMessage = response['message'] ?? 'Failed to update documents';
-        isLoading = false;
+        isUpdating = false;
         notifyListeners();
         return false;
       }
     } catch (e) {
       errorMessage = 'An error occurred. Please try again.';
-      isLoading = false;
+      isUpdating = false;
       notifyListeners();
       return false;
     }

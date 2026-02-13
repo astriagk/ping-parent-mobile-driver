@@ -52,10 +52,9 @@ class DocumentUpdateScreen extends StatelessWidget {
                           ]),
                           VSpace(Insets.i30),
                           CommonButton(
-                                  text: docCtrl.isLoading
-                                      ? language(context, appFonts.updating)
-                                      : language(context, appFonts.update),
-                                  onTap: docCtrl.isLoading
+                                  text: language(context, appFonts.update),
+                                  isLoading: docCtrl.isUpdating,
+                                  onTap: docCtrl.isUpdating
                                       ? null
                                       : () => handleUpdateDocuments(
                                           context, docCtrl))

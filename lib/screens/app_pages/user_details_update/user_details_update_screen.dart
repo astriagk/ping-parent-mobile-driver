@@ -146,10 +146,9 @@ class UserUpdateScreen extends StatelessWidget {
                                 horizontal: Insets.i20, bottom: Insets.i10)
                           ]).authExtension(context),
                           CommonButton(
-                                  text: udCtrl.isLoading
-                                      ? language(context, appFonts.updating)
-                                      : language(context, appFonts.update),
-                                  onTap: udCtrl.isLoading
+                                  text: language(context, appFonts.update),
+                                  isLoading: udCtrl.isUpdating,
+                                  onTap: udCtrl.isUpdating
                                       ? null
                                       : () =>
                                           handleUpdateProfile(context, udCtrl))

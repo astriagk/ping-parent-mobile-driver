@@ -89,10 +89,9 @@ class ProfileScreen extends StatelessWidget {
                               .padding(horizontal: Sizes.s20)
                               .authExtension(context),
                           CommonButton(
-                                  text: udCtrl.isLoading
-                                      ? language(context, appFonts.updating)
-                                      : appFonts.updateProfile,
-                                  onTap: udCtrl.isLoading
+                                  text: appFonts.update,
+                                  isLoading: udCtrl.isUpdating,
+                                  onTap: udCtrl.isUpdating
                                       ? null
                                       : () =>
                                           handleUpdateProfile(context, udCtrl))

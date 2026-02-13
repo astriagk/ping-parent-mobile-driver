@@ -148,6 +148,7 @@ class CustomerCard extends StatelessWidget {
                       onTap: isActionLoading
                           ? null
                           : () => onReject?.call(assignmentId!),
+                      isLoading: isActionLoading,
                       text: appFonts.reject),
                 ),
                 SizedBox(width: Insets.i10),
