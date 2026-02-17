@@ -67,13 +67,22 @@ class MapWidget extends StatefulWidget {
   State<MapWidget> createState() => _MapWidgetState();
 }
 
-class _MapWidgetState extends State<MapWidget> {
+class _MapWidgetState extends State<MapWidget>
+    with TickerProviderStateMixin {
   late MapController _mapController;
+  bool _mapReady = false;
   List<Marker> _markers = [];
   late int _selectedTileIndex;
   LatLng? _currentLocation;
   double _currentHeading = 0.0;
   StreamSubscription<Position>? _locationSubscription;
+
+  // Smooth animation fields - lerp between GPS readings
+  AnimationController? _positionAnimationController;
+  LatLng? _previousLocation;
+  LatLng? _targetLocation;
+  double _previousHeading = 0.0;
+  double _targetHeading = 0.0;
 
   @override
   void initState() {
@@ -89,33 +98,67 @@ class _MapWidgetState extends State<MapWidget> {
   }
 
   /// Start listening to GPS position stream for continuous marker updates
+  /// Uses animation to smoothly interpolate between GPS readings
   void _startLocationTracking() {
+    _positionAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    )..addListener(_onPositionAnimationTick);
+
     _locationSubscription = Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.high,
-        distanceFilter: 5, // Update every 5 meters
+        distanceFilter: 3,
       ),
     ).listen((Position position) {
       if (mounted) {
-        final newLocation = LatLng(position.latitude, position.longitude);
-        final newHeading =
-            position.heading >= 0 ? position.heading : _currentHeading;
+        // Save current position as animation start point
+        _previousLocation = _currentLocation;
+        _previousHeading = _currentHeading;
+        _targetLocation = LatLng(position.latitude, position.longitude);
+        // Only update heading when moving — GPS heading is noise when stationary
+        _targetHeading =
+            (position.heading >= 0 && position.speed >= 0.5)
+                ? position.heading
+                : _currentHeading;
 
-        setState(() {
-          _currentLocation = newLocation;
-          _currentHeading = newHeading;
-          _updateMarkers();
-        });
-
-        // In navigation mode, rotate map and keep driver centered
-        if (widget.navigationMode) {
-          // Rotate map so heading points UP (negate heading for map rotation)
-          _mapController.rotate(-newHeading);
-          // Keep driver position centered
-          _mapController.move(newLocation, _mapController.camera.zoom);
-        }
+        // Animate from current to new position
+        _positionAnimationController?.forward(from: 0.0);
       }
     });
+  }
+
+  /// Interpolate position and heading on each animation frame
+  void _onPositionAnimationTick() {
+    if (_previousLocation == null || _targetLocation == null) return;
+
+    final t =
+        Curves.easeInOut.transform(_positionAnimationController!.value);
+    final lat = _previousLocation!.latitude +
+        (_targetLocation!.latitude - _previousLocation!.latitude) * t;
+    final lng = _previousLocation!.longitude +
+        (_targetLocation!.longitude - _previousLocation!.longitude) * t;
+    final heading = _lerpAngle(_previousHeading, _targetHeading, t);
+
+    setState(() {
+      _currentLocation = LatLng(lat, lng);
+      _currentHeading = heading;
+      _updateMarkers();
+    });
+
+    // In navigation mode, rotate map and keep driver centered
+    if (widget.navigationMode && _mapReady) {
+      _mapController.rotate(-_currentHeading);
+      _mapController.move(_currentLocation!, _mapController.camera.zoom);
+    }
+  }
+
+  /// Smoothly interpolate between two angles handling 0°/360° wrap
+  double _lerpAngle(double from, double to, double t) {
+    double diff = (to - from) % 360;
+    if (diff > 180) diff -= 360;
+    if (diff < -180) diff += 360;
+    return from + diff * t;
   }
 
   /// Center map on current location (called via onMapReady callback)
@@ -239,6 +282,9 @@ class _MapWidgetState extends State<MapWidget> {
             maxZoom: widget.config.maxZoom,
             onTap: widget.onTap,
             onPositionChanged: widget.onPositionChanged,
+            onMapReady: () {
+              setState(() => _mapReady = true);
+            },
           ),
           children: [
             widget.tileLayerBuilder(
@@ -273,6 +319,7 @@ class _MapWidgetState extends State<MapWidget> {
 
   @override
   void dispose() {
+    _positionAnimationController?.dispose();
     _locationSubscription?.cancel();
     _mapController.dispose();
     super.dispose();

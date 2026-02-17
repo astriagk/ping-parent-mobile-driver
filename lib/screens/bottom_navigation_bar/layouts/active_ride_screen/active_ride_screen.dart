@@ -13,7 +13,7 @@ class ActiveRideScreen extends StatefulWidget {
 }
 
 class _ActiveRideScreenState extends State<ActiveRideScreen>
-    with WidgetsBindingObserver {
+    with WidgetsBindingObserver, RouteAware {
   int? _lastTabIndex;
   bool _wasInBackground = false;
 
@@ -24,9 +24,22 @@ class _ActiveRideScreenState extends State<ActiveRideScreen>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
   void dispose() {
+    routeObserver.unsubscribe(this);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  /// Called when a screen pushed on top of this one is popped
+  @override
+  void didPopNext() {
+    _fetchTrips();
   }
 
   @override
@@ -143,7 +156,7 @@ class _ActiveRideScreenState extends State<ActiveRideScreen>
         await route.pushNamed(
           context,
           routeName.pickupCustomerScreen,
-          arg: {'tripId': trip.tripId},
+          arg: {'tripId': trip.tripId, 'tripStatus': trip.tripStatus},
         );
       }
 
@@ -182,7 +195,7 @@ class _ActiveRideScreenState extends State<ActiveRideScreen>
             await route.pushNamed(
               context,
               routeName.pickupCustomerScreen,
-              arg: {'tripId': updatedTrip.tripId},
+              arg: {'tripId': updatedTrip.tripId, 'tripStatus': updatedTrip.tripStatus},
             );
           }
         }

@@ -61,6 +61,8 @@ export 'package:taxify_driver_ui/widgets/skeletons/index.dart';
 Session session = Session();
 AppFonts appFonts = AppFonts();
 NavigationClass route = NavigationClass();
+final RouteObserver<ModalRoute<void>> routeObserver =
+    RouteObserver<ModalRoute<void>>();
 AppArray appArray = AppArray();
 AppCss appCss = AppCss();
 ScreensWidgets screensWidgets = ScreensWidgets();

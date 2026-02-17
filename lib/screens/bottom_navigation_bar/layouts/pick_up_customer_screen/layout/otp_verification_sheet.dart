@@ -11,7 +11,7 @@ import 'package:taxify_driver_ui/widgets/screens_widgets/screens_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class OtpVerificationSheet extends StatefulWidget {
-  final GestureTapCallback? onTap;
+  final Future<void> Function()? onTap;
   final RouteWaypoint? waypoint;
   final VoidCallback? onEndTrip;
   final String? tripId;
@@ -46,6 +46,7 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
   final TextEditingController _otpController = TextEditingController();
   bool _isLoading = false;
   bool _isMarkingAbsent = false;
+  bool _isCompleteRideLoading = false;
   String? _errorMessage;
 
   // Map to track student presence status (studentId -> isPresent)
@@ -175,7 +176,7 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
         // Notify parent about picked up students
         widget.onPickupSuccess?.call(presentStudentIds);
         // Call the success callback
-        widget.onTap?.call();
+        await widget.onTap?.call();
       } else {
         setState(() {
           _errorMessage = widget.pickUpProvider!.errorMessage ??
@@ -187,6 +188,21 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
         _isLoading = false;
         _errorMessage = 'Error: ${e.toString()}';
       });
+    }
+  }
+
+  Future<void> _handleCompleteRide() async {
+    setState(() {
+      _isCompleteRideLoading = true;
+    });
+    try {
+      await widget.onTap?.call();
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isCompleteRideLoading = false;
+        });
+      }
     }
   }
 
@@ -401,7 +417,8 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
                   AppConstants.schoolLocationType)
                 CommonButton(
                     text: language(context, appFonts.completeRide),
-                    onTap: widget.onTap)
+                    isLoading: _isCompleteRideLoading,
+                    onTap: _handleCompleteRide)
               else
                 Column(mainAxisSize: MainAxisSize.min, children: [
                   AuthCommonWidgets().textAndTextField(

@@ -19,8 +19,10 @@ Future<void> onStart(ServiceInstance service) async {
   DartPluginRegistrant.ensureInitialized();
 
   final handler = BackgroundLocationHandler(service);
-  await handler.initialize();
 
+  // Register listeners FIRST so no messages are lost.
+  // The main isolate sends 'startTracking' as soon as isRunning() returns true,
+  // which can happen before handler.initialize() completes.
   service.on('stopService').listen((event) {
     handler.dispose();
     service.stopSelf();
@@ -35,6 +37,9 @@ Future<void> onStart(ServiceInstance service) async {
   service.on('stopTracking').listen((event) {
     handler.stopTracking();
   });
+
+  // Initialize AFTER listeners are set up
+  await handler.initialize();
 }
 
 /// iOS background fetch handler

@@ -74,6 +74,7 @@ class _DropStudentSelectionScreenState
           arg: {
             'tripId': _provider.currentTripId,
             'isDropTrip': true,
+            'tripStatus': TripStatus.started.value,
           },
         );
       } else {

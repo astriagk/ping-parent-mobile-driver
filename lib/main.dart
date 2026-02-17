@@ -76,6 +76,7 @@ class MyApp extends StatelessWidget {
                           supportedLocales: appArray.localList,
                           themeMode: themeService.theme,
                           initialRoute: "/",
+                          navigatorObservers: [routeObserver],
                           routes: appRoute.route,
                           locale: lang.locale,
                           localizationsDelegates: const [

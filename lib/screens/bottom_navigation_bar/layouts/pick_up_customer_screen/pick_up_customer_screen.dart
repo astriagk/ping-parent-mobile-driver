@@ -113,8 +113,10 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
   Future<void> _fetchTripProgressOnLoad() async {
     final args = ModalRoute.of(context)?.settings.arguments;
     String? tripId;
+    String? tripStatus;
     if (args is Map && args['tripId'] != null) {
       tripId = args['tripId'].toString();
+      tripStatus = args['tripStatus']?.toString();
       // Check if this is a DROP trip from route arguments
       if (args['isDropTrip'] == true) {
         _isDropTrip = true;
@@ -127,6 +129,8 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
         _isDropTrip = true;
       }
     }
+    // Skip progress fetch for newly created scheduled trips - no progress exists yet
+    if (tripStatus?.toLowerCase() == 'scheduled') return;
     if (tripId != null && tripId.isNotEmpty) {
       await _checkAndApplyTripProgress(tripId);
     }
@@ -170,7 +174,8 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
 
   @override
   void dispose() {
-    _stopTracking();
+    // Don't stop tracking here — let background service continue
+    // while trip is active. Tracking is stopped explicitly on trip completion.
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
