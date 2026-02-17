@@ -28,7 +28,7 @@ class SignUpLayout extends StatelessWidget {
           TextWidgetCommon(text: language(context, appFonts.mobileNumber)),
           CountryPickerLayout(controller: signUpPvr.phoneController),
         ],
-      ).padding(vertical: Sizes.s15),
+      ),
       //title text and text filed layout
       // AuthCommonWidgets().textAndTextField(language(context, appFonts.email),
       //     language(context, appFonts.enterYourEmailId), context),
@@ -42,20 +42,18 @@ class SignUpLayout extends StatelessWidget {
       //     language(context, appFonts.referralID),
       //     language(context, appFonts.enterReferralID),
       //     context),
-      VSpace(Sizes.s25),
+      // VSpace(Sizes.s25),
       signUpPvr.sendOtpError != null
           ? TextWidgetCommon(
               text: signUpPvr.sendOtpError!,
               style: TextStyle(color: appColor(context).appTheme.alertZone),
             ).padding(bottom: Sizes.s10)
           : Container(),
-      signUpPvr.isSendingOtp
-          ? const Center(child: CircularProgressIndicator())
-              .padding(vertical: Sizes.s15)
-          : CommonButton(
-              text: language(context, appFonts.signup),
-              onTap: () => signUpPvr.signUpButton(),
-            ).padding(bottom: Sizes.s15),
+      CommonButton(
+        text: language(context, appFonts.signup),
+        isLoading: signUpPvr.isSendingOtp,
+        onTap: signUpPvr.isSendingOtp ? null : () => signUpPvr.signUpButton(),
+      ).padding(bottom: Sizes.s15),
       AuthCommonWidgets().commonRichText(
           context,
           language(context, appFonts.alreadyHaveAnAccount),
@@ -103,18 +101,18 @@ class SignUpLayout extends StatelessWidget {
               style: TextStyle(color: appColor(context).appTheme.alertZone),
             ).padding(bottom: Sizes.s10)
           : Container(),
-      signUpPvr.isVerifyingOtp
-          ? const Center(child: CircularProgressIndicator())
-              .padding(vertical: Sizes.s15)
-          : CommonButton(
-              text: language(context, appFonts.verify),
-              onTap: () async {
+      CommonButton(
+        text: language(context, appFonts.verify),
+        isLoading: signUpPvr.isVerifyingOtp,
+        onTap: signUpPvr.isVerifyingOtp
+            ? null
+            : () async {
                 final success = await signUpPvr.verifySignUpOtp();
                 if (success && context.mounted) {
                   route.pushNamed(context, routeName.userOnboarding);
                 }
               },
-            ).padding(bottom: Sizes.s15),
+      ).padding(bottom: Sizes.s15),
       AuthCommonWidgets().commonRichText(
           context, '', language(context, 'Change Number'), onTap: () {
         signUpPvr.isOtpSent = false;

@@ -1,3 +1,5 @@
+import 'package:taxify_driver_ui/widgets/loading/loading_wave_animation.dart';
+
 import '../config.dart';
 
 class CommonButton extends StatelessWidget {
@@ -16,6 +18,9 @@ class CommonButton extends StatelessWidget {
   final TextStyle? style;
   final bool? isIcon;
 
+  /// When true, shows a wave loading animation instead of text
+  final bool isLoading;
+
   const CommonButton({
     super.key,
     this.height,
@@ -32,6 +37,7 @@ class CommonButton extends StatelessWidget {
     this.onTap,
     this.style,
     this.isIcon = false,
+    this.isLoading = false,
   });
 
   @override
@@ -56,13 +62,23 @@ class CommonButton extends StatelessWidget {
                         ? SvgPicture.asset(svgAssets.import1)
                             .padding(right: Insets.i10)
                         : Container(),
-                    TextWidgetCommon(
-                            text: text!,
-                            style: style ??
-                                AppCss.lexendSemiBold15.textColor(textColor ??
-                                    appColor(context).appTheme.white))
-                        .center()
-                  ])).inkWell(onTap: onTap))
+                    isLoading
+                        ? LoadingWaveAnimation(
+                            color:
+                                textColor ?? appColor(context).appTheme.white,
+                            barCount: 4,
+                            barWidth: 4,
+                            maxHeight: 18,
+                            minHeight: 6,
+                          )
+                        : TextWidgetCommon(
+                                text: text ?? '',
+                                style: style ??
+                                    AppCss.lexendSemiBold15.textColor(
+                                        textColor ??
+                                            appColor(context).appTheme.white))
+                            .center()
+                  ])).inkWell(onTap: isLoading ? null : onTap))
     ]);
   }
 }

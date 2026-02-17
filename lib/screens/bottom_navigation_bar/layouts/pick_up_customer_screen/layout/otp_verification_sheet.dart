@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:permission_handler/permission_handler.dart';
+import 'package:taxify_driver_ui/api/enums/trip_status_enum.dart';
 import 'package:taxify_driver_ui/config.dart' hide Marker, Polyline, LatLng;
 import 'package:taxify_driver_ui/api/models/pick_up_customer/optimized_route_model.dart';
 import 'package:taxify_driver_ui/config/app_constants.dart';
@@ -10,13 +11,19 @@ import 'package:taxify_driver_ui/widgets/screens_widgets/screens_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class OtpVerificationSheet extends StatefulWidget {
-  final GestureTapCallback? onTap;
+  final Future<void> Function()? onTap;
   final RouteWaypoint? waypoint;
   final VoidCallback? onEndTrip;
   final String? tripId;
   final PickUpCustomerProvider? pickUpProvider;
   final void Function(List<String> presentStudentIds)? onPickupSuccess;
   final VoidCallback? onAllAbsent;
+
+  /// Whether this is the first waypoint interaction (no students picked up yet)
+  final bool isFirstWaypointInteraction;
+
+  /// Whether this is a DROP trip (school → homes) - hides toggle and absent button
+  final bool isDropTrip;
 
   const OtpVerificationSheet({
     super.key,
@@ -27,6 +34,8 @@ class OtpVerificationSheet extends StatefulWidget {
     this.pickUpProvider,
     this.onPickupSuccess,
     this.onAllAbsent,
+    this.isFirstWaypointInteraction = false,
+    this.isDropTrip = false,
   });
 
   @override
@@ -37,6 +46,7 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
   final TextEditingController _otpController = TextEditingController();
   bool _isLoading = false;
   bool _isMarkingAbsent = false;
+  bool _isCompleteRideLoading = false;
   String? _errorMessage;
 
   // Map to track student presence status (studentId -> isPresent)
@@ -166,7 +176,7 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
         // Notify parent about picked up students
         widget.onPickupSuccess?.call(presentStudentIds);
         // Call the success callback
-        widget.onTap?.call();
+        await widget.onTap?.call();
       } else {
         setState(() {
           _errorMessage = widget.pickUpProvider!.errorMessage ??
@@ -178,6 +188,21 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
         _isLoading = false;
         _errorMessage = 'Error: ${e.toString()}';
       });
+    }
+  }
+
+  Future<void> _handleCompleteRide() async {
+    setState(() {
+      _isCompleteRideLoading = true;
+    });
+    try {
+      await widget.onTap?.call();
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isCompleteRideLoading = false;
+        });
+      }
     }
   }
 
@@ -233,6 +258,15 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
       });
 
       if (response != null && response.success) {
+        // Update trip status to in_progress if this is the first waypoint interaction
+        if (widget.isFirstWaypointInteraction &&
+            widget.pickUpProvider?.optimizedRoute != null) {
+          final routeId = widget.pickUpProvider!.optimizedRoute!.id;
+          await widget.pickUpProvider!.updateTripStatus(
+            tripId: routeId,
+            tripStatus: TripStatus.inProgress.value,
+          );
+        }
         // Call the all absent callback to move to next waypoint
         widget.onAllAbsent?.call();
       } else {
@@ -255,7 +289,7 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
         decoration: BoxDecoration(
             color: appTheme.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-        padding: EdgeInsets.all(20),
+        padding: EdgeInsets.all(Insets.i20),
         child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -266,9 +300,9 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
                         TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 Image.asset('assets/image/home/car.png', height: 25)
               ]),
-              VSpace(Insets.i15),
+              VSpace(Insets.i16),
               Divider(color: appTheme.stroke, height: 0),
-              VSpace(Insets.i15),
+              VSpace(Insets.i16),
               Row(children: [
                 // TODO: Replace with dummy image if null
                 CircleAvatar(
@@ -277,7 +311,7 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
                         : AssetImage('assets/image/home/user2.png')
                             as ImageProvider,
                     radius: 20),
-                SizedBox(width: Insets.i8),
+                HSpace(Insets.i8),
                 Expanded(
                   child: Text(
                       widget.waypoint?.studentParentId ==
@@ -324,7 +358,7 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
                         }
                       })
               ]),
-              // Student list with presence toggles
+              // Student list (with toggles only for PICKUP trips)
               if (widget.waypoint?.studentParentId !=
                       AppConstants.schoolLocationType &&
                   widget.waypoint != null &&
@@ -348,40 +382,43 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
                           style: AppCss.lexendRegular12
                               .textColor(appTheme.textClr),
                         ),
-                        Row(
-                          children: [
-                            Text(
-                              isPresent ? 'Present' : 'Absent',
-                              style: AppCss.lexendRegular12.textColor(
-                                isPresent
-                                    ? appTheme.primary
-                                    : appTheme.alertZone,
+                        // Show toggle only for PICKUP trips
+                        if (!widget.isDropTrip)
+                          Row(
+                            children: [
+                              Text(
+                                isPresent ? 'Present' : 'Absent',
+                                style: AppCss.lexendRegular12.textColor(
+                                  isPresent
+                                      ? appTheme.primary
+                                      : appTheme.alertZone,
+                                ),
                               ),
-                            ),
-                            SizedBox(width: Insets.i8),
-                            ScreensWidgets().customToggle(
-                              isToggled: isPresent,
-                              onToggle: () {
-                                setState(() {
-                                  _studentPresence[studentId] = !isPresent;
-                                });
-                              },
-                            ),
-                          ],
-                        ),
+                              HSpace(Insets.i8),
+                              ScreensWidgets().customToggle(
+                                isToggled: isPresent,
+                                onToggle: () {
+                                  setState(() {
+                                    _studentPresence[studentId] = !isPresent;
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
                       ],
                     ),
                   );
                 }),
               ],
-              VSpace(Insets.i15),
+              VSpace(Insets.i16),
               Divider(color: appTheme.stroke, height: 0),
-              VSpace(Insets.i15),
+              VSpace(Insets.i16),
               if (widget.waypoint?.studentParentId ==
                   AppConstants.schoolLocationType)
                 CommonButton(
                     text: language(context, appFonts.completeRide),
-                    onTap: widget.onTap)
+                    isLoading: _isCompleteRideLoading,
+                    onTap: _handleCompleteRide)
               else
                 Column(mainAxisSize: MainAxisSize.min, children: [
                   AuthCommonWidgets().textAndTextField(
@@ -399,32 +436,27 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
                           AppCss.lexendRegular12.textColor(appTheme.alertZone),
                     ),
                   ],
-                  VSpace(Insets.i25),
+                  VSpace(Insets.i20),
                   Row(children: [
+                    // Show Absent button only for PICKUP trips
+                    if (!widget.isDropTrip) ...[
+                      SizedBox(
+                        width: 80,
+                        child: CommonButton(
+                          text: language(context, appFonts.absent),
+                          color: appTheme.yellowIcon,
+                          onTap: _markAllStudentsAbsent,
+                          isLoading: _isMarkingAbsent,
+                        ),
+                      ),
+                      HSpace(Insets.i12),
+                    ],
                     Expanded(
-                      child: _isLoading
-                          ? Center(
-                              child: CircularProgressIndicator(
-                                color: appTheme.primary,
-                              ),
-                            )
-                          : CommonButton(
-                              text: language(context, appFonts.verifyOTP),
-                              onTap: _verifyAndPickupStudent),
-                    ),
-                    SizedBox(width: Insets.i12),
-                    SizedBox(
-                      width: 80,
-                      child: _isMarkingAbsent
-                          ? Center(
-                              child: CircularProgressIndicator(
-                                color: appTheme.yellowIcon,
-                              ),
-                            )
-                          : CommonButton(
-                              text: language(context, appFonts.absent),
-                              color: appTheme.yellowIcon,
-                              onTap: _markAllStudentsAbsent),
+                      child: CommonButton(
+                        text: language(context, appFonts.verifyOTP),
+                        onTap: _verifyAndPickupStudent,
+                        isLoading: _isLoading,
+                      ),
                     ),
                   ])
                 ])

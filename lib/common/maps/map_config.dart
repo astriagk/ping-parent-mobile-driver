@@ -5,7 +5,7 @@ class MapConfig implements MapProviderConfig {
   // No API Key required for OpenFreeMap
 
   // Selected tile index (CartoDB Voyager)
-  static const int _selectedTileIndex = 1;
+  static const int _selectedTileIndex = 0;
   static const String apiKey = 'WQaLf0lFFvii7Co5xgJ6mawtRRiy3w8G';
 
   // Available tile options with their associated APIs

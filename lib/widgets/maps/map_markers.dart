@@ -1,6 +1,7 @@
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:taxify_driver_ui/config.dart' hide Marker, Polyline, LatLng;
+import 'dart:math' as math;
 
 /// Reusable marker builder for all map providers
 class MapMarkers {
@@ -96,17 +97,23 @@ class MapMarkers {
     );
   }
 
-  /// Driver/Vehicle location marker (primary color)
+  /// Driver/Vehicle location marker (primary color) with pulsing animation
   static Marker driverLocationMarker(
     LatLng point,
     BuildContext context, {
+    double heading = 0.0,
     VoidCallback? onTap,
   }) {
-    return _buildMarker(
+    return Marker(
       point: point,
-      svgAssetPath: svgAssets.carDark,
-      color: appColor(context).appTheme.primary,
-      onTap: onTap,
+      alignment: Alignment.center,
+      child: _PulsingDriverMarker(
+        svgAssetPath: svgAssets.carLight,
+        pulseColor: appColor(context).appTheme.lightText,
+        iconColor: appColor(context).appTheme.primary,
+        heading: heading,
+        onTap: onTap,
+      ),
     );
   }
 
@@ -125,6 +132,120 @@ class MapMarkers {
         width: 2,
       ),
       onTap: onTap,
+    );
+  }
+}
+
+/// Animated pulsing marker for driver location
+class _PulsingDriverMarker extends StatefulWidget {
+  final String svgAssetPath;
+  final Color pulseColor;
+  final Color iconColor;
+  final double heading;
+  final VoidCallback? onTap;
+
+  const _PulsingDriverMarker({
+    required this.svgAssetPath,
+    required this.pulseColor,
+    required this.iconColor,
+    this.heading = 0.0,
+    this.onTap,
+  });
+
+  @override
+  State<_PulsingDriverMarker> createState() => _PulsingDriverMarkerState();
+}
+
+class _PulsingDriverMarkerState extends State<_PulsingDriverMarker>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _opacityAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    )..repeat();
+
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.8).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+    );
+
+    _opacityAnimation = Tween<double>(begin: 0.6, end: 0.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: widget.onTap,
+      child: SizedBox(
+        width: 56,
+        height: 56,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // Pulsing ring
+            AnimatedBuilder(
+              animation: _controller,
+              builder: (context, child) {
+                return Transform.scale(
+                  scale: _scaleAnimation.value,
+                  child: Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: widget.pulseColor
+                          .withOpacity(_opacityAnimation.value),
+                    ),
+                  ),
+                );
+              },
+            ),
+            // Main icon container with rotation based on heading
+            // GPS heading: 0° = North (up), 90° = East (right), 180° = South, 270° = West
+            // Adjust the offset based on your car SVG's default direction:
+            // - If car points UP by default: use heading directly (offset = 0)
+            // - If car points RIGHT by default: subtract 90 (offset = -90)
+            // - If car points DOWN by default: subtract 180 (offset = -180)
+            Transform.rotate(
+              angle: widget.heading *
+                  (math.pi / 180), // Convert degrees to radians
+              child: Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: widget.pulseColor.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: SvgPicture.asset(
+                    widget.svgAssetPath,
+                    width: 20,
+                    height: 20,
+                    colorFilter: ColorFilter.mode(
+                      widget.iconColor,
+                      BlendMode.srcIn,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

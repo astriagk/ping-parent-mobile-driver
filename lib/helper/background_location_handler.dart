@@ -19,8 +19,10 @@ Future<void> onStart(ServiceInstance service) async {
   DartPluginRegistrant.ensureInitialized();
 
   final handler = BackgroundLocationHandler(service);
-  await handler.initialize();
 
+  // Register listeners FIRST so no messages are lost.
+  // The main isolate sends 'startTracking' as soon as isRunning() returns true,
+  // which can happen before handler.initialize() completes.
   service.on('stopService').listen((event) {
     handler.dispose();
     service.stopSelf();
@@ -35,6 +37,9 @@ Future<void> onStart(ServiceInstance service) async {
   service.on('stopTracking').listen((event) {
     handler.stopTracking();
   });
+
+  // Initialize AFTER listeners are set up
+  await handler.initialize();
 }
 
 /// iOS background fetch handler
@@ -369,6 +374,10 @@ class BackgroundLocationHandler {
       final syncedIds = <int>[];
       for (final pos in pending) {
         try {
+          // Only sync positions for the current active trip
+          // Skip if this position belongs to a different trip
+          if (pos['trip_id'] != _currentTripId) continue;
+
           _socket!.emit(DriverSocketEvent.updatePosition.value, {
             'tripId': pos['trip_id'],
             'latitude': pos['latitude'],
@@ -401,6 +410,10 @@ class BackgroundLocationHandler {
       final syncedIds = <int>[];
       for (final pos in pending) {
         try {
+          // Only sync positions for the current active trip
+          // Skip if this position belongs to a different trip
+          if (pos['trip_id'] != _currentTripId) continue;
+
           final url = '$_baseUrl/tracking/${pos['trip_id']}/position';
           final response = await http
               .patch(

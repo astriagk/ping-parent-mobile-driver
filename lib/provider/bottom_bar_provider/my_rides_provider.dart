@@ -9,6 +9,10 @@ class MyRidesProvider extends ChangeNotifier {
   String? errorMessage;
   String? successMessage;
 
+  /// Track which assignment is being approved/rejected (for button loading)
+  String? actionLoadingId;
+  bool get isActionLoading => actionLoadingId != null;
+
   List<DriverStudentAssignment> parentRequestedAssignments = [];
   List<DriverStudentAssignment> completedAssignments = [];
   List<DriverStudentAssignment> cancelledAssignments = [];
@@ -19,10 +23,14 @@ class MyRidesProvider extends ChangeNotifier {
   }
 
   /// Fetch assignments by status
-  Future<void> fetchAssignmentsByStatus(AssignmentStatus status) async {
-    isLoading = true;
+  /// [showLoading] controls whether to show skeleton loading (set false for silent refresh)
+  Future<void> fetchAssignmentsByStatus(AssignmentStatus status,
+      {bool showLoading = true}) async {
+    if (showLoading) {
+      isLoading = true;
+      notifyListeners();
+    }
     errorMessage = null;
-    notifyListeners();
 
     try {
       final myRidesService = MyRidesService(ApiClient());
@@ -130,7 +138,7 @@ class MyRidesProvider extends ChangeNotifier {
     String successDefaultMsg,
     String errorDefaultMsg,
   ) async {
-    isLoading = true;
+    actionLoadingId = assignmentId;
     errorMessage = null;
     notifyListeners();
 
@@ -143,20 +151,20 @@ class MyRidesProvider extends ChangeNotifier {
 
       if (response['success']) {
         successMessage = response['message'] ?? successDefaultMsg;
-        // Refresh the list after status change
-        await fetchAssignmentsByStatus(AssignmentStatus.parentRequested);
-        isLoading = false;
-        notifyListeners();
+        actionLoadingId = null;
+        // Refresh the list silently (no skeleton) after status change
+        await fetchAssignmentsByStatus(AssignmentStatus.parentRequested,
+            showLoading: false);
         return true;
       } else {
         errorMessage = response['message'] ?? errorDefaultMsg;
-        isLoading = false;
+        actionLoadingId = null;
         notifyListeners();
         return false;
       }
     } catch (e) {
       errorMessage = errorDefaultMsg;
-      isLoading = false;
+      actionLoadingId = null;
       notifyListeners();
       return false;
     }
