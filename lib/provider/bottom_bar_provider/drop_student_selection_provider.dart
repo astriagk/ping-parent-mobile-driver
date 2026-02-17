@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:taxify_driver_ui/api/api_client.dart';
 import 'package:taxify_driver_ui/api/models/drop_student_selection_model.dart';
+import 'package:taxify_driver_ui/api/models/pick_up_customer/trip_status_response.dart';
 import 'package:taxify_driver_ui/api/services/drop_student_selection_service.dart';
+import 'package:taxify_driver_ui/api/services/pick_up_customer_service.dart';
 import 'package:taxify_driver_ui/helper/location_service.dart';
 
 /// Provider for managing drop student selection/attendance
 class DropStudentSelectionProvider extends ChangeNotifier {
   // Trip data
   String? _currentTripId;
+  String? _statusTripId; // _id field for status API
 
   // Parent-student data from API
   List<ParentWithStudents> _parentsWithStudents = [];
@@ -20,13 +23,17 @@ class DropStudentSelectionProvider extends ChangeNotifier {
 
   // Getters
   String? get currentTripId => _currentTripId;
+  String? get statusTripId => _statusTripId;
   List<ParentWithStudents> get parentsWithStudents => _parentsWithStudents;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
   /// Set current trip ID (called from active_ride_screen)
-  void setCurrentTripId(String tripId) {
+  /// [tripId] - the trip_id field
+  /// [statusId] - the _id field for status API
+  void setCurrentTripId(String tripId, {String? statusId}) {
     _currentTripId = tripId;
+    _statusTripId = statusId;
     notifyListeners();
   }
 
@@ -148,6 +155,20 @@ class DropStudentSelectionProvider extends ChangeNotifier {
     return studentIds;
   }
 
+  /// Get skipped (unselected) student IDs for DROP trips
+  /// These are students who were not picked up from school
+  List<String> getSkippedStudentIdsForApi() {
+    List<String> skippedIds = [];
+    for (var parent in _parentsWithStudents) {
+      for (var student in parent.students) {
+        if (!student.isMarkedPresent) {
+          skippedIds.add(student.studentId);
+        }
+      }
+    }
+    return skippedIds;
+  }
+
   /// Mark selected students as picked from school
   /// POST /trip-students/trip/:tripId/school-point
   /// Gets current location and sends selected student IDs
@@ -168,15 +189,12 @@ class DropStudentSelectionProvider extends ChangeNotifier {
       );
     }
 
-    _isLoading = true;
     _errorMessage = null;
-    notifyListeners();
 
     try {
       // Get current driver location
       final location = await LocationService.getCurrentLocation();
       if (location == null) {
-        _isLoading = false;
         _errorMessage = 'Unable to get current location';
         notifyListeners();
         return SchoolPointResponse(
@@ -189,11 +207,16 @@ class DropStudentSelectionProvider extends ChangeNotifier {
       // Get selected student IDs
       final studentIds = getSelectedStudentIdsForApi();
 
-      // Create request
+      // Get skipped (unselected) student IDs for DROP trip
+      final skippedStudentIds = getSkippedStudentIdsForApi();
+
+      // Create request with skipped students
       final request = SchoolPointRequest(
         studentIds: studentIds,
         latitude: location.latitude,
         longitude: location.longitude,
+        skippedStudentIds:
+            skippedStudentIds.isNotEmpty ? skippedStudentIds : null,
       );
 
       // Call API
@@ -203,15 +226,13 @@ class DropStudentSelectionProvider extends ChangeNotifier {
         request: request,
       );
 
-      _isLoading = false;
       if (!response.success) {
         _errorMessage = response.message;
+        notifyListeners();
       }
-      notifyListeners();
 
       return response;
     } catch (e) {
-      _isLoading = false;
       _errorMessage = 'Error marking school point: ${e.toString()}';
       notifyListeners();
       return SchoolPointResponse(
@@ -227,6 +248,7 @@ class DropStudentSelectionProvider extends ChangeNotifier {
     _attendanceMap.clear();
     _parentsWithStudents.clear();
     _currentTripId = null;
+    _statusTripId = null;
     _errorMessage = null;
     notifyListeners();
   }
@@ -241,5 +263,24 @@ class DropStudentSelectionProvider extends ChangeNotifier {
   void setErrorMessage(String? message) {
     _errorMessage = message;
     notifyListeners();
+  }
+
+  /// Update trip status (e.g., "started", "in_progress", "completed")
+  Future<TripStatusResponse?> updateTripStatus({
+    required String tripId,
+    required String tripStatus,
+  }) async {
+    try {
+      final service = PickUpCustomerService(ApiClient());
+      final response = await service.updateTripStatus(
+        tripId: tripId,
+        tripStatus: tripStatus,
+      );
+      return response;
+    } catch (e) {
+      _errorMessage = 'Error updating trip status: ${e.toString()}';
+      notifyListeners();
+      return null;
+    }
   }
 }

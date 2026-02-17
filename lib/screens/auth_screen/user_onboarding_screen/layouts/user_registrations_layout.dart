@@ -123,10 +123,14 @@ class UserRegistrationsLayout extends StatelessWidget {
         //     }),
         VSpace(Insets.i30),
         CommonButton(
-            text: language(context, appFonts.next),
-            onTap: () async {
-              await pvr.handleUserRegistration(context);
-            }).padding(bottom: Sizes.s20)
+                text: language(context, appFonts.next),
+                isLoading: pvr.isCreatingProfile,
+                onTap: pvr.isCreatingProfile
+                    ? null
+                    : () async {
+                        await pvr.handleUserRegistration(context);
+                      })
+            .padding(bottom: Sizes.s20)
       ]);
     });
   }

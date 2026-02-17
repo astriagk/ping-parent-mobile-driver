@@ -22,6 +22,7 @@ class UserDetailsUpdateProvider extends ChangeNotifier {
 
   int selectedIndex = 0;
   bool isLoading = false;
+  bool isUpdating = false;
   String? errorMessage;
   String? successMessage;
 
@@ -125,7 +126,7 @@ class UserDetailsUpdateProvider extends ChangeNotifier {
       return true; // Return true but don't call API
     }
 
-    isLoading = true;
+    isUpdating = true;
     errorMessage = null;
     successMessage = null;
     notifyListeners();
@@ -155,18 +156,18 @@ class UserDetailsUpdateProvider extends ChangeNotifier {
             int.tryParse(vehicleCapacityController.text) ?? 0;
         originalSelectedIndex = selectedIndex;
 
-        isLoading = false;
+        isUpdating = false;
         notifyListeners();
         return true;
       } else {
         errorMessage = response['message'] ?? 'Failed to update profile';
-        isLoading = false;
+        isUpdating = false;
         notifyListeners();
         return false;
       }
     } catch (e) {
       errorMessage = 'An error occurred. Please try again.';
-      isLoading = false;
+      isUpdating = false;
       notifyListeners();
       return false;
     }

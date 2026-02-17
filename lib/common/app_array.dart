@@ -16,7 +16,7 @@ class AppArray {
       "iconDark": svgAssets.driving
     },
     {
-      "title": appFonts.myAssignments,
+      "title": appFonts.assignments,
       "icon": svgAssets.carLight,
       "iconDark": svgAssets.carDark
     },
@@ -586,7 +586,7 @@ class AppArray {
   ];
   final List<Map<String, dynamic>> ridesData = [
     {
-      'userName': 'Drop from Home to School',
+      'userName': 'Home to School',
       'price': '',
       'rating': 4.8,
       'totalRatings': 127,
@@ -598,7 +598,7 @@ class AppArray {
       'imageUrl': 'assets/image/home/user1.png'
     },
     {
-      'userName': 'Drop from School to Home',
+      'userName': 'School to Home',
       'price': '',
       'rating': 4.9,
       'totalRatings': 205,

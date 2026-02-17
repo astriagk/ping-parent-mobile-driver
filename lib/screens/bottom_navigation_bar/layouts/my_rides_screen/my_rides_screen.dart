@@ -1,6 +1,7 @@
 import 'package:taxify_driver_ui/config.dart';
 import 'package:taxify_driver_ui/helper/address_util.dart';
 import 'package:taxify_driver_ui/screens/bottom_navigation_bar/layouts/my_rides_screen/layouts/pending_ride_layouts.dart';
+import 'package:taxify_driver_ui/widgets/empty_state/empty_state_widget.dart';
 
 class MyRidesScreen extends StatefulWidget {
   const MyRidesScreen({super.key});
@@ -57,7 +58,7 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
               child:
                   Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             myRidesWidgets.buildTabButton(
-                language(context, appFonts.parentRequestedAssignments),
+                language(context, appFonts.requestedAssignments),
                 0,
                 screenWidth,
                 myRidesPvr.selectedIndex, () {
@@ -65,7 +66,7 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
             }),
             SizedBox(width: Insets.i10),
             myRidesWidgets.buildTabButton(
-                language(context, appFonts.completeMyAssignment),
+                language(context, appFonts.completeAssignments),
                 1,
                 screenWidth,
                 myRidesPvr.selectedIndex, () {
@@ -73,7 +74,7 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
             }),
             SizedBox(width: Insets.i10),
             myRidesWidgets.buildTabButton(
-                language(context, appFonts.rejectedMyAssignment),
+                language(context, appFonts.rejectedAssignments),
                 2,
                 screenWidth,
                 myRidesPvr.selectedIndex, () {
@@ -90,15 +91,16 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
                 return const CustomerCardSkeleton();
               })
         else if (myRidesPvr.errorMessage != null)
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextWidgetCommon(text: myRidesPvr.errorMessage!),
+          EmptyStateWidget(
+            title: appFonts.nothingHere,
+            message: myRidesPvr.errorMessage!,
+            buttonText: appFonts.refresh,
+            onButtonTap: () => myRidesPvr.onInit(),
           )
         else if (myRidesPvr.getCurrentTabData().isEmpty)
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextWidgetCommon(
-                text: language(context, appFonts.noAssignmentsFound)),
+          EmptyStateWidget(
+            title: appFonts.nothingHere,
+            message: language(context, appFonts.noAssignmentsFound),
           )
         else
           ListView.builder(
@@ -133,6 +135,8 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
                     assignmentId: assignment.id,
                     phoneNumber: '', // Get parent phone number here
                     showActionButtons: myRidesPvr.selectedIndex == 0,
+                    isActionLoading:
+                        myRidesPvr.actionLoadingId == assignment.id,
                     onApprove: (assignmentId) => _handleAssignmentAction(
                           () => myRidesPvr.approveAssignment(assignmentId),
                           myRidesPvr.successMessage ??

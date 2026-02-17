@@ -51,14 +51,14 @@ class SignInScreen extends StatelessWidget {
                           .textColor(appColor(context).appTheme.darkText)),
                   //country picker layout
                   CountryPickerLayout(controller: signInPvr.phoneController),
-                  signInPvr.isSendingOtp
-                      ? const Center(child: CircularProgressIndicator())
-                          .paddingSymmetric(vertical: Sizes.s10)
-                      : CommonButton(
-                          text: language(context, appFonts.getOTP),
-                          onTap: () async {
-                            await _handleSendOtp(context, signInPvr);
-                          }),
+                  CommonButton(
+                      text: language(context, appFonts.getOTP),
+                      isLoading: signInPvr.isSendingOtp,
+                      onTap: signInPvr.isSendingOtp
+                          ? null
+                          : () async {
+                              await _handleSendOtp(context, signInPvr);
+                            }),
 
                   //common Rich Text layout
                   AuthCommonWidgets().commonRichText(

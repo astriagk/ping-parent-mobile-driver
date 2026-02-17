@@ -7,6 +7,7 @@ import 'package:taxify_driver_ui/api/enums/trip_status_enum.dart';
 import 'package:taxify_driver_ui/api/models/pick_up_customer/optimized_route_model.dart';
 import 'package:taxify_driver_ui/api/models/pick_up_customer/pickup_point_response.dart';
 import 'package:taxify_driver_ui/api/models/pick_up_customer/school_point_response.dart';
+import 'package:taxify_driver_ui/api/models/pick_up_customer/trip_progress_response.dart';
 import 'package:taxify_driver_ui/api/api_client.dart';
 import 'package:taxify_driver_ui/helper/foreground_tracking_service.dart';
 
@@ -303,11 +304,13 @@ class PickUpCustomerProvider extends ChangeNotifier {
 
   /// Process school point for dropping students at school
   /// Returns SchoolPointResponse on success, null on failure
+  /// [skippedStudentIds] is optional - used for both PICKUP and DROP trips when students are absent/skipped
   Future<SchoolPointResponse?> processSchoolPoint({
     required String tripId,
     required List<String> studentIds,
     required double latitude,
     required double longitude,
+    List<String>? skippedStudentIds,
   }) async {
     try {
       isLoading = true;
@@ -320,6 +323,7 @@ class PickUpCustomerProvider extends ChangeNotifier {
         studentIds: studentIds,
         latitude: latitude,
         longitude: longitude,
+        skippedStudentIds: skippedStudentIds,
       );
 
       if (response.success && response.data != null) {
@@ -338,6 +342,42 @@ class PickUpCustomerProvider extends ChangeNotifier {
       }
     } catch (e) {
       errorMessage = 'Error processing school point: ${e.toString()}';
+      isLoading = false;
+      notifyListeners();
+      return null;
+    }
+  }
+
+  /// Get trip progress information
+  /// Returns TripProgressData on success, null on failure
+  Future<TripProgressData?> getTripProgress({
+    required String tripId,
+  }) async {
+    try {
+      isLoading = true;
+      successMessage = null;
+      errorMessage = null;
+      notifyListeners();
+
+      final response = await _pickUpCustomerService.getTripProgress(
+        tripId: tripId,
+      );
+
+      if (response.success && response.data != null) {
+        successMessage =
+            response.message ?? 'Trip progress retrieved successfully';
+        isLoading = false;
+        notifyListeners();
+        return response.data;
+      } else {
+        errorMessage =
+            response.error ?? response.message ?? 'Failed to get trip progress';
+        isLoading = false;
+        notifyListeners();
+        return null;
+      }
+    } catch (e) {
+      errorMessage = 'Error getting trip progress: ${e.toString()}';
       isLoading = false;
       notifyListeners();
       return null;

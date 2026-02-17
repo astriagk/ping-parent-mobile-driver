@@ -1,3 +1,4 @@
+import 'package:taxify_driver_ui/api/enums/trip_status_enum.dart';
 import 'package:taxify_driver_ui/config.dart';
 import 'package:taxify_driver_ui/screens/bottom_navigation_bar/layouts/drop_student_selection_screen/layout/student_card.dart';
 
@@ -12,6 +13,7 @@ class DropStudentSelectionScreen extends StatefulWidget {
 class _DropStudentSelectionScreenState
     extends State<DropStudentSelectionScreen> {
   late DropStudentSelectionProvider _provider;
+  bool _isStartingDrop = false;
 
   @override
   void initState() {
@@ -47,24 +49,42 @@ class _DropStudentSelectionScreenState
       return;
     }
 
-    // Call school point API to mark students as picked from school
-    final response = await _provider.markSchoolPoint();
+    setState(() => _isStartingDrop = true);
 
-    if (!mounted) return;
+    try {
+      // Call school point API to mark students as picked from school
+      final response = await _provider.markSchoolPoint();
 
-    if (response.success) {
-      // Navigate to pickup/drop screen with selected students
-      // Pass tripId and isDropTrip flag as route arguments
-      route.pushNamed(
-        context,
-        routeName.pickupCustomerScreen,
-        arg: {
-          'tripId': _provider.currentTripId,
-          'isDropTrip': true,
-        },
-      );
-    } else {
-      _showSnackBar(response.message ?? 'Failed to start drop', isError: true);
+      if (!mounted) return;
+
+      if (response.success) {
+        // Update trip status to started (use statusTripId for status API)
+        if (_provider.statusTripId != null) {
+          await _provider.updateTripStatus(
+            tripId: _provider.statusTripId!,
+            tripStatus: TripStatus.started.value,
+          );
+        }
+
+        // Navigate to pickup/drop screen with selected students
+        // Pass tripId and isDropTrip flag as route arguments
+        route.pushNamed(
+          context,
+          routeName.pickupCustomerScreen,
+          arg: {
+            'tripId': _provider.currentTripId,
+            'isDropTrip': true,
+            'tripStatus': TripStatus.started.value,
+          },
+        );
+      } else {
+        _showSnackBar(response.message ?? 'Failed to start drop',
+            isError: true);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isStartingDrop = false);
+      }
     }
   }
 
@@ -87,9 +107,7 @@ class _DropStudentSelectionScreenState
   Widget _buildBody(DropStudentSelectionProvider provider) {
     // Show loading state
     if (provider.isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const DropStudentSelectionSkeleton();
     }
 
     // Show error state
@@ -181,6 +199,7 @@ class _DropStudentSelectionScreenState
           child: CommonButton(
             text: language(context, appFonts.startDrop),
             onTap: _onStartDropTap,
+            isLoading: _isStartingDrop,
             color: provider.hasSelectedStudents()
                 ? appTheme.primary
                 : appTheme.borderColor,

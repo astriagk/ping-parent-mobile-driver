@@ -284,11 +284,12 @@ dynamic en = {
 
   // My Assignments
 
-  "myAssignments": "Assignments",
-  "pendingMyAssignment": "Pending",
-  "parentRequestedAssignments": "Requested",
-  "completeMyAssignment": "Complete",
-  "rejectedMyAssignment": "Rejected",
+  "myAssignments": "My Assignments",
+  "assignments": "Assignments",
+  "pendingAssignments": "Pending",
+  "requestedAssignments": "Requested",
+  "completeAssignments": "Completed",
+  "rejectedAssignments": "Rejected",
   "noAssignmentsFound": "No Assignments Found",
   "reject": "Reject",
   "approve": "Approve",
@@ -308,6 +309,7 @@ dynamic en = {
   "tripCreatedSuccessfully": "Trip created successfully",
   "failedToCreateTrip": "Failed to create trip",
   "startTrip": "Start Trip",
+  "inProgress": "In Progress",
   "nextRide": "Next Ride",
   "currenRide": "Current Ride",
   "absent": "Absent",
@@ -317,4 +319,9 @@ dynamic en = {
   "selectStudents": "Select Students",
   "startDrop": "Start Drop",
   "noStudentsAssigned": "No students assigned",
+
+  // Error states
+  "somethingWentWrong": "Something went wrong",
+  "tryAgain": "Try Again",
+  "failedToLoadTrip": "Failed to load trip data",
 };

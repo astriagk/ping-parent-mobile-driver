@@ -78,7 +78,7 @@ class _DashHeaderContent extends StatelessWidget {
         return Text(
                 currentIndex == 3
                     ? language(context, appFonts.settings)
-                    : language(context, appFonts.myRides),
+                    : language(context, appFonts.myAssignments),
                 style: AppCss.lexendSemiBold20
                     .textColor(appColor(context).appTheme.primary))
             .marginOnly(left: Insets.i25);

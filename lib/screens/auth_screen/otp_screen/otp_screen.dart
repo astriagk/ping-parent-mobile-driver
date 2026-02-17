@@ -62,16 +62,16 @@ class OtpScreen extends StatelessWidget {
                               .padding(bottom: Sizes.s9),
                           // PinPut layout
                           OTPScreenWidgets().pinPutLayout(),
-                          otpCtrl.isVerifyingOtp
-                              ? const Center(child: CircularProgressIndicator())
-                                  .paddingSymmetric(vertical: Sizes.s10)
-                              :
-                              // Common button
-                              CommonButton(
+                          // Common button
+                          CommonButton(
                                   text: language(context, appFonts.verify),
-                                  onTap: () async {
-                                    await _handleOtpVerification(context);
-                                  }).padding(top: Sizes.s60, bottom: Sizes.s15),
+                                  isLoading: otpCtrl.isVerifyingOtp,
+                                  onTap: otpCtrl.isVerifyingOtp
+                                      ? null
+                                      : () async {
+                                          await _handleOtpVerification(context);
+                                        })
+                              .padding(top: Sizes.s60, bottom: Sizes.s15),
                           // Common Rich Text layout
                           AuthCommonWidgets().commonRichText(
                               context,

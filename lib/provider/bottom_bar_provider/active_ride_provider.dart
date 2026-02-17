@@ -13,6 +13,9 @@ class ActiveRideProvider extends ChangeNotifier {
   late final ActiveRideService _activeRideService;
 
   bool isLoading = false;
+
+  /// Track loading state per trip type for individual button loading
+  TripType? loadingTripType;
   String? successMessage;
   String? errorMessage;
   List<TripData> myTrips = [];
@@ -20,6 +23,9 @@ class ActiveRideProvider extends ChangeNotifier {
   ActiveRideProvider() {
     _activeRideService = ActiveRideService(ApiClient());
   }
+
+  /// Check if a specific trip type button is loading
+  bool isLoadingForType(TripType tripType) => loadingTripType == tripType;
 
   cancelRideTap(context, int index) {
     showDialog(
@@ -73,7 +79,8 @@ class ActiveRideProvider extends ChangeNotifier {
     required DateTime tripDate,
   }) async {
     try {
-      isLoading = true;
+      // Only set button loading, not skeleton loading
+      loadingTripType = tripType;
       successMessage = null;
       errorMessage = null;
       notifyListeners();
@@ -85,18 +92,18 @@ class ActiveRideProvider extends ChangeNotifier {
 
       if (response.success && response.data != null) {
         successMessage = response.message;
-        isLoading = false;
+        loadingTripType = null;
         notifyListeners();
         return true;
       } else {
         errorMessage = response.message;
-        isLoading = false;
+        loadingTripType = null;
         notifyListeners();
         return false;
       }
     } catch (e) {
       errorMessage = 'Error creating trip: ${e.toString()}';
-      isLoading = false;
+      loadingTripType = null;
       notifyListeners();
       return false;
     }
@@ -137,14 +144,18 @@ class ActiveRideProvider extends ChangeNotifier {
   ///
   /// Parameters:
   ///   - date: Optional DateTime to filter trips (defaults to current date)
+  ///   - showLoading: Whether to show skeleton loading (set false for silent refresh)
   ///
   /// Returns:
   ///   - true if fetch is successful, false otherwise
-  Future<bool> fetchMyTripsByDate({DateTime? date}) async {
+  Future<bool> fetchMyTripsByDate(
+      {DateTime? date, bool showLoading = true}) async {
     try {
-      isLoading = true;
+      if (showLoading) {
+        isLoading = true;
+        notifyListeners();
+      }
       errorMessage = null;
-      notifyListeners();
 
       final response = await _activeRideService.getMyTripsByDate(date: date);
 
