@@ -58,10 +58,10 @@ class _DropStudentSelectionScreenState
       if (!mounted) return;
 
       if (response.success) {
-        // Update trip status to started (use statusTripId for status API)
-        if (_provider.statusTripId != null) {
+        // Update trip status to started
+        if (_provider.currentTripId != null) {
           await _provider.updateTripStatus(
-            tripId: _provider.statusTripId!,
+            tripId: _provider.currentTripId!,
             tripStatus: TripStatus.started.value,
           );
         }
@@ -175,7 +175,7 @@ class _DropStudentSelectionScreenState
                   // Student cards for this parent
                   ...parent.students.map((student) {
                     final isSelected =
-                        provider.isStudentPresent(student.tripStudentId);
+                        provider.isStudentPresent(student.id);
 
                     return StudentCard(
                       student: student,
@@ -184,7 +184,7 @@ class _DropStudentSelectionScreenState
                       parentPhotoUrl: parent.parentPhotoUrl,
                       isSelected: isSelected,
                       onTap: () {
-                        provider.toggleStudentAttendance(student.tripStudentId);
+                        provider.toggleStudentAttendance(student.id);
                       },
                     );
                   }),

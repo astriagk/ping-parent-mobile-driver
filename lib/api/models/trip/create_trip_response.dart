@@ -1,51 +1,47 @@
 import 'package:taxify_driver_ui/api/enums/trip_type_enum.dart';
 
 class Trip {
-  final String tripId;
+  final String id;
   final String driverId;
   final TripType tripType;
   final String tripDate;
   final String tripStatus;
   final String createdAt;
   final String updatedAt;
-  final String id;
 
   Trip({
-    required this.tripId,
+    required this.id,
     required this.driverId,
     required this.tripType,
     required this.tripDate,
     required this.tripStatus,
     required this.createdAt,
     required this.updatedAt,
-    required this.id,
   });
 
   /// Create from JSON
   factory Trip.fromJson(Map<String, dynamic> json) {
     return Trip(
-      tripId: json['trip_id'] ?? '',
+      id: json['_id'] ?? '',
       driverId: json['driver_id'] ?? '',
       tripType: TripType.fromString(json['trip_type'] ?? 'pickup'),
       tripDate: json['trip_date'] ?? '',
       tripStatus: json['trip_status'] ?? '',
       createdAt: json['created_at'] ?? '',
       updatedAt: json['updated_at'] ?? '',
-      id: json['_id'] ?? '',
     );
   }
 
   /// Convert to JSON
   Map<String, dynamic> toJson() {
     return {
-      'trip_id': tripId,
+      '_id': id,
       'driver_id': driverId,
       'trip_type': tripType.value,
       'trip_date': tripDate,
       'trip_status': tripStatus,
       'created_at': createdAt,
       'updated_at': updatedAt,
-      '_id': id,
     };
   }
 }

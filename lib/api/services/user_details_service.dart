@@ -43,6 +43,7 @@ class UserDetailsService {
         return UserDetailsUpdateResponse(
           success: false,
           data: DriverProfileData(
+            id: '',
             userId: '',
             driverUniqueId: '',
             name: '',
@@ -66,6 +67,7 @@ class UserDetailsService {
       return UserDetailsUpdateResponse(
         success: false,
         data: DriverProfileData(
+          id: '',
           userId: '',
           driverUniqueId: '',
           name: '',

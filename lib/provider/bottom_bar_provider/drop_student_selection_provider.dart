@@ -10,12 +10,11 @@ import 'package:taxify_driver_ui/helper/location_service.dart';
 class DropStudentSelectionProvider extends ChangeNotifier {
   // Trip data
   String? _currentTripId;
-  String? _statusTripId; // _id field for status API
 
   // Parent-student data from API
   List<ParentWithStudents> _parentsWithStudents = [];
 
-  // Attendance tracking: tripStudentId -> isMarkedPresent
+  // Attendance tracking: student _id -> isMarkedPresent
   Map<String, bool> _attendanceMap = {};
 
   bool _isLoading = false;
@@ -23,17 +22,14 @@ class DropStudentSelectionProvider extends ChangeNotifier {
 
   // Getters
   String? get currentTripId => _currentTripId;
-  String? get statusTripId => _statusTripId;
   List<ParentWithStudents> get parentsWithStudents => _parentsWithStudents;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
   /// Set current trip ID (called from active_ride_screen)
-  /// [tripId] - the trip_id field
-  /// [statusId] - the _id field for status API
-  void setCurrentTripId(String tripId, {String? statusId}) {
+  /// [tripId] - the _id field of the trip
+  void setCurrentTripId(String tripId) {
     _currentTripId = tripId;
-    _statusTripId = statusId;
     notifyListeners();
   }
 
@@ -44,7 +40,7 @@ class DropStudentSelectionProvider extends ChangeNotifier {
     _attendanceMap = {};
     for (var parent in parents) {
       for (var student in parent.students) {
-        _attendanceMap[student.tripStudentId] = student.isMarkedPresent;
+        _attendanceMap[student.id] = student.isMarkedPresent;
       }
     }
     notifyListeners();
@@ -58,7 +54,7 @@ class DropStudentSelectionProvider extends ChangeNotifier {
       // Update the student object as well
       for (var parent in _parentsWithStudents) {
         for (var student in parent.students) {
-          if (student.tripStudentId == tripStudentId) {
+          if (student.id == tripStudentId) {
             student.isMarkedPresent = _attendanceMap[tripStudentId]!;
             break;
           }
@@ -142,7 +138,7 @@ class DropStudentSelectionProvider extends ChangeNotifier {
     }
   }
 
-  /// Get selected student IDs (studentId, not tripStudentId)
+  /// Get selected student IDs (studentId FK, not trip student _id)
   List<String> getSelectedStudentIdsForApi() {
     List<String> studentIds = [];
     for (var parent in _parentsWithStudents) {
@@ -248,7 +244,6 @@ class DropStudentSelectionProvider extends ChangeNotifier {
     _attendanceMap.clear();
     _parentsWithStudents.clear();
     _currentTripId = null;
-    _statusTripId = null;
     _errorMessage = null;
     notifyListeners();
   }

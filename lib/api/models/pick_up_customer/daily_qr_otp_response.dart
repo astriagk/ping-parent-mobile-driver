@@ -23,7 +23,6 @@ class DailyQrOtpResponse {
 
 class DailyQrOtpData {
   final String id;
-  final String qrOtpId;
   final String parentId;
   final List<String> studentIds;
   final String tripId;
@@ -37,7 +36,6 @@ class DailyQrOtpData {
 
   DailyQrOtpData({
     required this.id,
-    required this.qrOtpId,
     required this.parentId,
     required this.studentIds,
     required this.tripId,
@@ -53,7 +51,6 @@ class DailyQrOtpData {
   factory DailyQrOtpData.fromJson(Map<String, dynamic> json) {
     return DailyQrOtpData(
       id: json['_id'] ?? '',
-      qrOtpId: json['qr_otp_id'] ?? '',
       parentId: json['parent_id'] ?? '',
       studentIds: List<String>.from(json['student_ids'] ?? []),
       tripId: json['trip_id'] ?? '',

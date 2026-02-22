@@ -1,6 +1,6 @@
 /// Model for a student in drop trip
 class TripStudent {
-  final String tripStudentId;
+  final String id;
   final String studentId;
   final String studentName;
   final String? studentClass;
@@ -15,7 +15,7 @@ class TripStudent {
   bool isMarkedPresent;
 
   TripStudent({
-    required this.tripStudentId,
+    required this.id,
     required this.studentId,
     required this.studentName,
     this.studentClass,
@@ -30,7 +30,7 @@ class TripStudent {
 
   factory TripStudent.fromJson(Map<String, dynamic> json) {
     return TripStudent(
-      tripStudentId: json['trip_student_id'] ?? '',
+      id: json['_id'] ?? '',
       studentId: json['student_id'] ?? '',
       studentName: json['student_name'] ?? '',
       studentClass: json['student_class'],
@@ -46,7 +46,7 @@ class TripStudent {
 
   Map<String, dynamic> toJson() {
     return {
-      'trip_student_id': tripStudentId,
+      '_id': id,
       'student_id': studentId,
       'student_name': studentName,
       'student_class': studentClass,
