@@ -141,7 +141,7 @@ class _ActiveRideScreenState extends State<ActiveRideScreen>
           context,
           routeName.pickupCustomerScreen,
           arg: {
-            'tripId': trip.tripId,
+            'tripId': trip.id,
             if (tripType == TripType.drop) 'isDropTrip': true,
           },
         );
@@ -149,14 +149,14 @@ class _ActiveRideScreenState extends State<ActiveRideScreen>
         // For DROP trips (not in-progress), go to student selection screen
         context
             .read<DropStudentSelectionProvider>()
-            .setCurrentTripId(trip.tripId, statusId: trip.id);
+            .setCurrentTripId(trip.id);
         await route.pushNamed(context, routeName.dropStudentSelectionScreen);
       } else {
         // For PICKUP trips, go directly to map
         await route.pushNamed(
           context,
           routeName.pickupCustomerScreen,
-          arg: {'tripId': trip.tripId, 'tripStatus': trip.tripStatus},
+          arg: {'tripId': trip.id, 'tripStatus': trip.tripStatus},
         );
       }
 
@@ -188,14 +188,17 @@ class _ActiveRideScreenState extends State<ActiveRideScreen>
           if (tripType == TripType.drop) {
             context
                 .read<DropStudentSelectionProvider>()
-                .setCurrentTripId(updatedTrip.tripId, statusId: updatedTrip.id);
+                .setCurrentTripId(updatedTrip.id);
             await route.pushNamed(
                 context, routeName.dropStudentSelectionScreen);
           } else {
             await route.pushNamed(
               context,
               routeName.pickupCustomerScreen,
-              arg: {'tripId': updatedTrip.tripId, 'tripStatus': updatedTrip.tripStatus},
+              arg: {
+                'tripId': updatedTrip.id,
+                'tripStatus': updatedTrip.tripStatus
+              },
             );
           }
         }

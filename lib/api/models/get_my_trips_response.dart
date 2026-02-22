@@ -98,7 +98,6 @@ class TripOptimizedRouteData {
 
 class TripData {
   final String id;
-  final String tripId;
   final String driverId;
   final TripType tripType;
   final String tripDate;
@@ -111,7 +110,6 @@ class TripData {
 
   TripData({
     required this.id,
-    required this.tripId,
     required this.driverId,
     required this.tripType,
     required this.tripDate,
@@ -127,7 +125,6 @@ class TripData {
   factory TripData.fromJson(Map<String, dynamic> json) {
     return TripData(
       id: json['_id'] ?? '',
-      tripId: json['trip_id'] ?? '',
       driverId: json['driver_id'] ?? '',
       tripType: TripType.fromString(json['trip_type'] ?? 'pickup'),
       tripDate: json['trip_date'] ?? '',
@@ -146,7 +143,6 @@ class TripData {
   Map<String, dynamic> toJson() {
     return {
       '_id': id,
-      'trip_id': tripId,
       'driver_id': driverId,
       'trip_type': tripType.value,
       'trip_date': tripDate,

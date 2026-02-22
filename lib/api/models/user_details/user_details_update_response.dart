@@ -1,4 +1,5 @@
 class DriverProfileData {
+  final String id;
   final String userId;
   final String driverUniqueId;
   final String name;
@@ -17,6 +18,7 @@ class DriverProfileData {
   final String updatedAt;
 
   DriverProfileData({
+    required this.id,
     required this.userId,
     required this.driverUniqueId,
     required this.name,
@@ -37,6 +39,7 @@ class DriverProfileData {
 
   factory DriverProfileData.fromJson(Map<String, dynamic> json) {
     return DriverProfileData(
+      id: json['_id'] ?? '',
       userId: json['user_id'] ?? '',
       driverUniqueId: json['driver_unique_id'] ?? '',
       name: json['name'] ?? '',
