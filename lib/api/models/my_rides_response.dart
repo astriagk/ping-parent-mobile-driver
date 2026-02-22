@@ -35,7 +35,6 @@ class MyRidesResponse {
 /// Driver-Student Assignment model
 class DriverStudentAssignment {
   final String id;
-  final String assignmentId;
   final String driverId;
   final String studentId;
   final String driverUniqueId;
@@ -50,7 +49,6 @@ class DriverStudentAssignment {
 
   DriverStudentAssignment({
     required this.id,
-    required this.assignmentId,
     required this.driverId,
     required this.studentId,
     required this.driverUniqueId,
@@ -67,7 +65,6 @@ class DriverStudentAssignment {
   factory DriverStudentAssignment.fromJson(Map<String, dynamic> json) {
     return DriverStudentAssignment(
       id: json['_id'] ?? '',
-      assignmentId: json['assignment_id'] ?? '',
       driverId: json['driver_id'] ?? '',
       studentId: json['student_id'] ?? '',
       driverUniqueId: json['driver_unique_id'] ?? '',
@@ -86,7 +83,6 @@ class DriverStudentAssignment {
   Map<String, dynamic> toJson() {
     return {
       '_id': id,
-      'assignment_id': assignmentId,
       'driver_id': driverId,
       'student_id': studentId,
       'driver_unique_id': driverUniqueId,
@@ -200,7 +196,6 @@ class Driver {
 /// Student model
 class Student {
   final String id;
-  final String studentId;
   final String parentId;
   final String schoolId;
   final String studentName;
@@ -216,7 +211,6 @@ class Student {
 
   Student({
     required this.id,
-    required this.studentId,
     required this.parentId,
     required this.schoolId,
     required this.studentName,
@@ -234,7 +228,6 @@ class Student {
   factory Student.fromJson(Map<String, dynamic> json) {
     return Student(
       id: json['_id'] ?? '',
-      studentId: json['student_id'] ?? '',
       parentId: json['parent_id'] ?? '',
       schoolId: json['school_id'] ?? '',
       studentName: json['student_name'] ?? '',
@@ -253,7 +246,6 @@ class Student {
   Map<String, dynamic> toJson() {
     return {
       '_id': id,
-      'student_id': studentId,
       'parent_id': parentId,
       'school_id': schoolId,
       'student_name': studentName,
@@ -273,7 +265,6 @@ class Student {
 /// School model
 class School {
   final String id;
-  final String schoolId;
   final String schoolName;
   final String address;
   final String state;
@@ -287,7 +278,6 @@ class School {
 
   School({
     required this.id,
-    required this.schoolId,
     required this.schoolName,
     required this.address,
     required this.state,
@@ -303,7 +293,6 @@ class School {
   factory School.fromJson(Map<String, dynamic> json) {
     return School(
       id: json['_id'] ?? '',
-      schoolId: json['school_id'] ?? '',
       schoolName: json['school_name'] ?? '',
       address: json['address'] ?? '',
       state: json['state'] ?? '',
@@ -320,7 +309,6 @@ class School {
   Map<String, dynamic> toJson() {
     return {
       '_id': id,
-      'school_id': schoolId,
       'school_name': schoolName,
       'address': address,
       'state': state,

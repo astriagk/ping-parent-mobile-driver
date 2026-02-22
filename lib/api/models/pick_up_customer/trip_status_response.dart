@@ -20,7 +20,6 @@ class TripStatusResponse {
 
 class TripStatusData {
   final String id;
-  final String tripId;
   final String driverId;
   final String tripType;
   final DateTime tripDate;
@@ -33,7 +32,6 @@ class TripStatusData {
 
   TripStatusData({
     required this.id,
-    required this.tripId,
     required this.driverId,
     required this.tripType,
     required this.tripDate,
@@ -48,7 +46,6 @@ class TripStatusData {
   factory TripStatusData.fromJson(Map<String, dynamic> json) {
     return TripStatusData(
       id: json['_id'] ?? '',
-      tripId: json['trip_id'] ?? '',
       driverId: json['driver_id'] ?? '',
       tripType: json['trip_type'] ?? '',
       tripDate: json['trip_date'] != null

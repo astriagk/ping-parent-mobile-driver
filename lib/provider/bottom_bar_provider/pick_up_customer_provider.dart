@@ -101,9 +101,7 @@ class PickUpCustomerProvider extends ChangeNotifier {
   }
 
   /// Update trip status (e.g., "started", "completed")
-  /// Pass the trip ID from the optimized route response (_id field) for REST API
-  /// Socket operations use business tripId (e.g., "TRP-123456") from optimizedRoute
-  /// Per WEBSOCKET.md v3.1.0: Must subscribe before emitting trip_started
+  /// Pass the trip _id for both REST API and socket operations
   Future<bool> updateTripStatus({
     required String tripId,
     required String tripStatus,
@@ -123,7 +121,6 @@ class PickUpCustomerProvider extends ChangeNotifier {
       if (response.success && response.data != null) {
         successMessage = response.message ?? 'Trip status updated successfully';
 
-        // Socket operations use business tripId (e.g., "TRP-123456")
         final socketTripId = optimizedRoute?.tripId ?? tripId;
 
         // Emit trip started via socket from main isolate

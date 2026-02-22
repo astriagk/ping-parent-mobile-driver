@@ -20,7 +20,6 @@ class PositionUpdateResponse {
 
 class PositionData {
   final String id;
-  final String trackingId;
   final String tripId;
   final String driverId;
   final double latitude;
@@ -32,7 +31,6 @@ class PositionData {
 
   PositionData({
     required this.id,
-    required this.trackingId,
     required this.tripId,
     required this.driverId,
     required this.latitude,
@@ -46,7 +44,6 @@ class PositionData {
   factory PositionData.fromJson(Map<String, dynamic> json) {
     return PositionData(
       id: json['_id'] ?? '',
-      trackingId: json['tracking_id'] ?? '',
       tripId: json['trip_id'] ?? '',
       driverId: json['driver_id'] ?? '',
       latitude: (json['latitude'] as num?)?.toDouble() ?? 0.0,

@@ -39,6 +39,7 @@ class DriverProfileResponse {
 }
 
 class DriverData {
+  final String id;
   final String userId;
   final String driverUniqueId;
   final String name;
@@ -56,6 +57,7 @@ class DriverData {
   final String updatedAt;
 
   DriverData({
+    required this.id,
     required this.userId,
     required this.driverUniqueId,
     required this.name,
@@ -76,6 +78,7 @@ class DriverData {
   /// Factory constructor to parse JSON
   factory DriverData.fromJson(Map<String, dynamic> json) {
     return DriverData(
+      id: json['_id'] ?? '',
       userId: json['user_id'] ?? '',
       driverUniqueId: json['driver_unique_id'] ?? '',
       name: json['name'] ?? '',
@@ -97,6 +100,7 @@ class DriverData {
   /// Convert to JSON
   Map<String, dynamic> toJson() {
     return {
+      '_id': id,
       'user_id': userId,
       'driver_unique_id': driverUniqueId,
       'name': name,
