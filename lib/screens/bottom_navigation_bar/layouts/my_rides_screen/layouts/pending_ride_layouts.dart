@@ -80,9 +80,9 @@ class CustomerCard extends StatelessWidget {
                             Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  screensWidgets.ratingCounting(
-                                      rating, reviews),
-                                  const CommonDivider(),
+                                  // screensWidgets.ratingCounting(
+                                  //     rating, reviews),
+                                  // const CommonDivider(),
                                   SvgPicture.asset(svgAssets.routing),
                                   HSpace(Insets.i4),
                                   Text(distance!,
@@ -91,8 +91,8 @@ class CustomerCard extends StatelessWidget {
                                 ])
                           ])
                     ]),
-                screensWidgets.priceText(amount,
-                    bottomMargin: 23.0, leftMargin: 40.0)
+                // screensWidgets.priceText(amount,
+                //     bottomMargin: 23.0, leftMargin: 40.0)
               ]),
           VSpace(Insets.i15),
           homeScreenWidget.dottedLineCommon(),
@@ -103,11 +103,11 @@ class CustomerCard extends StatelessWidget {
                     .textColor(appTheme.primary)
                     .textHeight(1.3)),
             Row(children: [
-              CommonIconButton(
-                  onTap: () => route.pushNamed(context, routeName.chatScreen),
-                  icon: svgAssets.message,
-                  bgColor: appTheme.bgBox),
-              HSpace(Insets.i10),
+              // CommonIconButton(
+              //     onTap: () => route.pushNamed(context, routeName.chatScreen),
+              //     icon: svgAssets.message,
+              //     bgColor: appTheme.bgBox),
+              // HSpace(Insets.i10),
               CommonIconButton(
                   onTap: () async {
                     // Request phone permission

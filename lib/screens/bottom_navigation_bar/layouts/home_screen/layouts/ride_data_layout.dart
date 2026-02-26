@@ -21,10 +21,10 @@ class RideDataLayout extends StatelessWidget {
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(appArray.rideData[index]["count"]!,
-                          style:
-                              AppCss.lexendBold16.textColor(appTheme.primary)),
-                      VSpace(Insets.i10),
+                      // Text(appArray.rideData[index]["count"]!,
+                      //     style:
+                      //         AppCss.lexendBold16.textColor(appTheme.primary)),
+                      // VSpace(Insets.i10),
                       Row(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [

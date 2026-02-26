@@ -2,32 +2,33 @@ import '../../../../../config.dart';
 
 class SettingScreenWidgets {
   //My wallet Balance layout
-  Widget myWalletLayout(context) {
+  Widget myWalletLayout(context, {required String name, required String email}) {
     return Column(children: [
       TextWidgetCommon(
-          text: language(context, appFonts.jonathanHiggins),
+          text: name,
           style: AppCss.lexendRegular14
               .textColor(appColor(context).appTheme.darkText)),
       VSpace(Sizes.s5),
       TextWidgetCommon(
-          text: language(context, appFonts.userMail),
+          text: email,
           style: AppCss.lexendMedium12
               .textColor(appColor(context).appTheme.lightText)),
-      Column(children: [
-        TextWidgetCommon(
-            text: language(context, appFonts.myWalletBalance),
-            style: AppCss.lexendRegular12.textColor(
-                appColor(context).appTheme.darkText.withValues(alpha: .6))),
-        VSpace(Sizes.s6),
-        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          TextWidgetCommon(
-              text: language(context, appFonts.amount),
-              style: AppCss.lexendSemiBold15
-                  .textColor(appColor(context).appTheme.darkText)),
-          HSpace(Sizes.s6),
-          SvgPicture.asset(svgAssets.rightArrowMyWallet)
-        ])
-      ]).settingWalletExtension(context)
+      VSpace(Sizes.s12),
+      // Column(children: [
+      //   TextWidgetCommon(
+      //       text: language(context, appFonts.myWalletBalance),
+      //       style: AppCss.lexendRegular12.textColor(
+      //           appColor(context).appTheme.darkText.withValues(alpha: .6))),
+      //   VSpace(Sizes.s6),
+      //   Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+      //     TextWidgetCommon(
+      //         text: language(context, appFonts.amount),
+      //         style: AppCss.lexendSemiBold15
+      //             .textColor(appColor(context).appTheme.darkText)),
+      //     HSpace(Sizes.s6),
+      //     SvgPicture.asset(svgAssets.rightArrowMyWallet)
+      //   ])
+      // ]).settingWalletExtension(context)
     ]);
   }
 

@@ -17,6 +17,20 @@ class UserDetailsService {
     return _handleQueryResponse(response);
   }
 
+  /// Update driver availability
+  /// PATCH /driver/availability
+  Future<Map<String, dynamic>> updateDriverAvailability(bool isAvailable) async {
+    final response = await _apiClient.patch(
+      Endpoints.driverAvailability,
+      body: {'is_available': isAvailable},
+    );
+    return _handleMutationResponse(
+      response,
+      'Driver availability updated successfully',
+      'Failed to update driver availability',
+    );
+  }
+
   /// Update driver profile
   /// PUT /driver/profile
   Future<Map<String, dynamic>> updateDriverProfile(

@@ -66,7 +66,7 @@ dynamic en = {
   "enterReferralID": "Enter Referral Id",
   "alreadyHaveAnAccount": "Already Have An Account?",
   "otpVerification": "OTP Verification",
-  "enterOTPSent": "Enter Otp Sent To +91 77777 88888",
+  "enterOTPSent": "Enter Otp Sent To Your Mobile Number",
   "otp": "OTP",
   "verify": "Verify",
   "notReceivedYet": "Not Received Yet?",

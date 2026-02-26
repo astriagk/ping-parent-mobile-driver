@@ -15,8 +15,14 @@ class _CommonBottomNavigationBarState extends State<CommonBottomNavigationBar> {
   Widget build(BuildContext context) {
     return Consumer<BottomBarProvider>(builder: (context, bottomCtrl, child) {
       return StatefulWrapper(
-          onInit: () => Future.delayed(const Duration(milliseconds: 150))
-              .then((value) => bottomCtrl.onInit()),
+          onInit: () {
+            WidgetsBinding.instance.addPostFrameCallback((_) async {
+              bottomCtrl.onInit();
+              final userDetailsPvr = context.read<UserDetailsUpdateProvider>();
+              await userDetailsPvr.fetchAndPopulateProfile();
+              bottomCtrl.setAvailability(userDetailsPvr.isAvailable);
+            });
+          },
           child: Scaffold(
               resizeToAvoidBottomInset: false,
               backgroundColor: appTheme.screenBg,

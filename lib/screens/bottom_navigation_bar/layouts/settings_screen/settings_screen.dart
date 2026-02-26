@@ -7,7 +7,8 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<SettingProvider>(builder: (context, settingCtrl, child) {
+    return Consumer2<SettingProvider, UserDetailsUpdateProvider>(
+        builder: (context, settingCtrl, userPvr, child) {
       return StatefulWrapper(
           onInit: () => Future.delayed(DurationClass.ms150)
               .then((value) => settingCtrl.init()),
@@ -28,7 +29,9 @@ class SettingsScreen extends StatelessWidget {
                                     cornerSmoothing: 1)))),
                     child: Column(children: [
                       //My wallet Balance layout
-                      SettingScreenWidgets().myWalletLayout(context),
+                      SettingScreenWidgets().myWalletLayout(context,
+                          name: userPvr.nameController.text,
+                          email: userPvr.emailController.text),
                       //setting screen all data list layout
                       const SettingListLayout()
                     ]).padding(

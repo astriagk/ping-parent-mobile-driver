@@ -163,7 +163,7 @@ class _MyRidesScreenState extends State<MyRidesScreen>
                     rating: 4.0,
                     reviews: 10,
                     distance: '1.2KM',
-                    amount: 200,
+                    // amount: 200,
                     pickupTime: '10:00 AM',
                     dropOffAddress: dropoffAddress,
                     assignmentId: assignment.id,

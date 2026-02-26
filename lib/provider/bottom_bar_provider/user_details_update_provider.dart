@@ -21,6 +21,7 @@ class UserDetailsUpdateProvider extends ChangeNotifier {
       TextEditingController();
 
   int selectedIndex = 0;
+  bool isAvailable = false;
   bool isLoading = false;
   bool isUpdating = false;
   String? errorMessage;
@@ -106,6 +107,7 @@ class UserDetailsUpdateProvider extends ChangeNotifier {
         originalVehicleCapacity = data.vehicleCapacity;
         originalSelectedIndex = selectedIndex;
 
+        isAvailable = data.isAvailable;
         errorMessage = null;
       } else {
         errorMessage = response.message ?? 'Failed to load profile';
