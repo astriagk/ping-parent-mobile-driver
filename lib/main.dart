@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:taxify_driver_ui/config/environment.dart';
-import 'package:taxify_driver_ui/helper/foreground_tracking_service.dart';
+import 'package:skolo_driver/config/environment.dart';
+import 'package:skolo_driver/helper/foreground_tracking_service.dart';
 
 import 'config.dart';
 

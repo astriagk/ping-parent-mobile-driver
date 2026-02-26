@@ -1,4 +1,4 @@
-# taxify_driver_ui
+# skolo_driver
 
 A new Flutter project.
 

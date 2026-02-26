@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:taxify_driver_ui/config.dart';
+import 'package:skolo_driver/config.dart';
 
 class BankDetailsProvider extends ChangeNotifier {
   TextEditingController bankName = TextEditingController();

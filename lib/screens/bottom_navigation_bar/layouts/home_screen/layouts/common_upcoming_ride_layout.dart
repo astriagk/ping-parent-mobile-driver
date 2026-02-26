@@ -1,7 +1,7 @@
-import 'package:taxify_driver_ui/config.dart';
-import 'package:taxify_driver_ui/models/rides_info_model.dart';
-import 'package:taxify_driver_ui/widgets/common_divider.dart';
-import 'package:taxify_driver_ui/widgets/common_location_layout.dart';
+import 'package:skolo_driver/config.dart';
+import 'package:skolo_driver/models/rides_info_model.dart';
+import 'package:skolo_driver/widgets/common_divider.dart';
+import 'package:skolo_driver/widgets/common_location_layout.dart';
 
 class CommonUpcomingRideLayout extends StatelessWidget {
   final RideInfo rideInfo;

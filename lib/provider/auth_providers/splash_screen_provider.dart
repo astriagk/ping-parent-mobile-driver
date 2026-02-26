@@ -1,4 +1,4 @@
-import 'package:taxify_driver_ui/config.dart';
+import 'package:skolo_driver/config.dart';
 import '../../api/services/storage_service.dart';
 
 class SplashProvider extends ChangeNotifier {

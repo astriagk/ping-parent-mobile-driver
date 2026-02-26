@@ -1,8 +1,8 @@
 import 'dart:convert';
-import 'package:taxify_driver_ui/api/api_client.dart';
-import 'package:taxify_driver_ui/api/endpoints.dart';
-import 'package:taxify_driver_ui/api/models/my_rides_response.dart';
-import 'package:taxify_driver_ui/api/enums/assignment_status_enum.dart';
+import 'package:skolo_driver/api/api_client.dart';
+import 'package:skolo_driver/api/endpoints.dart';
+import 'package:skolo_driver/api/models/my_rides_response.dart';
+import 'package:skolo_driver/api/enums/assignment_status_enum.dart';
 
 class MyRidesService {
   final ApiClient _apiClient;

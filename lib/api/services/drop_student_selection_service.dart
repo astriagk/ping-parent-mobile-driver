@@ -1,7 +1,7 @@
 import 'dart:convert';
-import 'package:taxify_driver_ui/api/api_client.dart';
-import 'package:taxify_driver_ui/api/endpoints.dart';
-import 'package:taxify_driver_ui/api/models/drop_student_selection_model.dart';
+import 'package:skolo_driver/api/api_client.dart';
+import 'package:skolo_driver/api/endpoints.dart';
+import 'package:skolo_driver/api/models/drop_student_selection_model.dart';
 
 /// Service for drop student selection API calls
 class DropStudentSelectionService {

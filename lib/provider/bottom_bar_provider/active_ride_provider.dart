@@ -1,13 +1,13 @@
 import 'dart:developer';
 
 import 'package:permission_handler/permission_handler.dart';
-import 'package:taxify_driver_ui/config.dart';
-import 'package:taxify_driver_ui/widgets/common_confirmation_dialog.dart';
+import 'package:skolo_driver/config.dart';
+import 'package:skolo_driver/widgets/common_confirmation_dialog.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:taxify_driver_ui/api/services/active_ride_service.dart';
-import 'package:taxify_driver_ui/api/models/get_my_trips_response.dart';
-import 'package:taxify_driver_ui/api/enums/trip_type_enum.dart';
-import 'package:taxify_driver_ui/api/api_client.dart';
+import 'package:skolo_driver/api/services/active_ride_service.dart';
+import 'package:skolo_driver/api/models/get_my_trips_response.dart';
+import 'package:skolo_driver/api/enums/trip_type_enum.dart';
+import 'package:skolo_driver/api/api_client.dart';
 
 class ActiveRideProvider extends ChangeNotifier {
   late final ActiveRideService _activeRideService;

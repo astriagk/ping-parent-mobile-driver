@@ -1,5 +1,5 @@
-import 'package:taxify_driver_ui/config.dart';
-import 'package:taxify_driver_ui/screens/app_pages/bank_details_screen/bank_details_widgets.dart';
+import 'package:skolo_driver/config.dart';
+import 'package:skolo_driver/screens/app_pages/bank_details_screen/bank_details_widgets.dart';
 
 class BankDetailsScreen extends StatelessWidget {
   const BankDetailsScreen({super.key});

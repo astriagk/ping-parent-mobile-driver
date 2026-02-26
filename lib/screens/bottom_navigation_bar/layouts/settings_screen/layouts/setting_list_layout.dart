@@ -1,5 +1,5 @@
-import 'package:taxify_driver_ui/config.dart';
-import 'package:taxify_driver_ui/screens/bottom_navigation_bar/layouts/settings_screen/layouts/setting_widgets.dart';
+import 'package:skolo_driver/config.dart';
+import 'package:skolo_driver/screens/bottom_navigation_bar/layouts/settings_screen/layouts/setting_widgets.dart';
 
 //setting screen all data list layout
 class SettingListLayout extends StatelessWidget {

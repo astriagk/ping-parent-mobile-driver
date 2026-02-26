@@ -1,4 +1,4 @@
-import 'package:taxify_driver_ui/screens/app_pages/profile_screen/profile_widgets.dart';
+import 'package:skolo_driver/screens/app_pages/profile_screen/profile_widgets.dart';
 
 import '../../../config.dart';
 

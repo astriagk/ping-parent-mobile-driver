@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:taxify_driver_ui/api/api_client.dart';
-import 'package:taxify_driver_ui/api/models/drop_student_selection_model.dart';
-import 'package:taxify_driver_ui/api/models/pick_up_customer/trip_status_response.dart';
-import 'package:taxify_driver_ui/api/services/drop_student_selection_service.dart';
-import 'package:taxify_driver_ui/api/services/pick_up_customer_service.dart';
-import 'package:taxify_driver_ui/helper/location_service.dart';
+import 'package:skolo_driver/api/api_client.dart';
+import 'package:skolo_driver/api/models/drop_student_selection_model.dart';
+import 'package:skolo_driver/api/models/pick_up_customer/trip_status_response.dart';
+import 'package:skolo_driver/api/services/drop_student_selection_service.dart';
+import 'package:skolo_driver/api/services/pick_up_customer_service.dart';
+import 'package:skolo_driver/helper/location_service.dart';
 
 /// Provider for managing drop student selection/attendance
 class DropStudentSelectionProvider extends ChangeNotifier {

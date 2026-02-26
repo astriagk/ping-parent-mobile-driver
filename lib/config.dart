@@ -1,16 +1,16 @@
 import 'dart:io';
 // Provides access to input and output operations, including file, socket, HTTP, and more.
 
-import 'package:taxify_driver_ui/common/app_fonts.dart';
+import 'package:skolo_driver/common/app_fonts.dart';
 // Manages custom fonts used throughout the application.
 
-import 'package:taxify_driver_ui/screens/bottom_navigation_bar/layouts/home_screen/layouts/home_screen_widget.dart';
+import 'package:skolo_driver/screens/bottom_navigation_bar/layouts/home_screen/layouts/home_screen_widget.dart';
 // Widgets for the home screen layout.
 
-import 'package:taxify_driver_ui/screens/bottom_navigation_bar/layouts/my_rides_screen/layouts/my_rides_widgets.dart';
+import 'package:skolo_driver/screens/bottom_navigation_bar/layouts/my_rides_screen/layouts/my_rides_widgets.dart';
 // Widgets related to the "My Rides" screen layout.
 
-import 'package:taxify_driver_ui/widgets/screens_widgets/screens_widgets.dart';
+import 'package:skolo_driver/widgets/screens_widgets/screens_widgets.dart';
 // General reusable screen-related widgets.
 
 import 'config.dart';
@@ -25,38 +25,38 @@ export 'package:flutter/material.dart';
 export 'package:flutter/physics.dart';
 // Provides physics simulations for animations.
 
-export 'package:taxify_driver_ui/common/assets/index.dart';
+export 'package:skolo_driver/common/assets/index.dart';
 // Manages app-wide assets like images and icons.
 
-export 'package:taxify_driver_ui/common/index.dart';
+export 'package:skolo_driver/common/index.dart';
 // Centralized common utilities and helper functions.
 
-export 'package:taxify_driver_ui/helper/navigation_class.dart';
+export 'package:skolo_driver/helper/navigation_class.dart';
 // Navigation helper class to manage routing.
 
-export 'package:taxify_driver_ui/models/index.dart';
+export 'package:skolo_driver/models/index.dart';
 // Data models used within the application.
 
-export 'package:taxify_driver_ui/package_list.dart';
+export 'package:skolo_driver/package_list.dart';
 // List of third-party packages used in the project.
 
-export 'package:taxify_driver_ui/provider/index.dart';
+export 'package:skolo_driver/provider/index.dart';
 // State management providers.
 
-export 'package:taxify_driver_ui/routes/index.dart';
+export 'package:skolo_driver/routes/index.dart';
 // App routes configuration.
 
-export 'package:taxify_driver_ui/routes/screen_list.dart';
+export 'package:skolo_driver/routes/screen_list.dart';
 // Defines screens available for navigation.
 
-export 'package:taxify_driver_ui/screens/index.dart';
+export 'package:skolo_driver/screens/index.dart';
 // Collection of all screens in the app.
 
-export 'package:taxify_driver_ui/widgets/index.dart';
+export 'package:skolo_driver/widgets/index.dart';
 // Collection of reusable widgets.
 
 // skeletons
-export 'package:taxify_driver_ui/widgets/skeletons/index.dart';
+export 'package:skolo_driver/widgets/skeletons/index.dart';
 
 Session session = Session();
 AppFonts appFonts = AppFonts();

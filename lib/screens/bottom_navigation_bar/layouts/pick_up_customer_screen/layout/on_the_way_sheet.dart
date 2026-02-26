@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:permission_handler/permission_handler.dart';
-import 'package:taxify_driver_ui/config.dart' hide Marker, Polyline, LatLng;
+import 'package:skolo_driver/config.dart' hide Marker, Polyline, LatLng;
 import 'package:url_launcher/url_launcher.dart';
 
 class OnTheWaySheet extends StatelessWidget {

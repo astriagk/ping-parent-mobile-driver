@@ -4,8 +4,8 @@ import 'dart:io';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:taxify_driver_ui/api/endpoints.dart';
-import 'package:taxify_driver_ui/helper/background_location_handler.dart';
+import 'package:skolo_driver/api/endpoints.dart';
+import 'package:skolo_driver/helper/background_location_handler.dart';
 
 /// Manages background service lifecycle and UI communication
 class ForegroundTrackingService {

@@ -1,4 +1,4 @@
-import 'package:taxify_driver_ui/config.dart';
+import 'package:skolo_driver/config.dart';
 
 /// A reusable empty state widget that displays an image, title, message, and optional action button.
 /// Use this for error states, empty lists, no data scenarios, etc.

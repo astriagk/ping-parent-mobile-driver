@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import 'package:taxify_driver_ui/config.dart';
-import 'package:taxify_driver_ui/api/api_client.dart';
-import 'package:taxify_driver_ui/api/services/document_update_service.dart';
-import 'package:taxify_driver_ui/api/models/documents/driver_documents_request.dart';
+import 'package:skolo_driver/config.dart';
+import 'package:skolo_driver/api/api_client.dart';
+import 'package:skolo_driver/api/services/document_update_service.dart';
+import 'package:skolo_driver/api/models/documents/driver_documents_request.dart';
 
 class DocumentUpdateProvider extends ChangeNotifier {
   // Text Controllers for document verification

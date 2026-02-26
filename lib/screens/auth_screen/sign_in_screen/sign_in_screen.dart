@@ -1,5 +1,5 @@
-import 'package:taxify_driver_ui/config.dart';
-import 'package:taxify_driver_ui/screens/auth_screen/sign_in_screen/layout/country_picker.dart';
+import 'package:skolo_driver/config.dart';
+import 'package:skolo_driver/screens/auth_screen/sign_in_screen/layout/country_picker.dart';
 
 class SignInScreen extends StatelessWidget {
   const SignInScreen({super.key});

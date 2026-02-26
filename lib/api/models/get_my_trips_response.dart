@@ -1,4 +1,4 @@
-import 'package:taxify_driver_ui/api/enums/trip_type_enum.dart';
+import 'package:skolo_driver/api/enums/trip_type_enum.dart';
 
 /// Waypoint data for optimized route
 class TripWaypoint {

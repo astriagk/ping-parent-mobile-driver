@@ -1,7 +1,7 @@
-import 'package:taxify_driver_ui/config.dart';
-import 'package:taxify_driver_ui/helper/address_util.dart';
-import 'package:taxify_driver_ui/screens/bottom_navigation_bar/layouts/my_rides_screen/layouts/pending_ride_layouts.dart';
-import 'package:taxify_driver_ui/widgets/empty_state/empty_state_widget.dart';
+import 'package:skolo_driver/config.dart';
+import 'package:skolo_driver/helper/address_util.dart';
+import 'package:skolo_driver/screens/bottom_navigation_bar/layouts/my_rides_screen/layouts/pending_ride_layouts.dart';
+import 'package:skolo_driver/widgets/empty_state/empty_state_widget.dart';
 
 class MyRidesScreen extends StatefulWidget {
   const MyRidesScreen({super.key});

@@ -1,5 +1,5 @@
-import 'package:taxify_driver_ui/config.dart';
-import 'package:taxify_driver_ui/screens/bottom_navigation_bar/layouts/common_app_bar.dart';
+import 'package:skolo_driver/config.dart';
+import 'package:skolo_driver/screens/bottom_navigation_bar/layouts/common_app_bar.dart';
 import 'package:flutter/services.dart';
 
 class CommonBottomNavigationBar extends StatefulWidget {

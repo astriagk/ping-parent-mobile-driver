@@ -1,8 +1,8 @@
 import 'dart:convert';
-import 'package:taxify_driver_ui/api/api_client.dart';
-import 'package:taxify_driver_ui/api/endpoints.dart';
-import 'package:taxify_driver_ui/api/models/documents/driver_documents_response.dart';
-import 'package:taxify_driver_ui/api/models/documents/driver_documents_request.dart';
+import 'package:skolo_driver/api/api_client.dart';
+import 'package:skolo_driver/api/endpoints.dart';
+import 'package:skolo_driver/api/models/documents/driver_documents_response.dart';
+import 'package:skolo_driver/api/models/documents/driver_documents_request.dart';
 
 class DocumentUpdateService {
   final ApiClient _apiClient;

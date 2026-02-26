@@ -1,7 +1,7 @@
-import 'package:taxify_driver_ui/config.dart';
-import 'package:taxify_driver_ui/api/api_client.dart';
-import 'package:taxify_driver_ui/api/services/my_rides_service.dart';
-import 'package:taxify_driver_ui/api/enums/assignment_status_enum.dart';
+import 'package:skolo_driver/config.dart';
+import 'package:skolo_driver/api/api_client.dart';
+import 'package:skolo_driver/api/services/my_rides_service.dart';
+import 'package:skolo_driver/api/enums/assignment_status_enum.dart';
 
 class MyRidesProvider extends ChangeNotifier {
   int selectedIndex = 0;

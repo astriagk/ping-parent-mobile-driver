@@ -1,4 +1,4 @@
-import 'package:taxify_driver_ui/widgets/common_divider.dart';
+import 'package:skolo_driver/widgets/common_divider.dart';
 
 import '../../../../../config.dart';
 

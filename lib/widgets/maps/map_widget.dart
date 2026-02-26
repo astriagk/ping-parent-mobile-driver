@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:taxify_driver_ui/helper/location_service.dart';
-import 'package:taxify_driver_ui/config.dart' hide Marker, Polyline, LatLng;
-import 'package:taxify_driver_ui/widgets/maps/map_markers.dart';
-import 'package:taxify_driver_ui/widgets/maps/map_controls.dart';
+import 'package:skolo_driver/helper/location_service.dart';
+import 'package:skolo_driver/config.dart' hide Marker, Polyline, LatLng;
+import 'package:skolo_driver/widgets/maps/map_markers.dart';
+import 'package:skolo_driver/widgets/maps/map_controls.dart';
 
 /// Configuration interface for map providers
 /// Implement this to support different map providers

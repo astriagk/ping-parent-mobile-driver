@@ -1,4 +1,4 @@
-import 'package:taxify_driver_ui/screens/bottom_navigation_bar/layouts/home_screen/layouts/common_upcoming_ride_layout.dart';
+import 'package:skolo_driver/screens/bottom_navigation_bar/layouts/home_screen/layouts/common_upcoming_ride_layout.dart';
 
 import '../../../../../config.dart';
 

@@ -1,10 +1,10 @@
 import 'dart:developer';
 
 import 'package:permission_handler/permission_handler.dart';
-import 'package:taxify_driver_ui/config.dart';
-import 'package:taxify_driver_ui/widgets/common_bg_layout.dart';
-import 'package:taxify_driver_ui/widgets/common_divider.dart';
-import 'package:taxify_driver_ui/widgets/common_location_layout.dart';
+import 'package:skolo_driver/config.dart';
+import 'package:skolo_driver/widgets/common_bg_layout.dart';
+import 'package:skolo_driver/widgets/common_divider.dart';
+import 'package:skolo_driver/widgets/common_location_layout.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CustomerCard extends StatelessWidget {

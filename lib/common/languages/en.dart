@@ -14,7 +14,7 @@ dynamic en = {
       "Simply Touch And Pick To Have All Of Your Products And Services Delivered To Your Door.",
   "trackingRealtime": "Tracking Realtime",
   "earnMoney": "Earn Money",
-  "becomeTaxify": "Become Taxify Driver",
+  "becomeTaxify": "Become Skolo Driver",
   "countryCode": "Country Code",
   "yourRideIsConfirmed": "Your ride is confirmed",
   "activeStatus": "Active Status",
