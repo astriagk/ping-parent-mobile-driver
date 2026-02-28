@@ -30,6 +30,7 @@ class SignInScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<SignInProvider>(builder: (context1, signInPvr, child) {
       return Scaffold(
+          backgroundColor: appColor(context).appTheme.bgBox,
           resizeToAvoidBottomInset: false,
           body: Stack(children: [
             Column(
@@ -39,7 +40,7 @@ class SignInScreen extends StatelessWidget {
                   SvgPicture.asset(svgAssets.logo,
                           height: Sizes.s30, width: Sizes.s70)
                       .center()
-                      .padding(top: Sizes.s60, bottom: Sizes.s15),
+                      .padding(top: MediaQuery.of(context).padding.top + Sizes.s15, bottom: Sizes.s15),
                   //gif title and subtitle layout
                   AuthCommonWidgets().gifTitleText(
                       context,

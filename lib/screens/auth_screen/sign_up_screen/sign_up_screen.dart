@@ -7,6 +7,7 @@ class SignUpScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<SignUpProvider>(builder: (context, signUpPvr, child) {
       return Scaffold(
+          backgroundColor: appColor(context).appTheme.bgBox,
           resizeToAvoidBottomInset: false,
           body: SingleChildScrollView(
               child: Column(children: [

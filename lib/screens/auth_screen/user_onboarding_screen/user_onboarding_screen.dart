@@ -10,6 +10,7 @@ class UserOnboardingScreen extends StatelessWidget {
         return StatefulWrapper(
           onInit: () => onboardingPvr.onInit(),
           child: Scaffold(
+            backgroundColor: appColor(context).appTheme.bgBox,
             body: SingleChildScrollView(
               child: Column(
                 children: [

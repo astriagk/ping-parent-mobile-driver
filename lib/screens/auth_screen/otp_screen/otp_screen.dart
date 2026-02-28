@@ -36,6 +36,7 @@ class OtpScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<OtpProvider>(builder: (context1, otpCtrl, child) {
       return Scaffold(
+          backgroundColor: appColor(context).appTheme.bgBox,
           resizeToAvoidBottomInset: false,
           body: PopScope(
               canPop: false,
