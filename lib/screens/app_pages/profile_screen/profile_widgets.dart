@@ -42,12 +42,21 @@ class ProfileWidgets {
       // Display the selected image or default image
       ClipOval(
               child: SizedBox(
-                  height: Insets.i79,
-                  width: Insets.i79,
+                  height: Insets.i96,
+                  width: Insets.i96,
                   child: udCtrl.image != null
                       ? Image.file(udCtrl.image!, fit: BoxFit.cover)
                       : (photoUrl.isNotEmpty
-                          ? Image.network(photoUrl, fit: BoxFit.cover)
+                          ? Image.network(
+                              photoUrl,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Image.asset(
+                                  imageAssets.profileImg,
+                                  fit: BoxFit.cover,
+                                );
+                              },
+                            )
                           : Image.asset(imageAssets.profileImg,
                               fit: BoxFit.cover))))
           .center(),

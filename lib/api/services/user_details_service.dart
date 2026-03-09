@@ -53,18 +53,24 @@ class UserDetailsService {
   }
 
   /// Upload file to shared upload service
-  /// POST /shared/upload?folder_path={folderPath}
+  /// POST/PUT /shared/upload?folder_path={folderPath}
   Future<Map<String, dynamic>> uploadSharedFile({
     required File file,
     required String folderPath,
+    String? oldFileUrl,
   }) async {
     try {
       final uri = Uri.parse(Endpoints.sharedUpload).replace(
         queryParameters: {'folder_path': folderPath},
       );
 
-      final request = http.MultipartRequest('POST', uri);
+      final method =
+          (oldFileUrl != null && oldFileUrl.isNotEmpty) ? 'PUT' : 'POST';
+      final request = http.MultipartRequest(method, uri);
       request.files.add(await http.MultipartFile.fromPath('file', file.path));
+      if (method == 'PUT') {
+        request.fields['old_file_url'] = oldFileUrl!;
+      }
 
       final token = await StorageService().getAuthToken();
       if (token != null && token.isNotEmpty) {

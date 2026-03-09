@@ -144,9 +144,11 @@ class UserDetailsUpdateProvider extends ChangeNotifier {
 
       String? photoUrlForUpdate;
       if (image != null) {
+        final existingPhotoUrl = originalPhotoUrl.trim();
         final uploadResponse = await userDetailsService.uploadSharedFile(
           file: image!,
-          folderPath: 'profile',
+          folderPath: 'profile/driver',
+          oldFileUrl: existingPhotoUrl.isNotEmpty ? existingPhotoUrl : null,
         );
 
         if (uploadResponse['success'] != true) {

@@ -2,7 +2,8 @@ import '../../../../../config.dart';
 
 class SettingScreenWidgets {
   //My wallet Balance layout
-  Widget myWalletLayout(context, {required String name, required String email}) {
+  Widget myWalletLayout(context,
+      {required String name, required String email}) {
     return Column(children: [
       TextWidgetCommon(
           text: name,
@@ -93,9 +94,24 @@ class SettingScreenWidgets {
       .padding(vertical: Sizes.s12);
 
   //setting screen profile image layout
-  Widget settingProfileImage({double? topPadding}) => Align(
+  Widget settingProfileImage({String? photoUrl, double? topPadding}) => Align(
           alignment: Alignment.topCenter,
-          child: Image.asset(imageAssets.profileImg,
-              height: Sizes.s82, width: Sizes.s82))
+          child: ClipOval(
+              child: SizedBox(
+                  height: Sizes.s96,
+                  width: Sizes.s96,
+                  child: (photoUrl != null && photoUrl.isNotEmpty)
+                      ? Image.network(
+                          photoUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Image.asset(
+                              imageAssets.profileImg,
+                              fit: BoxFit.cover,
+                            );
+                          },
+                        )
+                      : Image.asset(imageAssets.profileImg,
+                          fit: BoxFit.cover))))
       .padding(top: topPadding ?? Sizes.s30);
 }

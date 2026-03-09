@@ -39,7 +39,8 @@ class SettingsScreen extends StatelessWidget {
                         horizontal: Sizes.s20,
                         bottom: Sizes.s50))
                 .marginOnly(top: MediaQuery.of(context).size.height * 0.16),
-            SettingScreenWidgets().settingProfileImage()
+            SettingScreenWidgets()
+                .settingProfileImage(photoUrl: userPvr.originalPhotoUrl)
           ])));
     });
   }
