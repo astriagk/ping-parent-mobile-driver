@@ -1,12 +1,13 @@
 import 'dart:convert';
+import 'dart:io';
+import 'package:http/http.dart' as http;
 import 'package:skolo_driver/api/api_client.dart';
 import 'package:skolo_driver/api/endpoints.dart';
 import 'package:skolo_driver/api/models/documents/driver_documents_response.dart';
-import 'package:skolo_driver/api/models/documents/driver_documents_request.dart';
+import 'package:skolo_driver/api/services/storage_service.dart';
 
 class DocumentUpdateService {
   final ApiClient _apiClient;
-  final Map<String, String> _jsonHeaders = {'Content-Type': 'application/json'};
 
   DocumentUpdateService(this._apiClient);
 
@@ -19,13 +20,58 @@ class DocumentUpdateService {
 
   /// Update driver documents
   /// PUT /driver/documents
-  Future<Map<String, dynamic>> updateDriverDocuments(
-      DriverDocumentsRequest request) async {
-    final response = await _apiClient.put(
-      Endpoints.driverDocuments,
-      headers: _jsonHeaders,
-      body: jsonEncode(request.toJson()),
+  Future<Map<String, dynamic>> updateDriverDocuments({
+    required String drivingLicenseNumber,
+    required String vehicleLicenseNumber,
+    required String insuranceNumber,
+    File? drivingLicenseImage,
+    File? vehicleLicenseImage,
+    File? insuranceImage,
+  }) async {
+    final request = http.MultipartRequest(
+      'PUT',
+      Uri.parse(Endpoints.driverDocuments),
     );
+
+    request.fields['driving_license_number'] = drivingLicenseNumber;
+    request.fields['vehicle_license_number'] = vehicleLicenseNumber;
+    request.fields['insurance_number'] = insuranceNumber;
+
+    if (drivingLicenseImage != null) {
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'driving_license_photo',
+          drivingLicenseImage.path,
+        ),
+      );
+    }
+
+    if (vehicleLicenseImage != null) {
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'vehicle_license_photo',
+          vehicleLicenseImage.path,
+        ),
+      );
+    }
+
+    if (insuranceImage != null) {
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'insurance_photo',
+          insuranceImage.path,
+        ),
+      );
+    }
+
+    final token = await StorageService().getAuthToken();
+    if (token != null && token.isNotEmpty) {
+      request.headers['Authorization'] = 'Bearer $token';
+    }
+
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+
     return _handleMutationResponse(
       response,
       'Driver documents updated successfully',

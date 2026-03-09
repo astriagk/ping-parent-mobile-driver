@@ -4,8 +4,8 @@ import 'package:skolo_driver/config/environment.dart';
 /// All endpoints are dynamically built using the environment-specific base URL
 class Endpoints {
   /// Get the base URL for the current environment
-  static String get baseUrl => appConfig.baseUrl;
-  // static String get baseUrl => 'http://192.168.0.126:3000/api';
+  // static String get baseUrl => appConfig.baseUrl;
+  static String get baseUrl => 'http://192.168.0.126:3000/api';
 
 // ===== Authentication Endpoints =====
   static String get sendOtp => '$baseUrl/auth/login/send-otp';
@@ -23,6 +23,8 @@ class Endpoints {
 // ===== Driver-Student Assignment Endpoints =====
   static String get driverStudentAssignments =>
       '$baseUrl/driver/assignments/parent-requested';
+  static String approveAssignment(String assignmentId, String status) =>
+      '$baseUrl/driver/assignments/$assignmentId/$status';
 
 // ===== Trip Endpoints =====
   static String get createTrip => '$baseUrl/driver/trips';
@@ -51,4 +53,7 @@ class Endpoints {
 
 // ===== Daily QR OTP Endpoints =====
   static String get verifyDailyQrOtp => '$baseUrl/driver/qr-otp/verify';
+
+// ===== Shared Endpoints =====
+  static String get sharedUpload => '$baseUrl/shared/upload';
 }

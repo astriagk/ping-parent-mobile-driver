@@ -30,6 +30,7 @@ class UserDetailsUpdateProvider extends ChangeNotifier {
   // Store original values to check if changed
   String originalName = '';
   String originalEmail = '';
+  String originalPhotoUrl = '';
   String originalVehicleNumber = '';
   int originalVehicleCapacity = 0;
   int originalSelectedIndex = 0;
@@ -72,6 +73,7 @@ class UserDetailsUpdateProvider extends ChangeNotifier {
   bool hasChanges() {
     return originalName != nameController.text ||
         originalEmail != emailController.text ||
+        image != null ||
         originalVehicleNumber != vehicleNumberController.text ||
         originalVehicleCapacity !=
             int.tryParse(vehicleCapacityController.text) ||
@@ -103,9 +105,13 @@ class UserDetailsUpdateProvider extends ChangeNotifier {
         // Store original values
         originalName = data.name;
         originalEmail = data.email;
+        originalPhotoUrl = data.photoUrl ?? '';
         originalVehicleNumber = data.vehicleNumber;
         originalVehicleCapacity = data.vehicleCapacity;
         originalSelectedIndex = selectedIndex;
+
+        // Reset selected profile image after fresh fetch
+        documentImages['default'] = null;
 
         isAvailable = data.isAvailable;
         errorMessage = null;
@@ -136,9 +142,27 @@ class UserDetailsUpdateProvider extends ChangeNotifier {
     try {
       final userDetailsService = UserDetailsService(ApiClient());
 
+      String? photoUrlForUpdate;
+      if (image != null) {
+        final uploadResponse = await userDetailsService.uploadSharedFile(
+          file: image!,
+          folderPath: 'profile',
+        );
+
+        if (uploadResponse['success'] != true) {
+          errorMessage = uploadResponse['message'] ?? 'Failed to upload image';
+          isUpdating = false;
+          notifyListeners();
+          return false;
+        }
+
+        photoUrlForUpdate = uploadResponse['url']?.toString();
+      }
+
       final request = UserDetailsUpdateRequest(
         name: nameController.text,
         email: emailController.text,
+        photoUrl: photoUrlForUpdate,
         vehicleType: vehicles[selectedIndex]['value'].toString(),
         vehicleNumber: vehicleNumberController.text,
         vehicleCapacity: int.tryParse(vehicleCapacityController.text) ?? 0,
@@ -153,6 +177,10 @@ class UserDetailsUpdateProvider extends ChangeNotifier {
         // Update original values after successful save
         originalName = nameController.text;
         originalEmail = emailController.text;
+        if (photoUrlForUpdate != null && photoUrlForUpdate.isNotEmpty) {
+          originalPhotoUrl = photoUrlForUpdate;
+          documentImages['default'] = null;
+        }
         originalVehicleNumber = vehicleNumberController.text;
         originalVehicleCapacity =
             int.tryParse(vehicleCapacityController.text) ?? 0;
@@ -242,5 +270,13 @@ class UserDetailsUpdateProvider extends ChangeNotifier {
       documentImages[key] = File(pickedFile.path);
       notifyListeners();
     }
+  }
+
+  /// Public source picker for screens that own their custom UI dialog.
+  Future<void> pickImageFromSource(
+    ImageSource source, {
+    String? documentName,
+  }) async {
+    await _performImagePick(source, documentName);
   }
 }

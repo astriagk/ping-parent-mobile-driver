@@ -12,7 +12,6 @@ class MyRidesScreen extends StatefulWidget {
 
 class _MyRidesScreenState extends State<MyRidesScreen>
     with WidgetsBindingObserver {
-  int? _lastTabIndex;
   bool _wasInBackground = false;
 
   @override
@@ -32,9 +31,7 @@ class _MyRidesScreenState extends State<MyRidesScreen>
     if (state == AppLifecycleState.paused) {
       _wasInBackground = true;
     }
-    if (state == AppLifecycleState.resumed &&
-        _wasInBackground &&
-        _lastTabIndex == 2) {
+    if (state == AppLifecycleState.resumed && _wasInBackground) {
       _wasInBackground = false;
       if (mounted) {
         context.read<MyRidesProvider>().onInit();
@@ -71,17 +68,6 @@ class _MyRidesScreenState extends State<MyRidesScreen>
 
   @override
   Widget build(BuildContext context) {
-    final currentTab = context.watch<BottomBarProvider>().currentTab;
-
-    if (currentTab == 2 && _lastTabIndex != 2) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          context.read<MyRidesProvider>().onInit();
-        }
-      });
-    }
-    _lastTabIndex = currentTab;
-
     final screenWidth = MediaQuery.of(context).size.width;
     return Consumer<MyRidesProvider>(builder: (context, myRidesPvr, child) {
       return SingleChildScrollView(

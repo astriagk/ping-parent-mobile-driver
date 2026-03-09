@@ -1,8 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
+
+import 'package:http/http.dart' as http;
 import 'package:skolo_driver/api/api_client.dart';
 import 'package:skolo_driver/api/endpoints.dart';
 import 'package:skolo_driver/api/models/user_details/user_details_update_request.dart';
 import 'package:skolo_driver/api/models/user_details/user_details_update_response.dart';
+import 'package:skolo_driver/api/services/storage_service.dart';
 
 class UserDetailsService {
   final ApiClient _apiClient;
@@ -19,7 +23,8 @@ class UserDetailsService {
 
   /// Update driver availability
   /// PATCH /driver/availability
-  Future<Map<String, dynamic>> updateDriverAvailability(bool isAvailable) async {
+  Future<Map<String, dynamic>> updateDriverAvailability(
+      bool isAvailable) async {
     final response = await _apiClient.patch(
       Endpoints.driverAvailability,
       body: {'is_available': isAvailable},
@@ -45,6 +50,65 @@ class UserDetailsService {
       'Driver profile updated successfully',
       'Failed to update driver profile',
     );
+  }
+
+  /// Upload file to shared upload service
+  /// POST /shared/upload?folder_path={folderPath}
+  Future<Map<String, dynamic>> uploadSharedFile({
+    required File file,
+    required String folderPath,
+  }) async {
+    try {
+      final uri = Uri.parse(Endpoints.sharedUpload).replace(
+        queryParameters: {'folder_path': folderPath},
+      );
+
+      final request = http.MultipartRequest('POST', uri);
+      request.files.add(await http.MultipartFile.fromPath('file', file.path));
+
+      final token = await StorageService().getAuthToken();
+      if (token != null && token.isNotEmpty) {
+        request.headers['Authorization'] = 'Bearer $token';
+      }
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final jsonResponse = jsonDecode(response.body);
+        final data = jsonResponse['data'];
+        final url = data is Map<String, dynamic>
+            ? (data['url'] ?? data['file_url'] ?? data['photo_url'])
+            : data;
+
+        if (url is String && url.isNotEmpty) {
+          return {
+            'success': true,
+            'url': url,
+            'message': jsonResponse['message'] ?? 'File uploaded successfully',
+          };
+        }
+
+        return {
+          'success': false,
+          'message':
+              jsonResponse['message'] ?? 'Upload succeeded but URL missing',
+        };
+      }
+
+      final jsonResponse = jsonDecode(response.body);
+      return {
+        'success': false,
+        'message': jsonResponse['message'] ?? 'Failed to upload file',
+        'error': jsonResponse['error'],
+      };
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Failed to upload file',
+        'error': e.toString(),
+      };
+    }
   }
 
   /// Handle query response (GET)

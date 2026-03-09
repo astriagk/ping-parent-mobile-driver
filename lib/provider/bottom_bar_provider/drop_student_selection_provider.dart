@@ -40,22 +40,22 @@ class DropStudentSelectionProvider extends ChangeNotifier {
     _attendanceMap = {};
     for (var parent in parents) {
       for (var student in parent.students) {
-        _attendanceMap[student.id] = student.isMarkedPresent;
+        _attendanceMap[student.studentId] = student.isMarkedPresent;
       }
     }
     notifyListeners();
   }
 
   /// Toggle student attendance status
-  void toggleStudentAttendance(String tripStudentId) {
-    if (_attendanceMap.containsKey(tripStudentId)) {
-      _attendanceMap[tripStudentId] = !_attendanceMap[tripStudentId]!;
+  void toggleStudentAttendance(String studentId) {
+    if (_attendanceMap.containsKey(studentId)) {
+      _attendanceMap[studentId] = !_attendanceMap[studentId]!;
 
       // Update the student object as well
       for (var parent in _parentsWithStudents) {
         for (var student in parent.students) {
-          if (student.id == tripStudentId) {
-            student.isMarkedPresent = _attendanceMap[tripStudentId]!;
+          if (student.studentId == studentId) {
+            student.isMarkedPresent = _attendanceMap[studentId]!;
             break;
           }
         }
@@ -65,8 +65,8 @@ class DropStudentSelectionProvider extends ChangeNotifier {
   }
 
   /// Check if a student is marked present
-  bool isStudentPresent(String tripStudentId) {
-    return _attendanceMap[tripStudentId] ?? false;
+  bool isStudentPresent(String studentId) {
+    return _attendanceMap[studentId] ?? false;
   }
 
   /// Get all selected (present) trip student IDs

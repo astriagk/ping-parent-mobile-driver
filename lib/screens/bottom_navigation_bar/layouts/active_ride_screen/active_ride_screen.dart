@@ -13,8 +13,7 @@ class ActiveRideScreen extends StatefulWidget {
 }
 
 class _ActiveRideScreenState extends State<ActiveRideScreen>
-    with WidgetsBindingObserver, RouteAware {
-  int? _lastTabIndex;
+    with WidgetsBindingObserver {
   bool _wasInBackground = false;
 
   @override
@@ -24,34 +23,17 @@ class _ActiveRideScreenState extends State<ActiveRideScreen>
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    routeObserver.subscribe(this, ModalRoute.of(context)!);
-  }
-
-  @override
   void dispose() {
-    routeObserver.unsubscribe(this);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
-  /// Called when a screen pushed on top of this one is popped
-  @override
-  void didPopNext() {
-    _fetchTrips();
-  }
-
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // Track when app goes to background (not just inactive from notification shade)
     if (state == AppLifecycleState.paused) {
       _wasInBackground = true;
     }
-    // Refresh only when returning from actual background
-    if (state == AppLifecycleState.resumed &&
-        _wasInBackground &&
-        _lastTabIndex == 1) {
+    if (state == AppLifecycleState.resumed && _wasInBackground) {
       _wasInBackground = false;
       _fetchTrips();
     }
@@ -215,20 +197,6 @@ class _ActiveRideScreenState extends State<ActiveRideScreen>
 
   @override
   Widget build(BuildContext context) {
-    // Watch BottomBarProvider to detect tab changes
-    final bottomBarProvider = context.watch<BottomBarProvider>();
-    final currentTab = bottomBarProvider.currentTab;
-
-    // Fetch trips when this tab becomes active
-    if (currentTab == 1 && _lastTabIndex != 1) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          context.read<ActiveRideProvider>().fetchMyTripsByDate();
-        }
-      });
-    }
-    _lastTabIndex = currentTab;
-
     return Consumer2<ActiveRideProvider, MyRidesProvider>(
         builder: (context, activeRidePvr, myRidePvr, child) {
       // Show loading state while fetching trips

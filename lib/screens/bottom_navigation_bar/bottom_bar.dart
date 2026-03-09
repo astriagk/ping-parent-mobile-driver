@@ -11,9 +11,37 @@ class CommonBottomNavigationBar extends StatefulWidget {
 }
 
 class _CommonBottomNavigationBarState extends State<CommonBottomNavigationBar> {
+  int? _lastTabIndex;
+
+  void _onTabChanged(BuildContext context, int newTab) {
+    if (_lastTabIndex == newTab) return;
+    final isFirstVisit = _lastTabIndex == null;
+    _lastTabIndex = newTab;
+    if (isFirstVisit) return; // first load handled by onInit
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      switch (newTab) {
+        case 0:
+          // HomeScreen — no API fetch needed
+          break;
+        case 1:
+          context.read<ActiveRideProvider>().fetchMyTripsByDate();
+          break;
+        case 2:
+          context.read<MyRidesProvider>().onInit();
+          break;
+        case 3:
+          context.read<UserDetailsUpdateProvider>().fetchAndPopulateProfile();
+          break;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<BottomBarProvider>(builder: (context, bottomCtrl, child) {
+      _onTabChanged(context, bottomCtrl.currentTab);
       return StatefulWrapper(
           onInit: () {
             WidgetsBinding.instance.addPostFrameCallback((_) async {

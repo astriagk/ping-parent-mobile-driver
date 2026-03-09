@@ -55,7 +55,8 @@ class ProfileScreen extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                 //profile image and edit button layout
-                                ProfileWidgets().profileImageLayout(context),
+                                ProfileWidgets()
+                                    .profileImageLayout(context, udCtrl),
                                 Divider(
                                         color:
                                             appColor(context).appTheme.stroke,

@@ -47,8 +47,7 @@ class MyRidesService {
     try {
       final endpoint =
           status == AssignmentStatus.approved ? 'approve' : 'reject';
-      final url =
-          '${Endpoints.baseUrl}/driver-student-assignments/$assignmentId/$endpoint';
+      final url = Endpoints.approveAssignment(assignmentId, endpoint);
 
       final response = await _apiClient.post(url, body: {});
 

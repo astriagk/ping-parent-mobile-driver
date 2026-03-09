@@ -1,8 +1,5 @@
-import 'dart:io';
-
-import 'package:image_picker/image_picker.dart';
-
 import '../../../config.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ProfileWidgets {
   //common title and text-field layout
@@ -38,26 +35,21 @@ class ProfileWidgets {
   }
 
   //profile image and edit button layout
-  Widget profileImageLayout(BuildContext context) {
-    File? profileImage; // To store the selected image
-
-    Future<void> pickImage(ImageSource source) async {
-      final ImagePicker picker = ImagePicker();
-      final XFile? pickedFile = await picker.pickImage(source: source);
-
-      if (pickedFile != null) {
-        profileImage = File(pickedFile.path);
-        // Trigger a UI update to show the selected image
-        (context as Element).markNeedsBuild();
-      }
-    }
-
+  Widget profileImageLayout(
+      BuildContext context, UserDetailsUpdateProvider udCtrl) {
+    final String photoUrl = udCtrl.originalPhotoUrl;
     return Stack(children: [
       // Display the selected image or default image
-      (profileImage != null
-              ? Image.file(profileImage!, height: Insets.i79, width: Insets.i79)
-              : Image.asset(imageAssets.profileImg,
-                  height: Insets.i79, width: Insets.i79))
+      ClipOval(
+              child: SizedBox(
+                  height: Insets.i79,
+                  width: Insets.i79,
+                  child: udCtrl.image != null
+                      ? Image.file(udCtrl.image!, fit: BoxFit.cover)
+                      : (photoUrl.isNotEmpty
+                          ? Image.network(photoUrl, fit: BoxFit.cover)
+                          : Image.asset(imageAssets.profileImg,
+                              fit: BoxFit.cover))))
           .center(),
       CommonIconButton(
           height: Insets.i30,
@@ -96,9 +88,11 @@ class ProfileWidgets {
                                         context, appFonts.selectFromGallery),
                                     style: AppCss.lexendLight14
                                         .textColor(appTheme.primary)),
-                                onTap: () {
+                                onTap: () async {
                                   Navigator.pop(context);
-                                  pickImage(ImageSource.gallery);
+                                  await udCtrl.pickImageFromSource(
+                                      ImageSource.gallery,
+                                      documentName: 'default');
                                 }),
                             ListTile(
                                 leading: Icon(Icons.camera_alt,
@@ -107,9 +101,11 @@ class ProfileWidgets {
                                     language(context, appFonts.openCamera),
                                     style: AppCss.lexendLight14
                                         .textColor(appTheme.primary)),
-                                onTap: () {
+                                onTap: () async {
                                   Navigator.pop(context);
-                                  pickImage(ImageSource.camera);
+                                  await udCtrl.pickImageFromSource(
+                                      ImageSource.camera,
+                                      documentName: 'default');
                                 })
                           ])));
                 });
