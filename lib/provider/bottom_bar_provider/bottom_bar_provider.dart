@@ -1,3 +1,5 @@
+import '../../api/api_client.dart';
+import '../../api/services/user_details_service.dart';
 import '../../config.dart';
 import '../../screens/bottom_navigation_bar/layouts/active_ride_screen/active_ride_screen.dart';
 import '../../screens/bottom_navigation_bar/layouts/home_screen/home_screen.dart';
@@ -7,6 +9,7 @@ import '../../screens/bottom_navigation_bar/layouts/settings_screen/settings_scr
 class BottomBarProvider extends ChangeNotifier {
   int currentTab = 0;
   bool isImage = true;
+  bool isAvailable = false;
   List<dynamic> bottomNavigationBarList = [];
   ScrollController? scrollViewController;
 
@@ -35,6 +38,31 @@ class BottomBarProvider extends ChangeNotifier {
       isImage = false;
     }
     notifyListeners();
+  }
+
+  void setAvailability(bool value) {
+    isAvailable = value;
+    notifyListeners();
+  }
+
+  /// Toggle driver availability and call PATCH /driver/availability
+  Future<void> toggleAvailability() async {
+    final newValue = !isAvailable;
+    isAvailable = newValue;
+    notifyListeners();
+
+    try {
+      final service = UserDetailsService(ApiClient());
+      final result = await service.updateDriverAvailability(newValue);
+      if (result['success'] != true) {
+        // Revert on failure
+        isAvailable = !newValue;
+        notifyListeners();
+      }
+    } catch (_) {
+      isAvailable = !newValue;
+      notifyListeners();
+    }
   }
 
   /// Main tab switching logic - optimized for instant response

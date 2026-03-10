@@ -1,8 +1,8 @@
 import 'dart:convert';
-import 'package:taxify_driver_ui/api/api_client.dart';
-import 'package:taxify_driver_ui/api/endpoints.dart';
-import 'package:taxify_driver_ui/api/models/my_rides_response.dart';
-import 'package:taxify_driver_ui/api/enums/assignment_status_enum.dart';
+import 'package:skolo_driver/api/api_client.dart';
+import 'package:skolo_driver/api/endpoints.dart';
+import 'package:skolo_driver/api/models/my_rides_response.dart';
+import 'package:skolo_driver/api/enums/assignment_status_enum.dart';
 
 class MyRidesService {
   final ApiClient _apiClient;
@@ -10,7 +10,7 @@ class MyRidesService {
   MyRidesService(this._apiClient);
 
   /// Get driver-student assignments with parent request status
-  /// GET /driver-student-assignments/driver/my-parent-requested
+  /// GET /driver/assignments/parent-requested
   Future<MyRidesResponse> getDriverStudentAssignments({
     String assignmentStatus = 'pending',
   }) async {
@@ -39,7 +39,7 @@ class MyRidesService {
   }
 
   /// Approve or Reject driver-student assignment
-  /// POST /driver-student-assignments/:id/approve or /driver-student-assignments/:id/reject
+  /// POST /driver/assignments/:id/approve or /driver/assignments/:id/reject
   Future<Map<String, dynamic>> approveOrRejectAssignment({
     required String assignmentId,
     required AssignmentStatus status,
@@ -47,8 +47,7 @@ class MyRidesService {
     try {
       final endpoint =
           status == AssignmentStatus.approved ? 'approve' : 'reject';
-      final url =
-          '${Endpoints.baseUrl}/driver-student-assignments/$assignmentId/$endpoint';
+      final url = Endpoints.approveAssignment(assignmentId, endpoint);
 
       final response = await _apiClient.post(url, body: {});
 

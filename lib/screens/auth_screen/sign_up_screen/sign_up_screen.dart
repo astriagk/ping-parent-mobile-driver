@@ -1,4 +1,4 @@
-import 'package:taxify_driver_ui/config.dart';
+import 'package:skolo_driver/config.dart';
 
 class SignUpScreen extends StatelessWidget {
   const SignUpScreen({super.key});
@@ -7,6 +7,7 @@ class SignUpScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<SignUpProvider>(builder: (context, signUpPvr, child) {
       return Scaffold(
+          backgroundColor: appColor(context).appTheme.bgBox,
           resizeToAvoidBottomInset: false,
           body: SingleChildScrollView(
               child: Column(children: [

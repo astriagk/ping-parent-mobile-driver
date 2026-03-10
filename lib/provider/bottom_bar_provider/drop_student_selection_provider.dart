@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:taxify_driver_ui/api/api_client.dart';
-import 'package:taxify_driver_ui/api/models/drop_student_selection_model.dart';
-import 'package:taxify_driver_ui/api/models/pick_up_customer/trip_status_response.dart';
-import 'package:taxify_driver_ui/api/services/drop_student_selection_service.dart';
-import 'package:taxify_driver_ui/api/services/pick_up_customer_service.dart';
-import 'package:taxify_driver_ui/helper/location_service.dart';
+import 'package:skolo_driver/api/api_client.dart';
+import 'package:skolo_driver/api/models/drop_student_selection_model.dart';
+import 'package:skolo_driver/api/models/pick_up_customer/trip_status_response.dart';
+import 'package:skolo_driver/api/services/drop_student_selection_service.dart';
+import 'package:skolo_driver/api/services/pick_up_customer_service.dart';
+import 'package:skolo_driver/helper/location_service.dart';
 
 /// Provider for managing drop student selection/attendance
 class DropStudentSelectionProvider extends ChangeNotifier {
@@ -40,22 +40,22 @@ class DropStudentSelectionProvider extends ChangeNotifier {
     _attendanceMap = {};
     for (var parent in parents) {
       for (var student in parent.students) {
-        _attendanceMap[student.id] = student.isMarkedPresent;
+        _attendanceMap[student.studentId] = student.isMarkedPresent;
       }
     }
     notifyListeners();
   }
 
   /// Toggle student attendance status
-  void toggleStudentAttendance(String tripStudentId) {
-    if (_attendanceMap.containsKey(tripStudentId)) {
-      _attendanceMap[tripStudentId] = !_attendanceMap[tripStudentId]!;
+  void toggleStudentAttendance(String studentId) {
+    if (_attendanceMap.containsKey(studentId)) {
+      _attendanceMap[studentId] = !_attendanceMap[studentId]!;
 
       // Update the student object as well
       for (var parent in _parentsWithStudents) {
         for (var student in parent.students) {
-          if (student.id == tripStudentId) {
-            student.isMarkedPresent = _attendanceMap[tripStudentId]!;
+          if (student.studentId == studentId) {
+            student.isMarkedPresent = _attendanceMap[studentId]!;
             break;
           }
         }
@@ -65,8 +65,8 @@ class DropStudentSelectionProvider extends ChangeNotifier {
   }
 
   /// Check if a student is marked present
-  bool isStudentPresent(String tripStudentId) {
-    return _attendanceMap[tripStudentId] ?? false;
+  bool isStudentPresent(String studentId) {
+    return _attendanceMap[studentId] ?? false;
   }
 
   /// Get all selected (present) trip student IDs

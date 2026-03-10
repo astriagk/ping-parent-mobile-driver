@@ -1,5 +1,5 @@
-import 'package:taxify_driver_ui/config.dart';
-import 'package:taxify_driver_ui/screens/auth_screen/sign_in_screen/layout/country_picker.dart';
+import 'package:skolo_driver/config.dart';
+import 'package:skolo_driver/screens/auth_screen/sign_in_screen/layout/country_picker.dart';
 
 class SignInScreen extends StatelessWidget {
   const SignInScreen({super.key});
@@ -30,6 +30,7 @@ class SignInScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<SignInProvider>(builder: (context1, signInPvr, child) {
       return Scaffold(
+          backgroundColor: appColor(context).appTheme.bgBox,
           resizeToAvoidBottomInset: false,
           body: Stack(children: [
             Column(
@@ -39,7 +40,7 @@ class SignInScreen extends StatelessWidget {
                   SvgPicture.asset(svgAssets.logo,
                           height: Sizes.s30, width: Sizes.s70)
                       .center()
-                      .padding(top: Sizes.s60, bottom: Sizes.s15),
+                      .padding(top: MediaQuery.of(context).padding.top + Sizes.s15, bottom: Sizes.s15),
                   //gif title and subtitle layout
                   AuthCommonWidgets().gifTitleText(
                       context,

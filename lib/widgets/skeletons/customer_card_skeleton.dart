@@ -1,6 +1,6 @@
 import 'package:shimmer/shimmer.dart';
-import 'package:taxify_driver_ui/config.dart';
-import 'package:taxify_driver_ui/widgets/common_bg_layout.dart';
+import 'package:skolo_driver/config.dart';
+import 'package:skolo_driver/widgets/common_bg_layout.dart';
 
 // Helper widget to reduce Shimmer repetition
 class _SkeletonBox extends StatelessWidget {

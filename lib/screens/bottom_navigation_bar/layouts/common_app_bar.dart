@@ -1,4 +1,4 @@
-import 'package:taxify_driver_ui/config.dart';
+import 'package:skolo_driver/config.dart';
 
 class DashAppBar extends StatelessWidget implements PreferredSizeWidget {
   final int? index;
@@ -23,11 +23,8 @@ class DashAppBar extends StatelessWidget implements PreferredSizeWidget {
               Column(mainAxisAlignment: MainAxisAlignment.end, children: [
             _DashHeaderContent(
                 currentIndex: dashCtrl.currentTab,
-                onToggle: () {
-                  dashCtrl.isImage = !dashCtrl.isImage;
-                  dashCtrl.notifyListeners(); // Make sure this is called
-                },
-                isToggled: dashCtrl.isImage,
+                onToggle: () => dashCtrl.toggleAvailability(),
+                isToggled: dashCtrl.isAvailable,
                 onIndexChange: (index) {
                   dashCtrl.currentTab = index;
                 })
@@ -119,32 +116,32 @@ class _DashHeaderContent extends StatelessWidget {
                               color: isToggled
                                   ? appColor(context).appTheme.white
                                   : appColor(context).appTheme.primary))))),
-          Container(
-              margin: EdgeInsets.symmetric(horizontal: Insets.i10),
-              decoration: BoxDecoration(
-                  border: Border.all(
-                      width: Insets.i1,
-                      color: appColor(context).appTheme.stroke))),
-          CommonIconButton(
-              icon: svgAssets.notifications,
-              onTap: () =>
-                  route.pushNamed(context, routeName.emptyNotificationScreen))
+          // Container(
+          //     margin: EdgeInsets.symmetric(horizontal: Insets.i10),
+          //     decoration: BoxDecoration(
+          //         border: Border.all(
+          //             width: Insets.i1,
+          //             color: appColor(context).appTheme.stroke))),
+          // CommonIconButton(
+          //     icon: svgAssets.notifications,
+          //     onTap: () =>
+          //         route.pushNamed(context, routeName.emptyNotificationScreen))
         ]);
       case 1:
       case 2:
       case 3:
       default:
         return Row(children: [
-          CommonIconButton(
-              icon: svgAssets.messages,
-              onTap: () {
-                route.pushNamed(context, routeName.chatScreen);
-              }),
-          HSpace(Insets.i10),
-          CommonIconButton(
-              icon: svgAssets.notifications,
-              onTap: () =>
-                  route.pushNamed(context, routeName.emptyNotificationScreen))
+          // CommonIconButton(
+          //     icon: svgAssets.messages,
+          //     onTap: () {
+          //       route.pushNamed(context, routeName.chatScreen);
+          //     }),
+          // HSpace(Insets.i10),
+          // CommonIconButton(
+          //     icon: svgAssets.notifications,
+          //     onTap: () =>
+          //         route.pushNamed(context, routeName.emptyNotificationScreen))
         ]);
     }
   }

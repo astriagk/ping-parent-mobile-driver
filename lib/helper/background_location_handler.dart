@@ -8,10 +8,10 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:socket_io_client/socket_io_client.dart' as IO;
-import 'package:taxify_driver_ui/api/enums/socket_events_enum.dart';
-import 'package:taxify_driver_ui/api/services/position_queue_service.dart';
-import 'package:taxify_driver_ui/config/app_constants.dart';
-import 'package:taxify_driver_ui/config/environment.dart';
+import 'package:skolo_driver/api/enums/socket_events_enum.dart';
+import 'package:skolo_driver/api/services/position_queue_service.dart';
+import 'package:skolo_driver/config/app_constants.dart';
+import 'package:skolo_driver/config/environment.dart';
 
 /// Background service entry point - runs in separate isolate
 @pragma('vm:entry-point')

@@ -1,6 +1,6 @@
-import 'package:taxify_driver_ui/config.dart';
-import 'package:taxify_driver_ui/screens/bottom_navigation_bar/layouts/my_rides_screen/layouts/my_rides_tab_inner_common_layout.dart';
-import 'package:taxify_driver_ui/widgets/common_location_layout.dart';
+import 'package:skolo_driver/config.dart';
+import 'package:skolo_driver/screens/bottom_navigation_bar/layouts/my_rides_screen/layouts/my_rides_tab_inner_common_layout.dart';
+import 'package:skolo_driver/widgets/common_location_layout.dart';
 
 class PendingRideDetailsScreen extends StatelessWidget {
   const PendingRideDetailsScreen({super.key});

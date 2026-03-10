@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:taxify_driver_ui/config.dart';
+import 'package:skolo_driver/config.dart';
 
 class SplashScreenLayout extends StatefulWidget {
   const SplashScreenLayout({super.key});

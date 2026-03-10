@@ -1,6 +1,7 @@
-import 'package:taxify_driver_ui/api/enums/trip_status_enum.dart';
-import 'package:taxify_driver_ui/config.dart';
-import 'package:taxify_driver_ui/screens/bottom_navigation_bar/layouts/drop_student_selection_screen/layout/student_card.dart';
+import 'package:skolo_driver/api/enums/trip_status_enum.dart';
+import 'package:skolo_driver/config.dart';
+import 'package:skolo_driver/screens/bottom_navigation_bar/layouts/drop_student_selection_screen/layout/student_card.dart';
+import 'package:skolo_driver/widgets/auto_refresh_mixin.dart';
 
 class DropStudentSelectionScreen extends StatefulWidget {
   const DropStudentSelectionScreen({super.key});
@@ -11,7 +12,7 @@ class DropStudentSelectionScreen extends StatefulWidget {
 }
 
 class _DropStudentSelectionScreenState
-    extends State<DropStudentSelectionScreen> {
+    extends State<DropStudentSelectionScreen> with AutoRefreshMixin {
   late DropStudentSelectionProvider _provider;
   bool _isStartingDrop = false;
 
@@ -19,10 +20,11 @@ class _DropStudentSelectionScreenState
   void initState() {
     super.initState();
     _provider = context.read<DropStudentSelectionProvider>();
-    // Defer loading data until after build phase
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _fetchStudents();
-    });
+  }
+
+  @override
+  void refreshData() {
+    _fetchStudents();
   }
 
   /// Fetch students from API
@@ -175,7 +177,7 @@ class _DropStudentSelectionScreenState
                   // Student cards for this parent
                   ...parent.students.map((student) {
                     final isSelected =
-                        provider.isStudentPresent(student.id);
+                        provider.isStudentPresent(student.studentId);
 
                     return StudentCard(
                       student: student,
@@ -184,7 +186,7 @@ class _DropStudentSelectionScreenState
                       parentPhotoUrl: parent.parentPhotoUrl,
                       isSelected: isSelected,
                       onTap: () {
-                        provider.toggleStudentAttendance(student.id);
+                        provider.toggleStudentAttendance(student.studentId);
                       },
                     );
                   }),

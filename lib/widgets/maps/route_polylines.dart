@@ -1,6 +1,6 @@
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:taxify_driver_ui/config.dart' hide Marker, Polyline, LatLng;
+import 'package:skolo_driver/config.dart' hide Marker, Polyline, LatLng;
 
 /// Reusable polyline builder for all map providers
 class RoutePolylines {

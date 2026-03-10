@@ -1,5 +1,5 @@
-import 'package:taxify_driver_ui/config.dart';
-import 'package:taxify_driver_ui/screens/bottom_navigation_bar/layouts/common_app_bar.dart';
+import 'package:skolo_driver/config.dart';
+import 'package:skolo_driver/screens/bottom_navigation_bar/layouts/common_app_bar.dart';
 import 'package:flutter/services.dart';
 
 class CommonBottomNavigationBar extends StatefulWidget {
@@ -11,12 +11,46 @@ class CommonBottomNavigationBar extends StatefulWidget {
 }
 
 class _CommonBottomNavigationBarState extends State<CommonBottomNavigationBar> {
+  int? _lastTabIndex;
+
+  void _onTabChanged(BuildContext context, int newTab) {
+    if (_lastTabIndex == newTab) return;
+    final isFirstVisit = _lastTabIndex == null;
+    _lastTabIndex = newTab;
+    if (isFirstVisit) return; // first load handled by onInit
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      switch (newTab) {
+        case 0:
+          // HomeScreen — no API fetch needed
+          break;
+        case 1:
+          context.read<ActiveRideProvider>().fetchMyTripsByDate();
+          break;
+        case 2:
+          context.read<MyRidesProvider>().onInit();
+          break;
+        case 3:
+          context.read<UserDetailsUpdateProvider>().fetchAndPopulateProfile();
+          break;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<BottomBarProvider>(builder: (context, bottomCtrl, child) {
+      _onTabChanged(context, bottomCtrl.currentTab);
       return StatefulWrapper(
-          onInit: () => Future.delayed(const Duration(milliseconds: 150))
-              .then((value) => bottomCtrl.onInit()),
+          onInit: () {
+            WidgetsBinding.instance.addPostFrameCallback((_) async {
+              bottomCtrl.onInit();
+              final userDetailsPvr = context.read<UserDetailsUpdateProvider>();
+              await userDetailsPvr.fetchAndPopulateProfile();
+              bottomCtrl.setAvailability(userDetailsPvr.isAvailable);
+            });
+          },
           child: Scaffold(
               resizeToAvoidBottomInset: false,
               backgroundColor: appTheme.screenBg,

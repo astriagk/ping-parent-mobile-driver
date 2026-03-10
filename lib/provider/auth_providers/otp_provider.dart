@@ -1,6 +1,6 @@
 import '../../api/services/auth_service.dart';
 import '../../api/api_client.dart';
-import 'package:taxify_driver_ui/config.dart';
+import 'package:skolo_driver/config.dart';
 
 class OtpProvider extends ChangeNotifier {
   TextEditingController pinController = TextEditingController();

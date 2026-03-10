@@ -1,6 +1,6 @@
 {
-    "name": "taxify_driver_ui",
-    "short_name": "taxify_driver_ui",
+    "name": "skolo_driver",
+    "short_name": "skolo_driver",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

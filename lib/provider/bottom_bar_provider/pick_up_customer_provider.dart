@@ -1,15 +1,15 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:taxify_driver_ui/api/services/pick_up_customer_service.dart';
-import 'package:taxify_driver_ui/api/services/socket_service.dart';
-import 'package:taxify_driver_ui/api/enums/trip_status_enum.dart';
-import 'package:taxify_driver_ui/api/models/pick_up_customer/optimized_route_model.dart';
-import 'package:taxify_driver_ui/api/models/pick_up_customer/pickup_point_response.dart';
-import 'package:taxify_driver_ui/api/models/pick_up_customer/school_point_response.dart';
-import 'package:taxify_driver_ui/api/models/pick_up_customer/trip_progress_response.dart';
-import 'package:taxify_driver_ui/api/api_client.dart';
-import 'package:taxify_driver_ui/helper/foreground_tracking_service.dart';
+import 'package:skolo_driver/api/services/pick_up_customer_service.dart';
+import 'package:skolo_driver/api/services/socket_service.dart';
+import 'package:skolo_driver/api/enums/trip_status_enum.dart';
+import 'package:skolo_driver/api/models/pick_up_customer/optimized_route_model.dart';
+import 'package:skolo_driver/api/models/pick_up_customer/pickup_point_response.dart';
+import 'package:skolo_driver/api/models/pick_up_customer/school_point_response.dart';
+import 'package:skolo_driver/api/models/pick_up_customer/trip_progress_response.dart';
+import 'package:skolo_driver/api/api_client.dart';
+import 'package:skolo_driver/helper/foreground_tracking_service.dart';
 
 /// Provider for managing trip pickup and location tracking
 /// Uses ForegroundTrackingService for reliable background location tracking

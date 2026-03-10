@@ -1,9 +1,8 @@
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import 'package:taxify_driver_ui/config.dart';
-import 'package:taxify_driver_ui/api/api_client.dart';
-import 'package:taxify_driver_ui/api/services/document_update_service.dart';
-import 'package:taxify_driver_ui/api/models/documents/driver_documents_request.dart';
+import 'package:skolo_driver/config.dart';
+import 'package:skolo_driver/api/api_client.dart';
+import 'package:skolo_driver/api/services/document_update_service.dart';
 
 class DocumentUpdateProvider extends ChangeNotifier {
   // Text Controllers for document verification
@@ -40,7 +39,13 @@ class DocumentUpdateProvider extends ChangeNotifier {
   bool hasChanges() {
     return originalDrivingLicense != drivingLicenseController.text ||
         originalVehicleLicenseNumber != vehicleLicenseNumberController.text ||
-        originalInsuranceNumber != insuranceNumberController.text;
+        originalInsuranceNumber != insuranceNumberController.text ||
+        _hasPhotoChanges();
+  }
+
+  /// True when user has picked/replaced any document image in this session.
+  bool _hasPhotoChanges() {
+    return documentImages.values.any((file) => file != null);
   }
 
   /// Fetch driver documents and populate form fields
@@ -101,17 +106,18 @@ class DocumentUpdateProvider extends ChangeNotifier {
     try {
       final documentUpdateService = DocumentUpdateService(ApiClient());
 
-      final request = DriverDocumentsRequest(
-        drivingLicenseNumber: drivingLicenseController.text,
-        drivingLicensePhotoUrl: drivingLicensePhotoUrl ?? '',
-        vehicleLicenseNumber: vehicleLicenseNumberController.text,
-        vehicleLicensePhotoUrl: vehicleLicensePhotoUrl ?? '',
-        insuranceNumber: insuranceNumberController.text,
-        insurancePhotoUrl: insurancePhotoUrl ?? '',
-      );
+      final drivingLicenseImage = documentImages[appFonts.drivingLicense];
+      final vehicleLicenseImage = documentImages[appFonts.vehicleLicenseNumber];
+      final insuranceImage = documentImages[appFonts.insuranceNumber];
 
-      final response =
-          await documentUpdateService.updateDriverDocuments(request);
+      final response = await documentUpdateService.updateDriverDocuments(
+        drivingLicenseNumber: drivingLicenseController.text,
+        vehicleLicenseNumber: vehicleLicenseNumberController.text,
+        insuranceNumber: insuranceNumberController.text,
+        drivingLicenseImage: drivingLicenseImage,
+        vehicleLicenseImage: vehicleLicenseImage,
+        insuranceImage: insuranceImage,
+      );
 
       if (response['success'] == true) {
         successMessage =
@@ -121,6 +127,7 @@ class DocumentUpdateProvider extends ChangeNotifier {
         originalDrivingLicense = drivingLicenseController.text;
         originalVehicleLicenseNumber = vehicleLicenseNumberController.text;
         originalInsuranceNumber = insuranceNumberController.text;
+        documentImages.clear();
 
         isUpdating = false;
         notifyListeners();
@@ -167,7 +174,7 @@ class DocumentUpdateProvider extends ChangeNotifier {
                           Text(
                               language(context, appFonts.upload) +
                                   (documentName != null
-                                      ? ' - $documentName'
+                                      ? ' - ${language(context, documentName)}'
                                       : ''),
                               style: AppCss.lexendMedium16
                                   .textColor(appTheme.primary)),

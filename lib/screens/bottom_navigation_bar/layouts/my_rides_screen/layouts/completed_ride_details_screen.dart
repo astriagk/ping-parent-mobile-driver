@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:taxify_driver_ui/widgets/common_location_layout.dart';
+import 'package:skolo_driver/widgets/common_location_layout.dart';
 
 import '../../../../../config.dart';
 import '../../../../../widgets/common_bg_layout.dart';

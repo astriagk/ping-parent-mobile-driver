@@ -1,7 +1,7 @@
 import 'dart:developer';
 
-import 'package:taxify_driver_ui/config.dart';
-import 'package:taxify_driver_ui/screens/app_pages/app_settings/layout/common_draggable_sheet.dart';
+import 'package:skolo_driver/config.dart';
+import 'package:skolo_driver/screens/app_pages/app_settings/layout/common_draggable_sheet.dart';
 import '../../api/services/auth_service.dart';
 import '../../api/api_client.dart';
 import '../../widgets/common_confirmation_dialog.dart';

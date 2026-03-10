@@ -1,13 +1,13 @@
 import 'dart:developer';
 
 import 'package:permission_handler/permission_handler.dart';
-import 'package:taxify_driver_ui/api/enums/trip_status_enum.dart';
-import 'package:taxify_driver_ui/config.dart' hide Marker, Polyline, LatLng;
-import 'package:taxify_driver_ui/api/models/pick_up_customer/optimized_route_model.dart';
-import 'package:taxify_driver_ui/config/app_constants.dart';
-import 'package:taxify_driver_ui/helper/location_service.dart';
-import 'package:taxify_driver_ui/provider/bottom_bar_provider/pick_up_customer_provider.dart';
-import 'package:taxify_driver_ui/widgets/screens_widgets/screens_widgets.dart';
+import 'package:skolo_driver/api/enums/trip_status_enum.dart';
+import 'package:skolo_driver/config.dart' hide Marker, Polyline, LatLng;
+import 'package:skolo_driver/api/models/pick_up_customer/optimized_route_model.dart';
+import 'package:skolo_driver/config/app_constants.dart';
+import 'package:skolo_driver/helper/location_service.dart';
+import 'package:skolo_driver/provider/bottom_bar_provider/pick_up_customer_provider.dart';
+import 'package:skolo_driver/widgets/screens_widgets/screens_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class OtpVerificationSheet extends StatefulWidget {
@@ -308,8 +308,7 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
                 CircleAvatar(
                     backgroundImage: widget.waypoint?.studentImage != null
                         ? NetworkImage(widget.waypoint!.studentImage!)
-                        : AssetImage('assets/image/home/user2.png')
-                            as ImageProvider,
+                        : AssetImage(imageAssets.profileImg) as ImageProvider,
                     radius: 20),
                 HSpace(Insets.i8),
                 Expanded(

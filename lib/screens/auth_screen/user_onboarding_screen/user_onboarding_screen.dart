@@ -1,4 +1,4 @@
-import 'package:taxify_driver_ui/config.dart';
+import 'package:skolo_driver/config.dart';
 
 class UserOnboardingScreen extends StatelessWidget {
   const UserOnboardingScreen({super.key});
@@ -10,6 +10,7 @@ class UserOnboardingScreen extends StatelessWidget {
         return StatefulWrapper(
           onInit: () => onboardingPvr.onInit(),
           child: Scaffold(
+            backgroundColor: appColor(context).appTheme.bgBox,
             body: SingleChildScrollView(
               child: Column(
                 children: [

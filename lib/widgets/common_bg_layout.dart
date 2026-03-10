@@ -1,4 +1,4 @@
-import 'package:taxify_driver_ui/config.dart';
+import 'package:skolo_driver/config.dart';
 
 class CommonBgLayout extends StatelessWidget {
   final Widget child;

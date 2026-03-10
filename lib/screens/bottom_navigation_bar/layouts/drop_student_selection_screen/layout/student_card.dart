@@ -1,10 +1,10 @@
 import 'dart:developer';
 
 import 'package:permission_handler/permission_handler.dart';
-import 'package:taxify_driver_ui/config.dart';
-import 'package:taxify_driver_ui/widgets/common_bg_layout.dart';
+import 'package:skolo_driver/config.dart';
+import 'package:skolo_driver/widgets/common_bg_layout.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:taxify_driver_ui/api/models/drop_student_selection_model.dart';
+import 'package:skolo_driver/api/models/drop_student_selection_model.dart';
 
 class StudentCard extends StatelessWidget {
   final TripStudent student;

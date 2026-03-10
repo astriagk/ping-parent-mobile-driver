@@ -1,10 +1,10 @@
-import 'package:taxify_driver_ui/screens/app_pages/app_settings/app_setting_screen.dart';
-import 'package:taxify_driver_ui/screens/app_pages/notifications_screen/empty_notification.dart';
-import 'package:taxify_driver_ui/screens/app_pages/notifications_screen/notification_screen.dart';
-import 'package:taxify_driver_ui/screens/auth_screen/onboarding_screen/onboarding_screen.dart';
-import 'package:taxify_driver_ui/screens/auth_screen/otp_screen/otp_screen.dart';
-import 'package:taxify_driver_ui/screens/auth_screen/sign_in_screen/sign_in_screen.dart';
-import 'package:taxify_driver_ui/screens/auth_screen/splash_screen/splash_screen.dart';
+import 'package:skolo_driver/screens/app_pages/app_settings/app_setting_screen.dart';
+import 'package:skolo_driver/screens/app_pages/notifications_screen/empty_notification.dart';
+import 'package:skolo_driver/screens/app_pages/notifications_screen/notification_screen.dart';
+import 'package:skolo_driver/screens/auth_screen/onboarding_screen/onboarding_screen.dart';
+import 'package:skolo_driver/screens/auth_screen/otp_screen/otp_screen.dart';
+import 'package:skolo_driver/screens/auth_screen/sign_in_screen/sign_in_screen.dart';
+import 'package:skolo_driver/screens/auth_screen/splash_screen/splash_screen.dart';
 import '../config.dart';
 import '../screens/app_pages/bank_details_screen/bank_details_screen.dart';
 import '../screens/app_pages/chat_screen/chat_screen.dart';

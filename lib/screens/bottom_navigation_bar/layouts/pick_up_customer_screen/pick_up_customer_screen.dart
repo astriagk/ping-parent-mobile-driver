@@ -2,15 +2,15 @@ import 'dart:async';
 
 import 'package:flutter_map/flutter_map.dart';
 import 'package:gif/gif.dart';
-import 'package:taxify_driver_ui/api/enums/trip_status_enum.dart';
-import 'package:taxify_driver_ui/api/models/pick_up_customer/optimized_route_model.dart';
-import 'package:taxify_driver_ui/common/maps/map_config.dart';
-import 'package:taxify_driver_ui/config.dart' hide Marker, Polyline, LatLng;
-import 'package:taxify_driver_ui/config/app_constants.dart';
-import 'package:taxify_driver_ui/widgets/common_bg_layout.dart';
-import 'package:taxify_driver_ui/widgets/maps/index.dart';
-import 'package:taxify_driver_ui/widgets/empty_state/empty_state_widget.dart';
-import 'package:taxify_driver_ui/provider/bottom_bar_provider/pick_up_customer_provider.dart';
+import 'package:skolo_driver/api/enums/trip_status_enum.dart';
+import 'package:skolo_driver/api/models/pick_up_customer/optimized_route_model.dart';
+import 'package:skolo_driver/common/maps/map_config.dart';
+import 'package:skolo_driver/config.dart' hide Marker, Polyline, LatLng;
+import 'package:skolo_driver/config/app_constants.dart';
+import 'package:skolo_driver/widgets/common_bg_layout.dart';
+import 'package:skolo_driver/widgets/maps/index.dart';
+import 'package:skolo_driver/widgets/empty_state/empty_state_widget.dart';
+import 'package:skolo_driver/provider/bottom_bar_provider/pick_up_customer_provider.dart';
 import 'layout/on_the_way_sheet.dart';
 import 'layout/otp_verification_sheet.dart';
 import 'layout/common_map_header.dart';
@@ -702,11 +702,11 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
                                               image: const AssetImage(
                                                   "assets/gif/successful.gif"))),
                                       VSpace(Insets.i20),
-                                      CommonButton(
-                                          text: language(
-                                              context, appFonts.rideDetails),
-                                          onTap: () => route.pushNamed(context,
-                                              routeName.rideDetailsScreen)),
+                                      // CommonButton(
+                                      //     text: language(
+                                      //         context, appFonts.rideDetails),
+                                      //     onTap: () => route.pushNamed(context,
+                                      //         routeName.rideDetailsScreen)),
                                     ]))
                             : isOtpVerify == true
                                 ? showGif == true

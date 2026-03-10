@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
-import 'package:taxify_driver_ui/config/environment.dart';
+import 'package:skolo_driver/config/environment.dart';
 
 import 'services/storage_service.dart';
 
