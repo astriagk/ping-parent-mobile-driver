@@ -308,8 +308,7 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
                 CircleAvatar(
                     backgroundImage: widget.waypoint?.studentImage != null
                         ? NetworkImage(widget.waypoint!.studentImage!)
-                        : AssetImage('assets/image/home/user2.png')
-                            as ImageProvider,
+                        : AssetImage(imageAssets.profileImg) as ImageProvider,
                     radius: 20),
                 HSpace(Insets.i8),
                 Expanded(

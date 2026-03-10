@@ -3,12 +3,12 @@ import 'dart:developer';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:skolo_driver/config.dart';
 import 'package:skolo_driver/widgets/common_bg_layout.dart';
-import 'package:skolo_driver/widgets/common_divider.dart';
 import 'package:skolo_driver/widgets/common_location_layout.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CustomerCard extends StatelessWidget {
   final String? userName;
+  final String? userImage;
   final double? rating;
   final int? reviews;
   final String? distance;
@@ -27,6 +27,7 @@ class CustomerCard extends StatelessWidget {
   const CustomerCard(
       {super.key,
       this.userName,
+      this.userImage,
       this.rating,
       this.reviews,
       this.distance,
@@ -44,6 +45,9 @@ class CustomerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final trimmedUserImage = userImage?.trim() ?? '';
+    final isNetworkUserImage = trimmedUserImage.startsWith('https://');
+
     return CommonBgLayout(
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,10 +68,11 @@ class CustomerCard extends StatelessWidget {
                                   width: 1, color: appTheme.borderColor),
                               borderRadius:
                                   BorderRadius.all(Radius.circular(Insets.i7)),
-                              image: const DecorationImage(
+                              image: DecorationImage(
                                   fit: BoxFit.cover,
-                                  image: AssetImage(
-                                      'assets/image/home/user2.png')))),
+                                  image: isNetworkUserImage
+                                      ? NetworkImage(trimmedUserImage)
+                                      : AssetImage(imageAssets.profileImg)))),
                       HSpace(Insets.i6),
                       Column(
                           crossAxisAlignment: CrossAxisAlignment.start,

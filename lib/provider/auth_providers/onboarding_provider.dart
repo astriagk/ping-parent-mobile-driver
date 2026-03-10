@@ -249,8 +249,7 @@ class OnboardingProvider extends ChangeNotifier {
     final result = await _onboardingService.createDriverProfile(
       name: name,
       email: email,
-      photoUrl:
-          'https://picsum.photos/seed/picsum/200/300', // Empty for now, can be updated with image picker
+      photoUrl: '', // Empty for now, can be updated with image picker
       vehicleType: vehicleType,
       vehicleNumber: vehicleNumber,
       vehicleCapacity: vehicleCapacity,

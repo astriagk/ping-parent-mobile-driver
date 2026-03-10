@@ -37,8 +37,8 @@ class ScreensWidgets {
   }
 
   userProfileImage(imageUrl) {
-    final bool isNetworkImage = imageUrl != null &&
-        (imageUrl.startsWith('http://') || imageUrl.startsWith('https://'));
+    final bool isNetworkImage =
+        imageUrl != null && imageUrl.startsWith('https://');
 
     return Container(
         height: Insets.i50,
@@ -50,7 +50,7 @@ class ScreensWidgets {
                 fit: BoxFit.cover,
                 image: isNetworkImage
                     ? NetworkImage(imageUrl)
-                    : AssetImage(imageUrl ?? 'assets/image/home/user1.png'))));
+                    : AssetImage(imageUrl ?? imageAssets.profileImg))));
   }
 
   customToggle({required onToggle, isToggled}) {

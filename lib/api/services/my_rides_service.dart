@@ -10,7 +10,7 @@ class MyRidesService {
   MyRidesService(this._apiClient);
 
   /// Get driver-student assignments with parent request status
-  /// GET /driver-student-assignments/driver/my-parent-requested
+  /// GET /driver/assignments/parent-requested
   Future<MyRidesResponse> getDriverStudentAssignments({
     String assignmentStatus = 'pending',
   }) async {
@@ -39,7 +39,7 @@ class MyRidesService {
   }
 
   /// Approve or Reject driver-student assignment
-  /// POST /driver-student-assignments/:id/approve or /driver-student-assignments/:id/reject
+  /// POST /driver/assignments/:id/approve or /driver/assignments/:id/reject
   Future<Map<String, dynamic>> approveOrRejectAssignment({
     required String assignmentId,
     required AssignmentStatus status,

@@ -146,6 +146,7 @@ class _MyRidesScreenState extends State<MyRidesScreen>
                 return CustomerCard(
                     pickUpAddress: pickupAddress,
                     userName: assignment.student.studentName,
+                    userImage: assignment.student.photoUrl,
                     rating: 4.0,
                     reviews: 10,
                     distance: '1.2KM',

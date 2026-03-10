@@ -37,7 +37,6 @@ class DriverStudentAssignment {
   final String id;
   final String driverId;
   final String studentId;
-  final String driverUniqueId;
   final String assignmentStatus;
   final DateTime assignedDate;
   final DateTime createdAt;
@@ -51,7 +50,6 @@ class DriverStudentAssignment {
     required this.id,
     required this.driverId,
     required this.studentId,
-    required this.driverUniqueId,
     required this.assignmentStatus,
     required this.assignedDate,
     required this.createdAt,
@@ -67,7 +65,6 @@ class DriverStudentAssignment {
       id: json['_id'] ?? '',
       driverId: json['driver_id'] ?? '',
       studentId: json['student_id'] ?? '',
-      driverUniqueId: json['driver_unique_id'] ?? '',
       assignmentStatus: json['assignment_status'] ?? '',
       assignedDate:
           DateTime.tryParse(json['assigned_date'] ?? '') ?? DateTime.now(),
@@ -85,7 +82,6 @@ class DriverStudentAssignment {
       '_id': id,
       'driver_id': driverId,
       'student_id': studentId,
-      'driver_unique_id': driverUniqueId,
       'assignment_status': assignmentStatus,
       'assigned_date': assignedDate.toIso8601String(),
       'created_at': createdAt.toIso8601String(),

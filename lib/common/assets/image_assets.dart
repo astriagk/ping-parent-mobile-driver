@@ -17,7 +17,7 @@ class ImageAssets {
   final user = "assets/image/home/user.png";
 
   //settings screen
-  final profileImg = "assets/image/settings/ProfileImage.jpg";
+  final profileImg = "assets/image/settings/profileImage.jpg";
   final john = "assets/image/home/John.png";
   final subtract = "assets/image/settings/subtract.png";
 }
