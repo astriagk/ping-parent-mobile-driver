@@ -5,6 +5,9 @@ class AppFonts {
   final settings = "settings";
   final pendingRide = "pendingRide";
   final completeRide = "completeRide";
+  final dropAtSchool = "dropAtSchool";
+  final completeTrip = "completeTrip";
+  final continueRide = "continueRide";
   final cancelRide = "cancelRide";
   final totalEarning = "totalEarning";
   final totalBalance = "totalBalance";

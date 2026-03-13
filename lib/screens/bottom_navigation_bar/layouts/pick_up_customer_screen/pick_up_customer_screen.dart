@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:gif/gif.dart';
 import 'package:skolo_driver/api/enums/trip_status_enum.dart';
 import 'package:skolo_driver/api/models/pick_up_customer/optimized_route_model.dart';
@@ -237,8 +238,15 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
     return waypoints[currentWaypointIndex];
   }
 
+  /// Get school_id of current waypoint for multi-school filtering
+  String? _getCurrentWaypointSchoolId(OptimizedRoute? route) {
+    if (route == null) return null;
+    return _pickUpProvider.getCurrentWaypointSchoolId(currentWaypointIndex);
+  }
+
   void _moveToNextWaypoint(OptimizedRoute? route) {
     if (route == null) return;
+
     final waypoints = route.routeGeometry.waypoints;
     if (currentWaypointIndex < waypoints.length - 1) {
       setState(() {
@@ -303,8 +311,16 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
         // For resuming trips, waypoint index is already set from progress
         if (_isDropTrip && !_isResuming) {
           // For fresh DROP trips, school pickup is already handled
-          // Skip the school waypoint (index 0) and start from first student home (index 1)
-          currentWaypointIndex = 1;
+          // Skip ALL school waypoints at the beginning (multi-school support)
+          final waypoints = _pickUpProvider.optimizedRoute!.routeGeometry.waypoints;
+          int firstHomeIndex = 0;
+          for (int i = 0; i < waypoints.length; i++) {
+            if (waypoints[i].studentParentId != AppConstants.schoolLocationType) {
+              firstHomeIndex = i;
+              break;
+            }
+          }
+          currentWaypointIndex = firstHomeIndex;
         }
 
         // Only update trip status if NOT resuming (fresh start)
@@ -332,37 +348,72 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
     }
   }
 
+  /// Build waypoint markers with status-based color coding
+  /// - Current waypoint (index == currentWaypointIndex): Dark color (prominent)
+  ///   This is the next stop where the driver needs to pick up or drop off students
+  /// - Upcoming waypoints (index > currentWaypointIndex): Light color (muted)
+  ///   These are future stops that the driver will visit after completing current stops
+  ///
+  /// The color changes dynamically as the driver completes pickups - when a waypoint
+  /// is completed, currentWaypointIndex is incremented and markers are automatically
+  /// rebuilt with the new color scheme.
   List<Marker> _buildWaypointMarkers(OptimizedRoute? route) {
     if (route == null) return [];
 
     final waypoints = route.routeGeometry.waypoints;
     if (waypoints.isEmpty) return [];
 
-    return waypoints.map((waypoint) {
+    return waypoints.asMap().entries.map((entry) {
+      final index = entry.key;
+      final waypoint = entry.value;
       final isSchoolLocation =
           waypoint.studentParentId == AppConstants.schoolLocationType;
 
+      // Determine if this is the current waypoint to be picked up/dropped off
+      final isCurrent = index == currentWaypointIndex;
+
       if (isSchoolLocation) {
-        return MapMarkers.dropOffMarker(waypoint.location, context);
+        // School drop-off location
+        return isCurrent
+            ? MapMarkers.currentDropOffMarker(waypoint.location, context)
+            : MapMarkers.upcomingDropOffMarker(waypoint.location, context);
       } else {
-        return MapMarkers.waypointMarker(
-          waypoint.location,
-          waypoint.studentNames.join(', '),
-          context,
-        );
+        // Student pickup location
+        return isCurrent
+            ? MapMarkers.currentWaypointMarker(
+                waypoint.location,
+                waypoint.studentNames.join(', '),
+                context,
+              )
+            : MapMarkers.upcomingWaypointMarker(
+                waypoint.location,
+                waypoint.studentNames.join(', '),
+                context,
+              );
       }
     }).toList();
   }
 
+  /// Build route polylines using layered approach:
+  /// - Light line: full route from coordinates
+  /// - Dark line: current leg from legs[currentWaypointIndex]
   List<Polyline> _buildRoutePolyline(OptimizedRoute? route) {
     if (route == null) return [];
 
     final routePoints = route.routeGeometry.routePoints;
     if (routePoints.isEmpty) return [];
 
-    return [
-      RoutePolylines.activeRoute(routePoints, context),
-    ];
+    final legs = route.routeGeometry.legs;
+    final legPoints = currentWaypointIndex < legs.length
+        ? legs[currentWaypointIndex].legPoints
+        : <LatLng>[];
+
+    return RoutePolylines.layeredRoute(
+      allCoordinates: routePoints,
+      legPoints: legPoints,
+      currentWaypointIndex: currentWaypointIndex,
+      context: context,
+    );
   }
 
   void rideStart() {
@@ -400,8 +451,13 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
     } else {
       // PICKUP trip flow: student homes (pickup) → school (dropoff)
       if (isSchoolLocation) {
-        // Last waypoint: school - call school-point API to complete
-        await _processSchoolDropoff();
+        if (isLastWaypoint) {
+          // Last school waypoint — process and complete the trip
+          await _processSchoolDropoff();
+        } else {
+          // Intermediate school waypoint (multi-school) — process and continue
+          await _processSchoolDropoffAndContinue();
+        }
       } else {
         // Student home pickup - show success and move to next
         otpSuccess();
@@ -446,11 +502,18 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
   /// Process school dropoff by calling the school-point API
   Future<void> _processSchoolDropoff() async {
     try {
-      // Get only students who were picked up (marked as present)
-      final studentIds = _getPickedUpStudentIds();
+      // Get current school ID for multi-school filtering
+      final dropSchoolId =
+          _getCurrentWaypointSchoolId(_pickUpProvider.optimizedRoute);
 
-      // Get all student IDs from non-school waypoints to calculate skipped/absent students
-      final allStudentIds = _getAllStudentIdsFromWaypoints();
+      // Get only students who were picked up from the current school
+      // For multi-school routes, this filters by current school ID
+      final studentIds = _getPickedUpStudentsBySchool(dropSchoolId);
+
+      // Get student IDs scoped to this school to calculate skipped/absent students
+      final allStudentIds = dropSchoolId != null
+          ? _getAllStudentIdsForSchool(dropSchoolId)
+          : _getAllStudentIdsFromWaypoints();
       final skippedStudentIds =
           allStudentIds.where((id) => !studentIds.contains(id)).toList();
 
@@ -462,13 +525,14 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
       );
 
       // Call school-point API
-      // Only pass skipped_student_ids when all students are absent (student_ids is empty)
+      // Always send skipped students so backend knows which were absent
       final response = await _pickUpProvider.processSchoolPoint(
         tripId: _currentTripId!,
         studentIds: studentIds,
         latitude: position.latitude,
         longitude: position.longitude,
-        skippedStudentIds: studentIds.isEmpty && skippedStudentIds.isNotEmpty
+        schoolId: dropSchoolId,
+        skippedStudentIds: skippedStudentIds.isNotEmpty
             ? skippedStudentIds
             : null,
       );
@@ -519,9 +583,102 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
     }
   }
 
+  /// Process school dropoff at an intermediate school waypoint (multi-school)
+  /// Calls school-point API for this school's students, then advances to next waypoint
+  /// Does NOT complete the trip or stop tracking
+  Future<void> _processSchoolDropoffAndContinue() async {
+    try {
+      final dropSchoolId =
+          _getCurrentWaypointSchoolId(_pickUpProvider.optimizedRoute);
+
+      // Get only students picked up that belong to this school
+      final studentIds = _getPickedUpStudentsBySchool(dropSchoolId);
+
+      // Get skipped students scoped to this school only
+      final allSchoolStudentIds = dropSchoolId != null
+          ? _getAllStudentIdsForSchool(dropSchoolId)
+          : _getAllStudentIdsFromWaypoints();
+      final skippedStudentIds =
+          allSchoolStudentIds.where((id) => !studentIds.contains(id)).toList();
+
+      // Get current location
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
+      );
+
+      // Call school-point API for this school
+      // Always send skipped students so backend knows which were absent
+      final response = await _pickUpProvider.processSchoolPoint(
+        tripId: _currentTripId!,
+        studentIds: studentIds,
+        latitude: position.latitude,
+        longitude: position.longitude,
+        schoolId: dropSchoolId,
+        skippedStudentIds: skippedStudentIds.isNotEmpty
+            ? skippedStudentIds
+            : null,
+      );
+
+      if (response != null && response.success) {
+        if (response.data != null &&
+            response.data!.failedStudents.isNotEmpty) {
+          final failedCount = response.data!.failedStudents.length;
+          final processedCount = response.data!.processedStudents.length;
+          _showSnackBar(
+            'Dropped $processedCount students at school. $failedCount failed.',
+            isError: failedCount > 0,
+          );
+        }
+        // Show success animation and advance to next waypoint
+        otpSuccess();
+      } else {
+        _showSnackBar(
+          _pickUpProvider.errorMessage ??
+              'Failed to complete school dropoff',
+          isError: true,
+        );
+        // Still advance to avoid blocking the driver
+        otpSuccess();
+      }
+    } catch (e) {
+      _showSnackBar('Error processing school dropoff', isError: true);
+      // Still advance to avoid blocking the driver
+      otpSuccess();
+    }
+  }
+
   /// Get the list of students who were picked up (marked as present)
   List<String> _getPickedUpStudentIds() {
     return List<String>.from(_pickedUpStudentIds);
+  }
+
+  /// Get picked-up students filtered by current school ID (for multi-school routes)
+  /// Returns only students belonging to the current waypoint's school
+  List<String> _getPickedUpStudentsBySchool(String? schoolId) {
+    if (schoolId == null) {
+      return _getPickedUpStudentIds();
+    }
+
+    final route = _pickUpProvider.optimizedRoute;
+    if (route == null) return _getPickedUpStudentIds();
+
+    // Build a map of student IDs to their school IDs from route waypoints
+    final studentSchoolMap = <String, String>{};
+    for (final waypoint in route.routeGeometry.waypoints) {
+      // Map each student ID in this waypoint to its school ID
+      if (waypoint.schoolId != null) {
+        for (final studentId in waypoint.studentIds) {
+          studentSchoolMap[studentId] = waypoint.schoolId!;
+        }
+      }
+    }
+
+    // Filter picked-up students to only those from the current school
+    return _pickedUpStudentIds
+        .where((studentId) => studentSchoolMap[studentId] == schoolId)
+        .toList();
   }
 
   /// Get all student IDs from non-school waypoints
@@ -536,6 +693,22 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
       allIds.addAll(waypoint.studentIds);
     }
     return allIds;
+  }
+
+  /// Get all student IDs from home waypoints that belong to a specific school
+  /// Used for multi-school routes to calculate per-school skipped students
+  List<String> _getAllStudentIdsForSchool(String schoolId) {
+    final waypoints = _pickUpProvider.optimizedRoute?.routeGeometry.waypoints;
+    if (waypoints == null) return [];
+
+    final schoolIds = <String>[];
+    for (final waypoint in waypoints) {
+      if (waypoint.studentParentId == AppConstants.schoolLocationType) continue;
+      if (waypoint.schoolId == schoolId) {
+        schoolIds.addAll(waypoint.studentIds);
+      }
+    }
+    return schoolIds;
   }
 
   /// Add picked up students to the tracking list
@@ -749,7 +922,9 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
                                             ? () => route.pushNamed(context,
                                                 routeName.rideDetailsScreen)
                                             : () {},
-                                        isRideComplete: isRideComplete)
+                                        isRideComplete: isRideComplete,
+                                        isLastWaypoint: _isLastWaypoint(),
+                                      )
                                 : OtpVerificationSheet(
                                     onTap: () => _handleWaypointCompletion(),
                                     waypoint: _getCurrentWaypoint(
@@ -760,6 +935,7 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
                                     isFirstWaypointInteraction:
                                         _pickedUpStudentIds.isEmpty,
                                     isDropTrip: _isDropTrip,
+                                    isLastSchoolWaypoint: _isLastWaypoint(),
                                     onAllAbsent: () {
                                       // Move to next waypoint when all students marked absent
                                       _moveToNextWaypoint(

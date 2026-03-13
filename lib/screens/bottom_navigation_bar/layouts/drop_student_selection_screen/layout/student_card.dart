@@ -56,6 +56,37 @@ class StudentCard extends StatelessWidget {
                             style: AppCss.lexendRegular12
                                 .textColor(appTheme.lightText),
                           ),
+                          // School info if available
+                          if (student.schoolName != null || student.schoolId != null)
+                            Padding(
+                              padding: EdgeInsets.only(top: Insets.i4),
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: Insets.i8,
+                                  vertical: Insets.i2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: appTheme.primary.withOpacity(0.1),
+                                  borderRadius:
+                                      BorderRadius.circular(Insets.i4),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.school, size: 12, color: appTheme.primary),
+                                    HSpace(Insets.i4),
+                                    Flexible(
+                                      child: Text(
+                                        student.schoolName ?? student.schoolId!,
+                                        style: AppCss.lexendRegular11
+                                            .textColor(appTheme.primary),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                         ],
                       ),
                     ),

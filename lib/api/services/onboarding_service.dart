@@ -15,7 +15,7 @@ class OnboardingService {
   Future<DriverProfileResponse> createDriverProfile({
     required String name,
     required String email,
-    required String photoUrl,
+    String? photoUrl,
     required String vehicleType,
     required String vehicleNumber,
     required int vehicleCapacity,

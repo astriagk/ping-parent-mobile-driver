@@ -62,6 +62,25 @@ class PickUpCustomerProvider extends ChangeNotifier {
   /// Get tracking active state
   bool get isTrackingActive => _isTrackingActive;
 
+  /// Get school_id of current waypoint (for multi-school route filtering)
+  /// Returns null if no route or waypoint index is out of bounds
+  String? getCurrentWaypointSchoolId(int currentWaypointIndex) {
+    if (optimizedRoute == null) return null;
+    final waypoints = optimizedRoute!.routeGeometry.waypoints;
+    if (currentWaypointIndex >= waypoints.length) return null;
+    return waypoints[currentWaypointIndex].schoolIds?.isNotEmpty == true
+        ? waypoints[currentWaypointIndex].schoolIds!.first
+        : null;
+  }
+
+  /// Get current waypoint object
+  RouteWaypoint? getCurrentWaypoint(int currentWaypointIndex) {
+    if (optimizedRoute == null) return null;
+    final waypoints = optimizedRoute!.routeGeometry.waypoints;
+    if (currentWaypointIndex >= waypoints.length) return null;
+    return waypoints[currentWaypointIndex];
+  }
+
   /// Fetch optimized route from TomTom tracking API
   Future<bool> fetchOptimizedRoute({
     required String tripId,
@@ -307,6 +326,7 @@ class PickUpCustomerProvider extends ChangeNotifier {
     required List<String> studentIds,
     required double latitude,
     required double longitude,
+    String? schoolId,
     List<String>? skippedStudentIds,
   }) async {
     try {
@@ -320,6 +340,7 @@ class PickUpCustomerProvider extends ChangeNotifier {
         studentIds: studentIds,
         latitude: latitude,
         longitude: longitude,
+        schoolId: schoolId,
         skippedStudentIds: skippedStudentIds,
       );
 
