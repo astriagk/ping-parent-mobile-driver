@@ -5,10 +5,16 @@ import 'package:skolo_driver/config.dart' hide Marker, Polyline, LatLng;
 import 'package:url_launcher/url_launcher.dart';
 
 class OnTheWaySheet extends StatelessWidget {
-  GestureTapCallback? onTap;
-  bool? isRideComplete;
+  final GestureTapCallback? onTap;
+  final bool? isRideComplete;
+  final bool? isLastWaypoint;
 
-  OnTheWaySheet({super.key, this.onTap, this.isRideComplete = false});
+  const OnTheWaySheet({
+    super.key,
+    this.onTap,
+    this.isRideComplete = false,
+    this.isLastWaypoint = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -67,12 +73,21 @@ class OnTheWaySheet extends StatelessWidget {
                   textColor: isRideComplete == true
                       ? appTheme.white
                       : appTheme.textClr,
-                  text: language(context, appFonts.completeRide),
+                  text: _getButtonLabel(context),
                   onTap: onTap,
                   color: isRideComplete == true
                       ? appTheme.primary
                       : appTheme.stroke)
             ]));
+  }
+
+  /// Get dynamic button label based on waypoint context
+  /// Shows "Complete Trip" for last waypoint, "Continue" for others
+  String _getButtonLabel(BuildContext context) {
+    if (isLastWaypoint == true) {
+      return language(context, appFonts.completeTrip) ?? 'Complete Trip';
+    }
+    return language(context, appFonts.continueRide) ?? 'Continue';
   }
 
   Future<void> openDialer(String phoneNumber) async {

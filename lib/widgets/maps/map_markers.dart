@@ -134,6 +134,237 @@ class MapMarkers {
       onTap: onTap,
     );
   }
+
+  /// Completed waypoint marker (greyed out with checkmark - already visited)
+  static Marker completedWaypointMarker(
+    LatLng point,
+    String studentName,
+    BuildContext context, {
+    VoidCallback? onTap,
+  }) {
+    return Marker(
+      point: point,
+      alignment: Alignment.center,
+      child: SizedBox(
+        child: GestureDetector(
+          onTap: onTap,
+          child: Container(
+            decoration: BoxDecoration(
+              color: appColor(context).appTheme.primary.withOpacity(0.08),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: appColor(context).appTheme.primary.withOpacity(0.3),
+                width: 2,
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: Icon(
+                Icons.check,
+                size: 16,
+                color: appColor(context).appTheme.primary.withOpacity(0.5),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Completed drop-off marker (greyed out with checkmark - school already visited)
+  static Marker completedDropOffMarker(
+    LatLng point,
+    BuildContext context, {
+    VoidCallback? onTap,
+  }) {
+    return Marker(
+      point: point,
+      alignment: Alignment.center,
+      child: SizedBox(
+        child: GestureDetector(
+          onTap: onTap,
+          child: Container(
+            decoration: BoxDecoration(
+              color: appColor(context).appTheme.primary.withOpacity(0.08),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: appColor(context).appTheme.primary.withOpacity(0.3),
+                width: 2,
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: Icon(
+                Icons.check,
+                size: 16,
+                color: appColor(context).appTheme.primary.withOpacity(0.5),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Current waypoint marker (dark/prominent color - student to pick up next)
+  /// Shows with full opacity and prominent styling
+  static Marker currentWaypointMarker(
+    LatLng point,
+    String studentName,
+    BuildContext context, {
+    VoidCallback? onTap,
+  }) {
+    return Marker(
+      point: point,
+      alignment: Alignment.center,
+      child: SizedBox(
+        child: GestureDetector(
+          onTap: onTap,
+          child: Container(
+            decoration: BoxDecoration(
+              color: appColor(context).appTheme.primary.withOpacity(0.4),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: appColor(context).appTheme.primary,
+                width: 3,
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: SvgPicture.asset(
+                svgAssets.location,
+                width: 20,
+                height: 20,
+                colorFilter: ColorFilter.mode(
+                  appColor(context).appTheme.primary,
+                  BlendMode.srcIn,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Upcoming waypoint marker (light color - future pick-ups)
+  /// Shows with reduced opacity and lighter styling to indicate it's not the immediate next stop
+  static Marker upcomingWaypointMarker(
+    LatLng point,
+    String studentName,
+    BuildContext context, {
+    VoidCallback? onTap,
+  }) {
+    return Marker(
+      point: point,
+      alignment: Alignment.center,
+      child: SizedBox(
+        child: GestureDetector(
+          onTap: onTap,
+          child: Container(
+            decoration: BoxDecoration(
+              color: appColor(context).appTheme.primary.withOpacity(0.08),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: appColor(context).appTheme.primary.withOpacity(0.4),
+                width: 2,
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: SvgPicture.asset(
+                svgAssets.location,
+                width: 20,
+                height: 20,
+                colorFilter: ColorFilter.mode(
+                  appColor(context).appTheme.primary.withOpacity(0.5),
+                  BlendMode.srcIn,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// School drop-off location marker (dark/prominent)
+  static Marker currentDropOffMarker(
+    LatLng point,
+    BuildContext context, {
+    VoidCallback? onTap,
+  }) {
+    return Marker(
+      point: point,
+      alignment: Alignment.center,
+      child: SizedBox(
+        child: GestureDetector(
+          onTap: onTap,
+          child: Container(
+            decoration: BoxDecoration(
+              color: appColor(context).appTheme.primary.withOpacity(0.4),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: appColor(context).appTheme.primary,
+                width: 3,
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: SvgPicture.asset(
+                svgAssets.bank,
+                width: 20,
+                height: 20,
+                colorFilter: ColorFilter.mode(
+                  appColor(context).appTheme.primary,
+                  BlendMode.srcIn,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// School drop-off location marker (light color - future drop-off)
+  static Marker upcomingDropOffMarker(
+    LatLng point,
+    BuildContext context, {
+    VoidCallback? onTap,
+  }) {
+    return Marker(
+      point: point,
+      alignment: Alignment.center,
+      child: SizedBox(
+        child: GestureDetector(
+          onTap: onTap,
+          child: Container(
+            decoration: BoxDecoration(
+              color: appColor(context).appTheme.primary.withOpacity(0.08),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: appColor(context).appTheme.primary.withOpacity(0.4),
+                width: 2,
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: SvgPicture.asset(
+                svgAssets.bank,
+                width: 20,
+                height: 20,
+                colorFilter: ColorFilter.mode(
+                  appColor(context).appTheme.primary.withOpacity(0.5),
+                  BlendMode.srcIn,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// Animated pulsing marker for driver location

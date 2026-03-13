@@ -245,7 +245,6 @@ class PickUpCustomerService {
           final jsonData = jsonDecode(response.body) as Map<String, dynamic>;
           return PickupPointResponse.fromJson(jsonData);
         } catch (parseError) {
-          print('[D] Pickup parse error: $parseError');
           return PickupPointResponse(
             success: false,
             data: null,
@@ -254,7 +253,6 @@ class PickUpCustomerService {
           );
         }
       } else {
-        print('[D] Pickup API error: ${response.statusCode}');
         // Try to parse error message from response
         try {
           final jsonData = jsonDecode(response.body) as Map<String, dynamic>;
@@ -290,6 +288,7 @@ class PickUpCustomerService {
     required List<String> studentIds,
     required double latitude,
     required double longitude,
+    String? schoolId,
     List<String>? skippedStudentIds,
   }) async {
     try {
@@ -297,6 +296,7 @@ class PickUpCustomerService {
         studentIds: studentIds,
         latitude: latitude,
         longitude: longitude,
+        schoolId: schoolId,
         skippedStudentIds: skippedStudentIds,
       );
 

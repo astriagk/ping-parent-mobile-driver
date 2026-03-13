@@ -5,6 +5,7 @@ dynamic en = {
   "settings": "Settings",
   "pendingRide": "Pending Ride",
   "completeRide": "Complete Ride",
+  "dropAtSchool": "Drop at School",
   "cancelRide": "Cancel Ride",
   "totalEarning": "Total Earning",
   "totalBalance": "Total Balance",

@@ -7,6 +7,8 @@ class TripStudent {
   final String? studentSection;
   final String? studentGender;
   final String? studentPhotoUrl;
+  final String? schoolId;
+  final String? schoolName;
   final int sequenceOrder;
   final String attendanceStatus;
   final String pickupStatus;
@@ -22,6 +24,8 @@ class TripStudent {
     this.studentSection,
     this.studentGender,
     this.studentPhotoUrl,
+    this.schoolId,
+    this.schoolName,
     required this.sequenceOrder,
     required this.attendanceStatus,
     required this.pickupStatus,
@@ -29,6 +33,18 @@ class TripStudent {
   });
 
   factory TripStudent.fromJson(Map<String, dynamic> json) {
+    // Try to get school_id from direct field, fallback to nested school object
+    String? schoolId = json['school_id'] as String?;
+    if (schoolId == null && json['school'] is Map) {
+      schoolId = json['school']['school_id'] as String?;
+    }
+
+    // Try to get school_name from direct field, fallback to nested school object
+    String? schoolName = json['school_name'] as String?;
+    if (schoolName == null && json['school'] is Map) {
+      schoolName = json['school']['school_name'] as String?;
+    }
+
     return TripStudent(
       id: json['_id'] ?? '',
       studentId: json['student_id'] ?? '',
@@ -37,6 +53,8 @@ class TripStudent {
       studentSection: json['student_section'],
       studentGender: json['student_gender'],
       studentPhotoUrl: json['student_photo_url'],
+      schoolId: schoolId,
+      schoolName: schoolName,
       sequenceOrder: json['sequence_order'] ?? 0,
       attendanceStatus: json['attendance_status'] ?? 'pending',
       pickupStatus: json['pickup_status'] ?? 'pending',
@@ -53,6 +71,8 @@ class TripStudent {
       'student_section': studentSection,
       'student_gender': studentGender,
       'student_photo_url': studentPhotoUrl,
+      'school_id': schoolId,
+      'school_name': schoolName,
       'sequence_order': sequenceOrder,
       'attendance_status': attendanceStatus,
       'pickup_status': pickupStatus,
@@ -157,6 +177,7 @@ class SchoolPointRequest {
   final List<String> studentIds;
   final double latitude;
   final double longitude;
+  final String? schoolId;
 
   /// Optional: Student IDs that were skipped/absent (only for DROP trips)
   final List<String>? skippedStudentIds;
@@ -165,6 +186,7 @@ class SchoolPointRequest {
     required this.studentIds,
     required this.latitude,
     required this.longitude,
+    this.schoolId,
     this.skippedStudentIds,
   });
 
@@ -174,6 +196,10 @@ class SchoolPointRequest {
       'latitude': latitude,
       'longitude': longitude,
     };
+    // Include school_id if provided (for multi-school validation)
+    if (schoolId != null) {
+      json['school_id'] = schoolId;
+    }
     // Only include skipped_student_ids if provided (for DROP trips)
     if (skippedStudentIds != null && skippedStudentIds!.isNotEmpty) {
       json['skipped_student_ids'] = skippedStudentIds;

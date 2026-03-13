@@ -129,9 +129,7 @@ class _ActiveRideScreenState extends State<ActiveRideScreen>
         );
       } else if (tripType == TripType.drop) {
         // For DROP trips (not in-progress), go to student selection screen
-        context
-            .read<DropStudentSelectionProvider>()
-            .setCurrentTripId(trip.id);
+        context.read<DropStudentSelectionProvider>().setCurrentTripId(trip.id);
         await route.pushNamed(context, routeName.dropStudentSelectionScreen);
       } else {
         // For PICKUP trips, go directly to map
