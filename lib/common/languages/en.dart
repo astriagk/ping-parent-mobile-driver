@@ -37,6 +37,10 @@ dynamic en = {
   "french": "French",
   "spanish": "Spanish",
   "home": "Home",
+  "welcomeBack": "Welcome back,",
+  "driver": "Driver",
+  "startEarningToday":
+      "Start earning today — accept rides nearby and make every trip count.",
   "category": "Category",
   "createYourAccount": "Create Your Account",
   "documentVerify": "Document Verify",
@@ -320,6 +324,10 @@ dynamic en = {
   "selectStudents": "Select Students",
   "startDrop": "Start Drop",
   "noStudentsAssigned": "No students assigned",
+
+  // Waypoint Navigation
+  "completeTrip": "Complete Trip",
+  "continueRide": "Continue",
 
   // Error states
   "somethingWentWrong": "Something went wrong",

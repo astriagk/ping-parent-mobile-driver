@@ -135,10 +135,10 @@ class MapMarkers {
     );
   }
 
-  /// Completed waypoint marker (greyed out with checkmark - already visited)
-  static Marker completedWaypointMarker(
+  /// Shared builder for completed marker (waypoint or drop-off)
+  /// Returns a grayed-out marker with checkmark icon for already visited locations
+  static Marker _buildCompletedMarker(
     LatLng point,
-    String studentName,
     BuildContext context, {
     VoidCallback? onTap,
   }) {
@@ -171,39 +171,22 @@ class MapMarkers {
     );
   }
 
+  /// Completed waypoint marker (greyed out with checkmark - already visited)
+  static Marker completedWaypointMarker(
+    LatLng point,
+    BuildContext context, {
+    VoidCallback? onTap,
+  }) {
+    return _buildCompletedMarker(point, context, onTap: onTap);
+  }
+
   /// Completed drop-off marker (greyed out with checkmark - school already visited)
   static Marker completedDropOffMarker(
     LatLng point,
     BuildContext context, {
     VoidCallback? onTap,
   }) {
-    return Marker(
-      point: point,
-      alignment: Alignment.center,
-      child: SizedBox(
-        child: GestureDetector(
-          onTap: onTap,
-          child: Container(
-            decoration: BoxDecoration(
-              color: appColor(context).appTheme.primary.withOpacity(0.08),
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: appColor(context).appTheme.primary.withOpacity(0.3),
-                width: 2,
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Icon(
-                Icons.check,
-                size: 16,
-                color: appColor(context).appTheme.primary.withOpacity(0.5),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
+    return _buildCompletedMarker(point, context, onTap: onTap);
   }
 
   /// Current waypoint marker (dark/prominent color - student to pick up next)

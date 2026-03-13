@@ -37,8 +37,8 @@ class ScreensWidgets {
   }
 
   userProfileImage(imageUrl) {
-    final bool isNetworkImage =
-        imageUrl != null && imageUrl.startsWith('https://');
+    final bool isNetworkImage = imageUrl != null &&
+        (imageUrl.startsWith('https://') || imageUrl.startsWith('http://'));
 
     return Container(
         height: Insets.i50,

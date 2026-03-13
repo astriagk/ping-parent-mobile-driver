@@ -38,6 +38,9 @@ class AppFonts {
   final french = "french";
   final spanish = "spanish";
   final home = "home";
+  final welcomeBack = "welcomeBack";
+  final driver = "driver";
+  final startEarningToday = "startEarningToday";
   final category = "category";
   final createYourAccount = "createYourAccount";
   final documentVerify = "documentVerify";
