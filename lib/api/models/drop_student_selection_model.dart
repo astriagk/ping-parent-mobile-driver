@@ -172,42 +172,6 @@ class DropStudentSelectionResponse {
   }
 }
 
-/// Request model for school point action (pick from school for drop trips)
-class SchoolPointRequest {
-  final List<String> studentIds;
-  final double latitude;
-  final double longitude;
-  final String? schoolId;
-
-  /// Optional: Student IDs that were skipped/absent (only for DROP trips)
-  final List<String>? skippedStudentIds;
-
-  SchoolPointRequest({
-    required this.studentIds,
-    required this.latitude,
-    required this.longitude,
-    this.schoolId,
-    this.skippedStudentIds,
-  });
-
-  Map<String, dynamic> toJson() {
-    final json = <String, dynamic>{
-      'student_ids': studentIds,
-      'latitude': latitude,
-      'longitude': longitude,
-    };
-    // Include school_id if provided (for multi-school validation)
-    if (schoolId != null) {
-      json['school_id'] = schoolId;
-    }
-    // Only include skipped_student_ids if provided (for DROP trips)
-    if (skippedStudentIds != null && skippedStudentIds!.isNotEmpty) {
-      json['skipped_student_ids'] = skippedStudentIds;
-    }
-    return json;
-  }
-}
-
 /// Response model for school point action
 class SchoolPointResponse {
   final bool success;

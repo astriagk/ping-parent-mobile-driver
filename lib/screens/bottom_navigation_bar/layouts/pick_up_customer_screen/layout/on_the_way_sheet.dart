@@ -85,9 +85,9 @@ class OnTheWaySheet extends StatelessWidget {
   /// Shows "Complete Trip" for last waypoint, "Continue" for others
   String _getButtonLabel(BuildContext context) {
     if (isLastWaypoint == true) {
-      return language(context, appFonts.completeTrip) ?? 'Complete Trip';
+      return language(context, appFonts.completeTrip);
     }
-    return language(context, appFonts.continueRide) ?? 'Continue';
+    return language(context, appFonts.continueRide);
   }
 
   Future<void> openDialer(String phoneNumber) async {

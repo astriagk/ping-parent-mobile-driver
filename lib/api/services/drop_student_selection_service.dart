@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:skolo_driver/api/api_client.dart';
 import 'package:skolo_driver/api/endpoints.dart';
 import 'package:skolo_driver/api/models/drop_student_selection_model.dart';
+import 'package:skolo_driver/api/models/pick_up_customer/school_point_request.dart';
 
 /// Service for drop student selection API calls
 class DropStudentSelectionService {

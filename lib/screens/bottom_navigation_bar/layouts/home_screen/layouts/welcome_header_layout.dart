@@ -12,17 +12,17 @@ class WelcomeHeaderLayout extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Welcome back,',
+              language(context, appFonts.welcomeBack),
               style: AppCss.lexendRegular14.textColor(appTheme.hintText),
             ),
             VSpace(Insets.i4),
             Text(
-              name.isNotEmpty ? name : 'Driver',
+              name.isNotEmpty ? name : language(context, appFonts.driver),
               style: AppCss.lexendBold24.textColor(appTheme.darkText),
             ),
             VSpace(Insets.i8),
             Text(
-              'Start earning today — accept rides nearby and make every trip count.',
+              language(context, appFonts.startEarningToday),
               style: AppCss.lexendRegular13.textColor(appTheme.descrTextClr),
             ),
           ],
