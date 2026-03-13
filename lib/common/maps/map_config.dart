@@ -1,4 +1,4 @@
-import 'package:taxify_driver_ui/widgets/maps/map_widget.dart';
+import 'package:skolo_driver/widgets/maps/map_widget.dart';
 
 /// OpenFreeMap Configuration with CartoDB Voyager tiles
 class MapConfig implements MapProviderConfig {

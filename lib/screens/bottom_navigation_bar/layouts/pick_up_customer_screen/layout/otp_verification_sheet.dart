@@ -1,13 +1,13 @@
 import 'dart:developer';
 
 import 'package:permission_handler/permission_handler.dart';
-import 'package:taxify_driver_ui/api/enums/trip_status_enum.dart';
-import 'package:taxify_driver_ui/config.dart' hide Marker, Polyline, LatLng;
-import 'package:taxify_driver_ui/api/models/pick_up_customer/optimized_route_model.dart';
-import 'package:taxify_driver_ui/config/app_constants.dart';
-import 'package:taxify_driver_ui/helper/location_service.dart';
-import 'package:taxify_driver_ui/provider/bottom_bar_provider/pick_up_customer_provider.dart';
-import 'package:taxify_driver_ui/widgets/screens_widgets/screens_widgets.dart';
+import 'package:skolo_driver/api/enums/trip_status_enum.dart';
+import 'package:skolo_driver/config.dart' hide Marker, Polyline, LatLng;
+import 'package:skolo_driver/api/models/pick_up_customer/optimized_route_model.dart';
+import 'package:skolo_driver/config/app_constants.dart';
+import 'package:skolo_driver/helper/location_service.dart';
+import 'package:skolo_driver/provider/bottom_bar_provider/pick_up_customer_provider.dart';
+import 'package:skolo_driver/widgets/screens_widgets/screens_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class OtpVerificationSheet extends StatefulWidget {
@@ -25,6 +25,10 @@ class OtpVerificationSheet extends StatefulWidget {
   /// Whether this is a DROP trip (school → homes) - hides toggle and absent button
   final bool isDropTrip;
 
+  /// Whether this is the last school waypoint in a multi-school PICKUP route
+  /// Controls button text: "Drop at School" vs "Complete Ride"
+  final bool isLastSchoolWaypoint;
+
   const OtpVerificationSheet({
     super.key,
     this.onTap,
@@ -36,6 +40,7 @@ class OtpVerificationSheet extends StatefulWidget {
     this.onAllAbsent,
     this.isFirstWaypointInteraction = false,
     this.isDropTrip = false,
+    this.isLastSchoolWaypoint = true,
   });
 
   @override
@@ -304,12 +309,10 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
               Divider(color: appTheme.stroke, height: 0),
               VSpace(Insets.i16),
               Row(children: [
-                // TODO: Replace with dummy image if null
                 CircleAvatar(
-                    backgroundImage: widget.waypoint?.studentImage != null
-                        ? NetworkImage(widget.waypoint!.studentImage!)
-                        : AssetImage('assets/image/home/user2.png')
-                            as ImageProvider,
+                    backgroundImage: widget.waypoint?.studentPhotoUrl != null
+                        ? NetworkImage(widget.waypoint!.studentPhotoUrl!)
+                        : AssetImage(imageAssets.profileImg) as ImageProvider,
                     radius: 20),
                 HSpace(Insets.i8),
                 Expanded(
@@ -416,7 +419,9 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
               if (widget.waypoint?.studentParentId ==
                   AppConstants.schoolLocationType)
                 CommonButton(
-                    text: language(context, appFonts.completeRide),
+                    text: widget.isLastSchoolWaypoint
+                        ? language(context, appFonts.completeRide)
+                        : language(context, appFonts.dropAtSchool),
                     isLoading: _isCompleteRideLoading,
                     onTap: _handleCompleteRide)
               else

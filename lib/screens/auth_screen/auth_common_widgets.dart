@@ -39,7 +39,7 @@ class AuthCommonWidgets {
           .marginOnly(right: MediaQuery.of(context).size.width * 0.2),
       SvgPicture.asset(svgAssets.logo, height: Sizes.s30, width: Sizes.s70),
       Container()
-    ]).padding(top: Sizes.s60, bottom: Sizes.s5);
+    ]).padding(top: MediaQuery.of(context).padding.top + Sizes.s15, bottom: Sizes.s5);
   }
 
 //gif title and subtitle layout

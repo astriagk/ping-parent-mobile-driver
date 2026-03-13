@@ -1,5 +1,5 @@
-import 'package:taxify_driver_ui/config.dart';
-import 'package:taxify_driver_ui/screens/app_pages/save_location_screen/save_location_widgets.dart';
+import 'package:skolo_driver/config.dart';
+import 'package:skolo_driver/screens/app_pages/save_location_screen/save_location_widgets.dart';
 
 import 'layout/work_title_layout.dart';
 

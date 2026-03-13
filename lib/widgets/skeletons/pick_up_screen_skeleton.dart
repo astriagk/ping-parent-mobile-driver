@@ -1,5 +1,5 @@
 import 'package:shimmer/shimmer.dart';
-import 'package:taxify_driver_ui/config.dart';
+import 'package:skolo_driver/config.dart';
 
 /// Skeleton box helper for shimmer effect
 class _SkeletonBox extends StatelessWidget {

@@ -1,15 +1,15 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:taxify_driver_ui/api/services/pick_up_customer_service.dart';
-import 'package:taxify_driver_ui/api/services/socket_service.dart';
-import 'package:taxify_driver_ui/api/enums/trip_status_enum.dart';
-import 'package:taxify_driver_ui/api/models/pick_up_customer/optimized_route_model.dart';
-import 'package:taxify_driver_ui/api/models/pick_up_customer/pickup_point_response.dart';
-import 'package:taxify_driver_ui/api/models/pick_up_customer/school_point_response.dart';
-import 'package:taxify_driver_ui/api/models/pick_up_customer/trip_progress_response.dart';
-import 'package:taxify_driver_ui/api/api_client.dart';
-import 'package:taxify_driver_ui/helper/foreground_tracking_service.dart';
+import 'package:skolo_driver/api/services/pick_up_customer_service.dart';
+import 'package:skolo_driver/api/services/socket_service.dart';
+import 'package:skolo_driver/api/enums/trip_status_enum.dart';
+import 'package:skolo_driver/api/models/pick_up_customer/optimized_route_model.dart';
+import 'package:skolo_driver/api/models/pick_up_customer/pickup_point_response.dart';
+import 'package:skolo_driver/api/models/pick_up_customer/school_point_response.dart';
+import 'package:skolo_driver/api/models/pick_up_customer/trip_progress_response.dart';
+import 'package:skolo_driver/api/api_client.dart';
+import 'package:skolo_driver/helper/foreground_tracking_service.dart';
 
 /// Provider for managing trip pickup and location tracking
 /// Uses ForegroundTrackingService for reliable background location tracking
@@ -61,6 +61,25 @@ class PickUpCustomerProvider extends ChangeNotifier {
 
   /// Get tracking active state
   bool get isTrackingActive => _isTrackingActive;
+
+  /// Get school_id of current waypoint (for multi-school route filtering)
+  /// Returns null if no route or waypoint index is out of bounds
+  String? getCurrentWaypointSchoolId(int currentWaypointIndex) {
+    if (optimizedRoute == null) return null;
+    final waypoints = optimizedRoute!.routeGeometry.waypoints;
+    if (currentWaypointIndex >= waypoints.length) return null;
+    return waypoints[currentWaypointIndex].schoolIds?.isNotEmpty == true
+        ? waypoints[currentWaypointIndex].schoolIds!.first
+        : null;
+  }
+
+  /// Get current waypoint object
+  RouteWaypoint? getCurrentWaypoint(int currentWaypointIndex) {
+    if (optimizedRoute == null) return null;
+    final waypoints = optimizedRoute!.routeGeometry.waypoints;
+    if (currentWaypointIndex >= waypoints.length) return null;
+    return waypoints[currentWaypointIndex];
+  }
 
   /// Fetch optimized route from TomTom tracking API
   Future<bool> fetchOptimizedRoute({
@@ -307,6 +326,7 @@ class PickUpCustomerProvider extends ChangeNotifier {
     required List<String> studentIds,
     required double latitude,
     required double longitude,
+    String? schoolId,
     List<String>? skippedStudentIds,
   }) async {
     try {
@@ -320,6 +340,7 @@ class PickUpCustomerProvider extends ChangeNotifier {
         studentIds: studentIds,
         latitude: latitude,
         longitude: longitude,
+        schoolId: schoolId,
         skippedStudentIds: skippedStudentIds,
       );
 

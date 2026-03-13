@@ -1,6 +1,7 @@
-import 'package:taxify_driver_ui/api/enums/trip_status_enum.dart';
-import 'package:taxify_driver_ui/config.dart';
-import 'package:taxify_driver_ui/screens/bottom_navigation_bar/layouts/drop_student_selection_screen/layout/student_card.dart';
+import 'package:skolo_driver/api/enums/trip_status_enum.dart';
+import 'package:skolo_driver/config.dart';
+import 'package:skolo_driver/screens/bottom_navigation_bar/layouts/drop_student_selection_screen/layout/student_card.dart';
+import 'package:skolo_driver/widgets/auto_refresh_mixin.dart';
 
 class DropStudentSelectionScreen extends StatefulWidget {
   const DropStudentSelectionScreen({super.key});
@@ -10,19 +11,54 @@ class DropStudentSelectionScreen extends StatefulWidget {
       _DropStudentSelectionScreenState();
 }
 
-class _DropStudentSelectionScreenState
-    extends State<DropStudentSelectionScreen> {
+class _DropStudentSelectionScreenState extends State<DropStudentSelectionScreen>
+    with AutoRefreshMixin {
   late DropStudentSelectionProvider _provider;
   bool _isStartingDrop = false;
+  String? _currentSchoolId;
+
+  // Multi-school tracking
+  List<String> _schoolIds = [];
+  int _currentSchoolIndex = 0;
+  bool get _isMultiSchool => _schoolIds.length > 1;
 
   @override
   void initState() {
     super.initState();
     _provider = context.read<DropStudentSelectionProvider>();
-    // Defer loading data until after build phase
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _fetchStudents();
-    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _extractCurrentSchoolId();
+  }
+
+  @override
+  void refreshData() {
+    _fetchStudents();
+  }
+
+  /// Extract current school_id and build multi-school list
+  /// This supports multi-school drop routes
+  void _extractCurrentSchoolId() {
+    // Build ordered list of unique school IDs from students
+    if (_provider.parentsWithStudents.isNotEmpty && _schoolIds.isEmpty) {
+      _schoolIds = _provider.getUniqueSchoolIds();
+      if (_schoolIds.isNotEmpty) {
+        _currentSchoolIndex = 0;
+        _currentSchoolId = _schoolIds[0];
+        return;
+      }
+    }
+
+    // Fallback: check route arguments
+    if (_currentSchoolId == null) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      if (args is Map && args['schoolId'] != null) {
+        _currentSchoolId = args['schoolId'].toString();
+      }
+    }
   }
 
   /// Fetch students from API
@@ -30,6 +66,11 @@ class _DropStudentSelectionScreenState
     final tripId = _provider.currentTripId;
     if (tripId != null) {
       await _provider.fetchTripStudentsGroupedByParent(tripId);
+      // Build school list after students are loaded
+      if (_schoolIds.isEmpty) {
+        _extractCurrentSchoolId();
+        if (mounted) setState(() {});
+      }
     }
   }
 
@@ -43,8 +84,52 @@ class _DropStudentSelectionScreenState
     );
   }
 
+  /// Get school name for given school_id from students data
+  String _getSchoolNameForId(
+      String? schoolId, DropStudentSelectionProvider provider) {
+    if (schoolId == null) return 'Multiple Schools';
+
+    for (var parent in provider.parentsWithStudents) {
+      for (var student in parent.students) {
+        if (student.schoolId == schoolId && student.schoolName != null) {
+          return student.schoolName!;
+        }
+      }
+    }
+    return schoolId;
+  }
+
+  /// Count total students filtered by school
+  int _getFilteredTotalCount(
+      DropStudentSelectionProvider provider, String? schoolId) {
+    if (schoolId == null) return provider.totalStudentCount;
+    return provider.getStudentsForSchool(schoolId).length;
+  }
+
+  /// Count selected students filtered by school
+  int _getFilteredStudentCount(
+      DropStudentSelectionProvider provider, String? schoolId) {
+    if (schoolId == null) return provider.selectedStudentCount;
+
+    int count = 0;
+    for (var parent in provider.parentsWithStudents) {
+      for (var student in parent.students) {
+        if (student.schoolId == schoolId && student.isMarkedPresent) {
+          count++;
+        }
+      }
+    }
+    return count;
+  }
+
+  /// Check if current school has any selected students
+  bool _hasSelectedStudentsForCurrentSchool() {
+    if (_currentSchoolId == null) return _provider.hasSelectedStudents();
+    return _provider.getSelectedStudentIdsForSchool(_currentSchoolId!).isNotEmpty;
+  }
+
   Future<void> _onStartDropTap() async {
-    if (!_provider.hasSelectedStudents()) {
+    if (!_hasSelectedStudentsForCurrentSchool()) {
       _showSnackBar('Please select at least one student', isError: true);
       return;
     }
@@ -52,13 +137,25 @@ class _DropStudentSelectionScreenState
     setState(() => _isStartingDrop = true);
 
     try {
-      // Call school point API to mark students as picked from school
-      final response = await _provider.markSchoolPoint();
+      // Call school point API to mark students as picked from this school
+      final response =
+          await _provider.markSchoolPoint(schoolId: _currentSchoolId);
 
       if (!mounted) return;
 
       if (response.success) {
-        // Update trip status to started
+        // Check if there are more schools to process
+        if (_isMultiSchool && _currentSchoolIndex < _schoolIds.length - 1) {
+          // Advance to the next school
+          setState(() {
+            _currentSchoolIndex++;
+            _currentSchoolId = _schoolIds[_currentSchoolIndex];
+            _isStartingDrop = false;
+          });
+          return;
+        }
+
+        // All schools processed — update trip status and navigate to map
         if (_provider.currentTripId != null) {
           await _provider.updateTripStatus(
             tripId: _provider.currentTripId!,
@@ -66,8 +163,6 @@ class _DropStudentSelectionScreenState
           );
         }
 
-        // Navigate to pickup/drop screen with selected students
-        // Pass tripId and isDropTrip flag as route arguments
         route.pushNamed(
           context,
           routeName.pickupCustomerScreen,
@@ -75,6 +170,7 @@ class _DropStudentSelectionScreenState
             'tripId': _provider.currentTripId,
             'isDropTrip': true,
             'tripStatus': TripStatus.started.value,
+            'schoolId': _currentSchoolId,
           },
         );
       } else {
@@ -142,6 +238,30 @@ class _DropStudentSelectionScreenState
     // Show student list
     return Column(
       children: [
+        // School context header (if school_id is known)
+        if (_currentSchoolId != null)
+          Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: Insets.i20,
+              vertical: Insets.i12,
+            ),
+            color: appTheme.primary.withOpacity(0.1),
+            child: Row(
+              children: [
+                Icon(Icons.school, color: appTheme.primary, size: Insets.i20),
+                HSpace(Insets.i8),
+                Expanded(
+                  child: Text(
+                    _isMultiSchool
+                        ? 'School ${_currentSchoolIndex + 1} of ${_schoolIds.length}: ${_getSchoolNameForId(_currentSchoolId, _provider)}'
+                        : 'Picking from: ${_getSchoolNameForId(_currentSchoolId, _provider)}',
+                    style: AppCss.lexendMedium13.textColor(appTheme.primary),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
         // Selection count indicator
         Container(
           padding: EdgeInsets.symmetric(
@@ -156,26 +276,38 @@ class _DropStudentSelectionScreenState
                 style: AppCss.lexendMedium14.textColor(appTheme.lightText),
               ),
               Text(
-                '${provider.selectedStudentCount}/${provider.totalStudentCount} Selected',
+                '${_getFilteredStudentCount(_provider, _currentSchoolId)}/${_getFilteredTotalCount(_provider, _currentSchoolId)} Selected',
                 style: AppCss.lexendMedium14.textColor(appTheme.primary),
               ),
             ],
           ),
         ),
-        // Student list grouped by parent
+        // Student list grouped by parent (filtered by school if applicable)
         Expanded(
           child: ListView.builder(
             itemCount: provider.parentsWithStudents.length,
             itemBuilder: (context, parentIndex) {
               final parent = provider.parentsWithStudents[parentIndex];
 
+              // Filter students by current school if school_id is known
+              final filteredStudents = _currentSchoolId != null
+                  ? parent.students
+                      .where((s) => s.schoolId == _currentSchoolId)
+                      .toList()
+                  : parent.students;
+
+              // Skip parent if no students after filtering
+              if (filteredStudents.isEmpty) {
+                return const SizedBox.shrink();
+              }
+
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Student cards for this parent
-                  ...parent.students.map((student) {
+                  ...filteredStudents.map((student) {
                     final isSelected =
-                        provider.isStudentPresent(student.id);
+                        provider.isStudentPresent(student.studentId);
 
                     return StudentCard(
                       student: student,
@@ -184,7 +316,7 @@ class _DropStudentSelectionScreenState
                       parentPhotoUrl: parent.parentPhotoUrl,
                       isSelected: isSelected,
                       onTap: () {
-                        provider.toggleStudentAttendance(student.id);
+                        provider.toggleStudentAttendance(student.studentId);
                       },
                     );
                   }),
@@ -193,14 +325,16 @@ class _DropStudentSelectionScreenState
             },
           ),
         ),
-        // Start Drop button
+        // Start Drop / Pick from School button
         Padding(
           padding: EdgeInsets.all(Insets.i20),
           child: CommonButton(
-            text: language(context, appFonts.startDrop),
+            text: _isMultiSchool
+                ? 'Pick from School (${_currentSchoolIndex + 1}/${_schoolIds.length})'
+                : language(context, appFonts.startDrop),
             onTap: _onStartDropTap,
             isLoading: _isStartingDrop,
-            color: provider.hasSelectedStudents()
+            color: _hasSelectedStudentsForCurrentSchool()
                 ? appTheme.primary
                 : appTheme.borderColor,
           ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 enum ThemeType {
   light,
@@ -144,6 +145,15 @@ class AppTheme {
             error: Colors.red));
     return t.copyWith(
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      appBarTheme: AppBarTheme(
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness:
+              isDark ? Brightness.light : Brightness.dark,
+          statusBarBrightness:
+              isDark ? Brightness.dark : Brightness.light,
+        ),
+      ),
       textSelectionTheme: TextSelectionThemeData(
           selectionHandleColor: Colors.transparent, cursorColor: primary),
       buttonTheme: ButtonThemeData(buttonColor: primary),

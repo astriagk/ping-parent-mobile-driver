@@ -5,6 +5,9 @@ class AppFonts {
   final settings = "settings";
   final pendingRide = "pendingRide";
   final completeRide = "completeRide";
+  final dropAtSchool = "dropAtSchool";
+  final completeTrip = "completeTrip";
+  final continueRide = "continueRide";
   final cancelRide = "cancelRide";
   final totalEarning = "totalEarning";
   final totalBalance = "totalBalance";
@@ -35,6 +38,9 @@ class AppFonts {
   final french = "french";
   final spanish = "spanish";
   final home = "home";
+  final welcomeBack = "welcomeBack";
+  final driver = "driver";
+  final startEarningToday = "startEarningToday";
   final category = "category";
   final createYourAccount = "createYourAccount";
   final documentVerify = "documentVerify";

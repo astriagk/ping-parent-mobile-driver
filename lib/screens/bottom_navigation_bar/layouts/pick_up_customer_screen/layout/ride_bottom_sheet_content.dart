@@ -1,9 +1,9 @@
 import 'dart:developer';
 
 import 'package:permission_handler/permission_handler.dart';
-import 'package:taxify_driver_ui/config.dart' hide Marker, Polyline, LatLng;
-import 'package:taxify_driver_ui/widgets/common_bg_layout.dart';
-import 'package:taxify_driver_ui/widgets/common_location_layout.dart';
+import 'package:skolo_driver/config.dart' hide Marker, Polyline, LatLng;
+import 'package:skolo_driver/widgets/common_bg_layout.dart';
+import 'package:skolo_driver/widgets/common_location_layout.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class RideBottomSheetContent extends StatelessWidget {

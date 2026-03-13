@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:taxify_driver_ui/api/api_client.dart';
-import 'package:taxify_driver_ui/api/models/drop_student_selection_model.dart';
-import 'package:taxify_driver_ui/api/models/pick_up_customer/trip_status_response.dart';
-import 'package:taxify_driver_ui/api/services/drop_student_selection_service.dart';
-import 'package:taxify_driver_ui/api/services/pick_up_customer_service.dart';
-import 'package:taxify_driver_ui/helper/location_service.dart';
+import 'package:skolo_driver/api/api_client.dart';
+import 'package:skolo_driver/api/models/drop_student_selection_model.dart';
+import 'package:skolo_driver/api/models/pick_up_customer/trip_status_response.dart';
+import 'package:skolo_driver/api/services/drop_student_selection_service.dart';
+import 'package:skolo_driver/api/services/pick_up_customer_service.dart';
+import 'package:skolo_driver/helper/location_service.dart';
+import 'package:skolo_driver/api/models/pick_up_customer/school_point_request.dart';
 
 /// Provider for managing drop student selection/attendance
 class DropStudentSelectionProvider extends ChangeNotifier {
@@ -40,22 +41,22 @@ class DropStudentSelectionProvider extends ChangeNotifier {
     _attendanceMap = {};
     for (var parent in parents) {
       for (var student in parent.students) {
-        _attendanceMap[student.id] = student.isMarkedPresent;
+        _attendanceMap[student.studentId] = student.isMarkedPresent;
       }
     }
     notifyListeners();
   }
 
   /// Toggle student attendance status
-  void toggleStudentAttendance(String tripStudentId) {
-    if (_attendanceMap.containsKey(tripStudentId)) {
-      _attendanceMap[tripStudentId] = !_attendanceMap[tripStudentId]!;
+  void toggleStudentAttendance(String studentId) {
+    if (_attendanceMap.containsKey(studentId)) {
+      _attendanceMap[studentId] = !_attendanceMap[studentId]!;
 
       // Update the student object as well
       for (var parent in _parentsWithStudents) {
         for (var student in parent.students) {
-          if (student.id == tripStudentId) {
-            student.isMarkedPresent = _attendanceMap[tripStudentId]!;
+          if (student.studentId == studentId) {
+            student.isMarkedPresent = _attendanceMap[studentId]!;
             break;
           }
         }
@@ -65,8 +66,8 @@ class DropStudentSelectionProvider extends ChangeNotifier {
   }
 
   /// Check if a student is marked present
-  bool isStudentPresent(String tripStudentId) {
-    return _attendanceMap[tripStudentId] ?? false;
+  bool isStudentPresent(String studentId) {
+    return _attendanceMap[studentId] ?? false;
   }
 
   /// Get all selected (present) trip student IDs
@@ -165,10 +166,87 @@ class DropStudentSelectionProvider extends ChangeNotifier {
     return skippedIds;
   }
 
+  /// Get unique school IDs from all students, in order of first appearance
+  /// Used by DropStudentSelectionScreen to iterate through schools sequentially
+  List<String> getUniqueSchoolIds() {
+    final seen = <String>{};
+    final ordered = <String>[];
+    for (var parent in _parentsWithStudents) {
+      for (var student in parent.students) {
+        if (student.schoolId != null && seen.add(student.schoolId!)) {
+          ordered.add(student.schoolId!);
+        }
+      }
+    }
+    return ordered;
+  }
+
+  /// Get skipped (unselected) student IDs filtered by school
+  /// For multi-school routes, only returns skipped students from the specified school
+  List<String> getSkippedStudentIdsForSchool(String schoolId) {
+    List<String> skippedIds = [];
+    for (var parent in _parentsWithStudents) {
+      for (var student in parent.students) {
+        if (student.schoolId == schoolId && !student.isMarkedPresent) {
+          skippedIds.add(student.studentId);
+        }
+      }
+    }
+    return skippedIds;
+  }
+
+  /// Filter students by school_id for multi-school routes
+  /// Returns list of students belonging to specified school
+  List<TripStudent> getStudentsForSchool(String? schoolId) {
+    if (schoolId == null) {
+      // If no school_id specified, return all students
+      List<TripStudent> allStudents = [];
+      for (var parent in _parentsWithStudents) {
+        allStudents.addAll(parent.students);
+      }
+      return allStudents;
+    }
+
+    List<TripStudent> schoolStudents = [];
+    for (var parent in _parentsWithStudents) {
+      for (var student in parent.students) {
+        if (student.schoolId == schoolId) {
+          schoolStudents.add(student);
+        }
+      }
+    }
+    return schoolStudents;
+  }
+
+  /// Validate if a student belongs to a specific school
+  /// Returns true if student's school_id matches the specified schoolId
+  bool validateStudentBelongsToSchool(String studentId, String? schoolId) {
+    if (schoolId == null) return true;
+
+    for (var parent in _parentsWithStudents) {
+      for (var student in parent.students) {
+        if (student.studentId == studentId) {
+          return student.schoolId == schoolId;
+        }
+      }
+    }
+    return false;
+  }
+
+  /// Get selected student IDs filtered by school (for current waypoint)
+  List<String> getSelectedStudentIdsForSchool(String? schoolId) {
+    final schoolStudents = getStudentsForSchool(schoolId);
+    return schoolStudents
+        .where((student) => student.isMarkedPresent)
+        .map((student) => student.studentId)
+        .toList();
+  }
+
   /// Mark selected students as picked from school
   /// POST /trip-students/trip/:tripId/school-point
   /// Gets current location and sends selected student IDs
-  Future<SchoolPointResponse> markSchoolPoint() async {
+  /// [schoolId] - Optional: school being processed (for multi-school routes)
+  Future<SchoolPointResponse> markSchoolPoint({String? schoolId}) async {
     if (_currentTripId == null) {
       return SchoolPointResponse(
         success: false,
@@ -177,7 +255,11 @@ class DropStudentSelectionProvider extends ChangeNotifier {
       );
     }
 
-    if (!hasSelectedStudents()) {
+    // Check if there are selected students (for this school if multi-school)
+    final hasSelected = schoolId != null
+        ? getSelectedStudentIdsForSchool(schoolId).isNotEmpty
+        : hasSelectedStudents();
+    if (!hasSelected) {
       return SchoolPointResponse(
         success: false,
         data: null,
@@ -200,17 +282,23 @@ class DropStudentSelectionProvider extends ChangeNotifier {
         );
       }
 
-      // Get selected student IDs
-      final studentIds = getSelectedStudentIdsForApi();
+      // Get selected student IDs (filter by school if provided)
+      final studentIds = schoolId != null
+          ? getSelectedStudentIdsForSchool(schoolId)
+          : getSelectedStudentIdsForApi();
 
       // Get skipped (unselected) student IDs for DROP trip
-      final skippedStudentIds = getSkippedStudentIdsForApi();
+      // For multi-school routes, only get skipped students from the current school
+      final skippedStudentIds = schoolId != null
+          ? getSkippedStudentIdsForSchool(schoolId)
+          : getSkippedStudentIdsForApi();
 
-      // Create request with skipped students
+      // Create request with skipped students and school_id
       final request = SchoolPointRequest(
         studentIds: studentIds,
         latitude: location.latitude,
         longitude: location.longitude,
+        schoolId: schoolId,
         skippedStudentIds:
             skippedStudentIds.isNotEmpty ? skippedStudentIds : null,
       );

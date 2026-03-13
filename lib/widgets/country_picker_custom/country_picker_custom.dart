@@ -1,4 +1,4 @@
-import 'package:taxify_driver_ui/widgets/country_picker_custom/selection_item_list.dart';
+import 'package:skolo_driver/widgets/country_picker_custom/selection_item_list.dart';
 
 import '../../config.dart';
 import 'layouts/country_list_layout.dart';

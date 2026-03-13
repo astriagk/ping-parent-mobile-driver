@@ -1,4 +1,4 @@
-package com.taxifydriver.ui.taxify_driver_ui
+package com.skolodriver.ui.skolo_driver
 
 import io.flutter.embedding.android.FlutterActivity
 

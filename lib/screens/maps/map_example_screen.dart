@@ -1,6 +1,6 @@
-import 'package:taxify_driver_ui/common/maps/map_config.dart';
-import 'package:taxify_driver_ui/config.dart' hide Marker, Polyline, LatLng;
-import 'package:taxify_driver_ui/widgets/maps/index.dart';
+import 'package:skolo_driver/common/maps/map_config.dart';
+import 'package:skolo_driver/config.dart' hide Marker, Polyline, LatLng;
+import 'package:skolo_driver/widgets/maps/index.dart';
 
 /// Map Example Screen - Main Map Screen
 /// Tiles with MapWidget

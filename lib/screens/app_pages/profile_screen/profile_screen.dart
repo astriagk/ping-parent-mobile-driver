@@ -1,4 +1,4 @@
-import 'package:taxify_driver_ui/screens/app_pages/profile_screen/profile_widgets.dart';
+import 'package:skolo_driver/screens/app_pages/profile_screen/profile_widgets.dart';
 
 import '../../../config.dart';
 
@@ -55,7 +55,8 @@ class ProfileScreen extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                 //profile image and edit button layout
-                                ProfileWidgets().profileImageLayout(context),
+                                ProfileWidgets()
+                                    .profileImageLayout(context, udCtrl),
                                 Divider(
                                         color:
                                             appColor(context).appTheme.stroke,

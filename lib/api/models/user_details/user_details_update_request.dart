@@ -3,6 +3,7 @@ import 'dart:convert';
 class UserDetailsUpdateRequest {
   final String name;
   final String email;
+  final String? photoUrl;
   final String vehicleType;
   final String vehicleNumber;
   final int vehicleCapacity;
@@ -11,6 +12,7 @@ class UserDetailsUpdateRequest {
   UserDetailsUpdateRequest({
     required this.name,
     required this.email,
+    this.photoUrl,
     required this.vehicleType,
     required this.vehicleNumber,
     required this.vehicleCapacity,
@@ -21,6 +23,7 @@ class UserDetailsUpdateRequest {
     return {
       'name': name,
       'email': email,
+      if (photoUrl != null && photoUrl!.isNotEmpty) 'photo_url': photoUrl,
       'vehicle_type': vehicleType,
       'vehicle_number': vehicleNumber,
       'vehicle_capacity': vehicleCapacity,

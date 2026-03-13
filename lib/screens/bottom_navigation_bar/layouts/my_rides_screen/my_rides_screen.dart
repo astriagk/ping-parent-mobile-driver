@@ -1,7 +1,7 @@
-import 'package:taxify_driver_ui/config.dart';
-import 'package:taxify_driver_ui/helper/address_util.dart';
-import 'package:taxify_driver_ui/screens/bottom_navigation_bar/layouts/my_rides_screen/layouts/pending_ride_layouts.dart';
-import 'package:taxify_driver_ui/widgets/empty_state/empty_state_widget.dart';
+import 'package:skolo_driver/config.dart';
+import 'package:skolo_driver/helper/address_util.dart';
+import 'package:skolo_driver/screens/bottom_navigation_bar/layouts/my_rides_screen/layouts/pending_ride_layouts.dart';
+import 'package:skolo_driver/widgets/empty_state/empty_state_widget.dart';
 
 class MyRidesScreen extends StatefulWidget {
   const MyRidesScreen({super.key});
@@ -12,7 +12,6 @@ class MyRidesScreen extends StatefulWidget {
 
 class _MyRidesScreenState extends State<MyRidesScreen>
     with WidgetsBindingObserver {
-  int? _lastTabIndex;
   bool _wasInBackground = false;
 
   @override
@@ -32,9 +31,7 @@ class _MyRidesScreenState extends State<MyRidesScreen>
     if (state == AppLifecycleState.paused) {
       _wasInBackground = true;
     }
-    if (state == AppLifecycleState.resumed &&
-        _wasInBackground &&
-        _lastTabIndex == 2) {
+    if (state == AppLifecycleState.resumed && _wasInBackground) {
       _wasInBackground = false;
       if (mounted) {
         context.read<MyRidesProvider>().onInit();
@@ -71,17 +68,6 @@ class _MyRidesScreenState extends State<MyRidesScreen>
 
   @override
   Widget build(BuildContext context) {
-    final currentTab = context.watch<BottomBarProvider>().currentTab;
-
-    if (currentTab == 2 && _lastTabIndex != 2) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          context.read<MyRidesProvider>().onInit();
-        }
-      });
-    }
-    _lastTabIndex = currentTab;
-
     final screenWidth = MediaQuery.of(context).size.width;
     return Consumer<MyRidesProvider>(builder: (context, myRidesPvr, child) {
       return SingleChildScrollView(
@@ -160,10 +146,11 @@ class _MyRidesScreenState extends State<MyRidesScreen>
                 return CustomerCard(
                     pickUpAddress: pickupAddress,
                     userName: assignment.student.studentName,
+                    userImage: assignment.student.photoUrl,
                     rating: 4.0,
                     reviews: 10,
                     distance: '1.2KM',
-                    amount: 200,
+                    // amount: 200,
                     pickupTime: '10:00 AM',
                     dropOffAddress: dropoffAddress,
                     assignmentId: assignment.id,

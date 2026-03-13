@@ -207,8 +207,8 @@ class AppArray {
       "title": appFonts.general,
       "data": [
         {"subTitle": appFonts.profileSettings, "icon": svgAssets.profile},
-        {"subTitle": appFonts.myWallet, "icon": svgAssets.wallet},
-        {"subTitle": appFonts.offerList, "icon": svgAssets.offer},
+        // {"subTitle": appFonts.myWallet, "icon": svgAssets.wallet},
+        // {"subTitle": appFonts.offerList, "icon": svgAssets.offer},
         {"subTitle": appFonts.appSettings, "icon": svgAssets.settings}
       ]
     },
@@ -217,22 +217,26 @@ class AppArray {
       "data": [
         {"subTitle": appFonts.documentRegistration, "icon": svgAssets.document},
         {"subTitle": appFonts.userRegistration, "icon": svgAssets.frame},
-        {"subTitle": appFonts.bankDetail, "icon": svgAssets.bank}
+        // {"subTitle": appFonts.bankDetail, "icon": svgAssets.bank}
       ]
     },
     {
       "title": appFonts.alertZone,
       "data": [
-        {"subTitle": appFonts.deleteAccount, "icon": svgAssets.check},
+        // {"subTitle": appFonts.deleteAccount, "icon": svgAssets.check},
         {"subTitle": appFonts.logout, "icon": svgAssets.logout}
       ]
     }
   ];
+
+  // using to show my assignments
+
   final List<Map<String, String>> rideData = [
-    {"count": "02", "title": "Pending \nRide"},
-    {"count": "16", "title": "Complete \nRide"},
-    {"count": "04", "title": "Cancel \nRide"}
+    {"count": "02", "title": "Pending \nAssignment"},
+    {"count": "16", "title": "Completed \nAssignment"},
+    {"count": "04", "title": "Cancel \nAssignment"}
   ];
+
   final List<RideInfo> rides = [
     RideInfo(
         userName: 'Johnson Smithkover',
@@ -527,8 +531,8 @@ class AppArray {
               isNotification ? appFonts.notification : appFonts.notification,
           'icon': svgAssets.bell
         },
-        {'title': appFonts.changeCurrency, 'icon': svgAssets.currency},
-        {'title': appFonts.changeLanguage, 'icon': svgAssets.translate},
+        // {'title': appFonts.changeCurrency, 'icon': svgAssets.currency},
+        // {'title': appFonts.changeLanguage, 'icon': svgAssets.translate},
       ];
 
   final List<Map<String, dynamic>> offersList = [

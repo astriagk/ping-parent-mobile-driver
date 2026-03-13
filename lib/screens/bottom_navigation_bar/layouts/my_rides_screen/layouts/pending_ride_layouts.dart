@@ -1,14 +1,14 @@
 import 'dart:developer';
 
 import 'package:permission_handler/permission_handler.dart';
-import 'package:taxify_driver_ui/config.dart';
-import 'package:taxify_driver_ui/widgets/common_bg_layout.dart';
-import 'package:taxify_driver_ui/widgets/common_divider.dart';
-import 'package:taxify_driver_ui/widgets/common_location_layout.dart';
+import 'package:skolo_driver/config.dart';
+import 'package:skolo_driver/widgets/common_bg_layout.dart';
+import 'package:skolo_driver/widgets/common_location_layout.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CustomerCard extends StatelessWidget {
   final String? userName;
+  final String? userImage;
   final double? rating;
   final int? reviews;
   final String? distance;
@@ -27,6 +27,7 @@ class CustomerCard extends StatelessWidget {
   const CustomerCard(
       {super.key,
       this.userName,
+      this.userImage,
       this.rating,
       this.reviews,
       this.distance,
@@ -44,6 +45,9 @@ class CustomerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final trimmedUserImage = userImage?.trim() ?? '';
+    final isNetworkUserImage = trimmedUserImage.startsWith('https://');
+
     return CommonBgLayout(
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,10 +68,11 @@ class CustomerCard extends StatelessWidget {
                                   width: 1, color: appTheme.borderColor),
                               borderRadius:
                                   BorderRadius.all(Radius.circular(Insets.i7)),
-                              image: const DecorationImage(
+                              image: DecorationImage(
                                   fit: BoxFit.cover,
-                                  image: AssetImage(
-                                      'assets/image/home/user2.png')))),
+                                  image: isNetworkUserImage
+                                      ? NetworkImage(trimmedUserImage)
+                                      : AssetImage(imageAssets.profileImg)))),
                       HSpace(Insets.i6),
                       Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,9 +85,9 @@ class CustomerCard extends StatelessWidget {
                             Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  screensWidgets.ratingCounting(
-                                      rating, reviews),
-                                  const CommonDivider(),
+                                  // screensWidgets.ratingCounting(
+                                  //     rating, reviews),
+                                  // const CommonDivider(),
                                   SvgPicture.asset(svgAssets.routing),
                                   HSpace(Insets.i4),
                                   Text(distance!,
@@ -91,8 +96,8 @@ class CustomerCard extends StatelessWidget {
                                 ])
                           ])
                     ]),
-                screensWidgets.priceText(amount,
-                    bottomMargin: 23.0, leftMargin: 40.0)
+                // screensWidgets.priceText(amount,
+                //     bottomMargin: 23.0, leftMargin: 40.0)
               ]),
           VSpace(Insets.i15),
           homeScreenWidget.dottedLineCommon(),
@@ -103,11 +108,11 @@ class CustomerCard extends StatelessWidget {
                     .textColor(appTheme.primary)
                     .textHeight(1.3)),
             Row(children: [
-              CommonIconButton(
-                  onTap: () => route.pushNamed(context, routeName.chatScreen),
-                  icon: svgAssets.message,
-                  bgColor: appTheme.bgBox),
-              HSpace(Insets.i10),
+              // CommonIconButton(
+              //     onTap: () => route.pushNamed(context, routeName.chatScreen),
+              //     icon: svgAssets.message,
+              //     bgColor: appTheme.bgBox),
+              // HSpace(Insets.i10),
               CommonIconButton(
                   onTap: () async {
                     // Request phone permission

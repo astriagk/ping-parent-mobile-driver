@@ -5,6 +5,7 @@ dynamic en = {
   "settings": "Settings",
   "pendingRide": "Pending Ride",
   "completeRide": "Complete Ride",
+  "dropAtSchool": "Drop at School",
   "cancelRide": "Cancel Ride",
   "totalEarning": "Total Earning",
   "totalBalance": "Total Balance",
@@ -14,7 +15,7 @@ dynamic en = {
       "Simply Touch And Pick To Have All Of Your Products And Services Delivered To Your Door.",
   "trackingRealtime": "Tracking Realtime",
   "earnMoney": "Earn Money",
-  "becomeTaxify": "Become Taxify Driver",
+  "becomeTaxify": "Become Skolo Driver",
   "countryCode": "Country Code",
   "yourRideIsConfirmed": "Your ride is confirmed",
   "activeStatus": "Active Status",
@@ -36,6 +37,10 @@ dynamic en = {
   "french": "French",
   "spanish": "Spanish",
   "home": "Home",
+  "welcomeBack": "Welcome back,",
+  "driver": "Driver",
+  "startEarningToday":
+      "Start earning today — accept rides nearby and make every trip count.",
   "category": "Category",
   "createYourAccount": "Create Your Account",
   "documentVerify": "Document Verify",
@@ -66,7 +71,7 @@ dynamic en = {
   "enterReferralID": "Enter Referral Id",
   "alreadyHaveAnAccount": "Already Have An Account?",
   "otpVerification": "OTP Verification",
-  "enterOTPSent": "Enter Otp Sent To +91 77777 88888",
+  "enterOTPSent": "Enter Otp Sent To Your Mobile Number",
   "otp": "OTP",
   "verify": "Verify",
   "notReceivedYet": "Not Received Yet?",
@@ -319,6 +324,10 @@ dynamic en = {
   "selectStudents": "Select Students",
   "startDrop": "Start Drop",
   "noStudentsAssigned": "No students assigned",
+
+  // Waypoint Navigation
+  "completeTrip": "Complete Trip",
+  "continueRide": "Continue",
 
   // Error states
   "somethingWentWrong": "Something went wrong",

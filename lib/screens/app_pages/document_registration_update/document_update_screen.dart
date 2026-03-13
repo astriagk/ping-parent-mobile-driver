@@ -1,4 +1,4 @@
-import 'package:taxify_driver_ui/config.dart';
+import 'package:skolo_driver/config.dart';
 
 class DocumentUpdateScreen extends StatelessWidget {
   const DocumentUpdateScreen({super.key});
@@ -97,21 +97,20 @@ class DocumentUpdateScreen extends StatelessWidget {
   Widget _buildSingleUploadDocumentSection(
     BuildContext context,
     DocumentUpdateProvider pvr,
-    String title,
+    String titleKey,
     String hintText,
     TextEditingController controller,
     String? photoUrl,
   ) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       TextWidgetCommon(
-          text: language(context, title),
+          text: language(context, titleKey),
           style: AppCss.lexendMedium14.textColor(appTheme.darkText)),
       VSpace(Insets.i10),
-      _buildFullWidthUploadContainer(
-          context, pvr, language(context, title), photoUrl),
+      _buildFullWidthUploadContainer(context, pvr, titleKey, photoUrl),
       VSpace(Insets.i12),
       AuthCommonWidgets().textAndTextField(
-          language(context, title), language(context, hintText), context,
+          language(context, titleKey), language(context, hintText), context,
           controller: controller),
     ]);
   }

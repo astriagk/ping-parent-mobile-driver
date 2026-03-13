@@ -1,19 +1,19 @@
 import 'dart:convert';
-import 'package:taxify_driver_ui/api/api_client.dart';
-import 'package:taxify_driver_ui/api/endpoints.dart';
-import 'package:taxify_driver_ui/api/models/pick_up_customer/optimized_route_model.dart';
-import 'package:taxify_driver_ui/api/models/pick_up_customer/optimized_route_request.dart';
-import 'package:taxify_driver_ui/api/models/pick_up_customer/trip_status_request.dart';
-import 'package:taxify_driver_ui/api/models/pick_up_customer/trip_status_response.dart';
-import 'package:taxify_driver_ui/api/models/pick_up_customer/position_update_request.dart';
-import 'package:taxify_driver_ui/api/models/pick_up_customer/position_update_response.dart';
-import 'package:taxify_driver_ui/api/models/pick_up_customer/pickup_point_request.dart';
-import 'package:taxify_driver_ui/api/models/pick_up_customer/pickup_point_response.dart';
-import 'package:taxify_driver_ui/api/models/pick_up_customer/school_point_request.dart';
-import 'package:taxify_driver_ui/api/models/pick_up_customer/school_point_response.dart';
-import 'package:taxify_driver_ui/api/models/pick_up_customer/daily_qr_otp_request.dart';
-import 'package:taxify_driver_ui/api/models/pick_up_customer/daily_qr_otp_response.dart';
-import 'package:taxify_driver_ui/api/models/pick_up_customer/trip_progress_response.dart';
+import 'package:skolo_driver/api/api_client.dart';
+import 'package:skolo_driver/api/endpoints.dart';
+import 'package:skolo_driver/api/models/pick_up_customer/optimized_route_model.dart';
+import 'package:skolo_driver/api/models/pick_up_customer/optimized_route_request.dart';
+import 'package:skolo_driver/api/models/pick_up_customer/trip_status_request.dart';
+import 'package:skolo_driver/api/models/pick_up_customer/trip_status_response.dart';
+import 'package:skolo_driver/api/models/pick_up_customer/position_update_request.dart';
+import 'package:skolo_driver/api/models/pick_up_customer/position_update_response.dart';
+import 'package:skolo_driver/api/models/pick_up_customer/pickup_point_request.dart';
+import 'package:skolo_driver/api/models/pick_up_customer/pickup_point_response.dart';
+import 'package:skolo_driver/api/models/pick_up_customer/school_point_request.dart';
+import 'package:skolo_driver/api/models/pick_up_customer/school_point_response.dart';
+import 'package:skolo_driver/api/models/pick_up_customer/daily_qr_otp_request.dart';
+import 'package:skolo_driver/api/models/pick_up_customer/daily_qr_otp_response.dart';
+import 'package:skolo_driver/api/models/pick_up_customer/trip_progress_response.dart';
 
 class PickUpCustomerService {
   final ApiClient _apiClient;
@@ -245,7 +245,6 @@ class PickUpCustomerService {
           final jsonData = jsonDecode(response.body) as Map<String, dynamic>;
           return PickupPointResponse.fromJson(jsonData);
         } catch (parseError) {
-          print('[D] Pickup parse error: $parseError');
           return PickupPointResponse(
             success: false,
             data: null,
@@ -254,7 +253,6 @@ class PickUpCustomerService {
           );
         }
       } else {
-        print('[D] Pickup API error: ${response.statusCode}');
         // Try to parse error message from response
         try {
           final jsonData = jsonDecode(response.body) as Map<String, dynamic>;
@@ -290,6 +288,7 @@ class PickUpCustomerService {
     required List<String> studentIds,
     required double latitude,
     required double longitude,
+    String? schoolId,
     List<String>? skippedStudentIds,
   }) async {
     try {
@@ -297,6 +296,7 @@ class PickUpCustomerService {
         studentIds: studentIds,
         latitude: latitude,
         longitude: longitude,
+        schoolId: schoolId,
         skippedStudentIds: skippedStudentIds,
       );
 

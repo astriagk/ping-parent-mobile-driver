@@ -1,9 +1,9 @@
-import 'package:taxify_driver_ui/config.dart';
-import 'package:taxify_driver_ui/widgets/common_bg_layout.dart';
-import 'package:taxify_driver_ui/widgets/empty_state/index.dart';
-import 'package:taxify_driver_ui/api/enums/trip_type_enum.dart';
-import 'package:taxify_driver_ui/api/enums/trip_status_enum.dart';
-import 'package:taxify_driver_ui/api/models/get_my_trips_response.dart';
+import 'package:skolo_driver/config.dart';
+import 'package:skolo_driver/widgets/common_bg_layout.dart';
+import 'package:skolo_driver/widgets/empty_state/index.dart';
+import 'package:skolo_driver/api/enums/trip_type_enum.dart';
+import 'package:skolo_driver/api/enums/trip_status_enum.dart';
+import 'package:skolo_driver/api/models/get_my_trips_response.dart';
 
 class ActiveRideScreen extends StatefulWidget {
   const ActiveRideScreen({super.key});
@@ -13,8 +13,7 @@ class ActiveRideScreen extends StatefulWidget {
 }
 
 class _ActiveRideScreenState extends State<ActiveRideScreen>
-    with WidgetsBindingObserver, RouteAware {
-  int? _lastTabIndex;
+    with WidgetsBindingObserver {
   bool _wasInBackground = false;
 
   @override
@@ -24,34 +23,17 @@ class _ActiveRideScreenState extends State<ActiveRideScreen>
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    routeObserver.subscribe(this, ModalRoute.of(context)!);
-  }
-
-  @override
   void dispose() {
-    routeObserver.unsubscribe(this);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
-  /// Called when a screen pushed on top of this one is popped
-  @override
-  void didPopNext() {
-    _fetchTrips();
-  }
-
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // Track when app goes to background (not just inactive from notification shade)
     if (state == AppLifecycleState.paused) {
       _wasInBackground = true;
     }
-    // Refresh only when returning from actual background
-    if (state == AppLifecycleState.resumed &&
-        _wasInBackground &&
-        _lastTabIndex == 1) {
+    if (state == AppLifecycleState.resumed && _wasInBackground) {
       _wasInBackground = false;
       _fetchTrips();
     }
@@ -147,9 +129,7 @@ class _ActiveRideScreenState extends State<ActiveRideScreen>
         );
       } else if (tripType == TripType.drop) {
         // For DROP trips (not in-progress), go to student selection screen
-        context
-            .read<DropStudentSelectionProvider>()
-            .setCurrentTripId(trip.id);
+        context.read<DropStudentSelectionProvider>().setCurrentTripId(trip.id);
         await route.pushNamed(context, routeName.dropStudentSelectionScreen);
       } else {
         // For PICKUP trips, go directly to map
@@ -215,20 +195,6 @@ class _ActiveRideScreenState extends State<ActiveRideScreen>
 
   @override
   Widget build(BuildContext context) {
-    // Watch BottomBarProvider to detect tab changes
-    final bottomBarProvider = context.watch<BottomBarProvider>();
-    final currentTab = bottomBarProvider.currentTab;
-
-    // Fetch trips when this tab becomes active
-    if (currentTab == 1 && _lastTabIndex != 1) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          context.read<ActiveRideProvider>().fetchMyTripsByDate();
-        }
-      });
-    }
-    _lastTabIndex = currentTab;
-
     return Consumer2<ActiveRideProvider, MyRidesProvider>(
         builder: (context, activeRidePvr, myRidePvr, child) {
       // Show loading state while fetching trips

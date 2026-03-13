@@ -1,5 +1,5 @@
-import 'package:taxify_driver_ui/config.dart';
-import 'package:taxify_driver_ui/screens/maps/index.dart';
+import 'package:skolo_driver/config.dart';
+import 'layouts/welcome_header_layout.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -11,17 +11,19 @@ class HomeScreen extends StatelessWidget {
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Column(children: [
+          // VSpace(Insets.i16),
+          // Stack(alignment: Alignment.centerLeft, children: [
+          //   Image.asset(imageAssets.homeWallet),
+          //   Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          //     Text(language(context, appFonts.totalEarning),
+          //         style: AppCss.lexendRegular12.textColor(appTheme.walletClr)),
+          //     VSpace(Insets.i4),
+          //     Text("\$${language(context, appFonts.balance)}",
+          //         style: AppCss.lexendBold16.textColor(appTheme.white))
+          //   ]).paddingOnly(left: Insets.i15)
+          // ]),
           VSpace(Insets.i16),
-          Stack(alignment: Alignment.centerLeft, children: [
-            Image.asset(imageAssets.homeWallet),
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(language(context, appFonts.totalEarning),
-                  style: AppCss.lexendRegular12.textColor(appTheme.walletClr)),
-              VSpace(Insets.i4),
-              Text("\$${language(context, appFonts.balance)}",
-                  style: AppCss.lexendBold16.textColor(appTheme.white))
-            ]).paddingOnly(left: Insets.i15)
-          ]),
+          const WelcomeHeaderLayout(),
           VSpace(Insets.i16),
           const RideDataLayout(),
           VSpace(Insets.i16),
@@ -46,8 +48,8 @@ class HomeScreen extends StatelessWidget {
           //   label: const Text('Ride Details'),
           // ).marginSymmetric(horizontal: Insets.i20),
         ]).marginSymmetric(horizontal: Insets.i20),
-        const UpcomingRidesList(),
-        const ActiveOfferLayout()
+        // const UpcomingRidesList(),
+        // const ActiveOfferLayout()
       ]));
     });
   }

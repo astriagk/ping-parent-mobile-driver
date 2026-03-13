@@ -94,8 +94,10 @@ extension ScreenExtensions on Widget {
           child: this);
 
   Widget chatAppBarExtension(context) => Container(child: this)
-      .paddingDirectional(horizontal: Sizes.s20, top: Insets.i35)
-      .height(Sizes.s108)
+      .paddingDirectional(
+          horizontal: Sizes.s20,
+          top: MediaQuery.of(context).padding.top + Insets.i12)
+      .paddingDirectional(bottom: Insets.i12)
       .decorated(
           bLRadius: AppRadius.r20,
           bRRadius: AppRadius.r20,
@@ -215,7 +217,9 @@ extension ScreenExtensions on Widget {
 
   Widget rideAppBarExtension(context) => Container(child: this)
       .paddingDirectional(
-          horizontal: Sizes.s20, top: Sizes.s50, bottom: Sizes.s25)
+          horizontal: Sizes.s20,
+          top: MediaQuery.of(context).padding.top + Sizes.s15,
+          bottom: Sizes.s25)
       .decorated(
           color: appColor(context).appTheme.bgBox,
           bLRadius: Sizes.s20,

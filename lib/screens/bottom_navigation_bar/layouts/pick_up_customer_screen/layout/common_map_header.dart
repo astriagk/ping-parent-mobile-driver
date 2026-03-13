@@ -1,6 +1,6 @@
-import 'package:taxify_driver_ui/config.dart';
-import 'package:taxify_driver_ui/api/models/pick_up_customer/optimized_route_model.dart';
-import 'package:taxify_driver_ui/helper/location_service.dart';
+import 'package:skolo_driver/config.dart';
+import 'package:skolo_driver/api/models/pick_up_customer/optimized_route_model.dart';
+import 'package:skolo_driver/helper/location_service.dart';
 
 class CommonMapHeader extends StatelessWidget {
   final RouteWaypoint? waypoint;

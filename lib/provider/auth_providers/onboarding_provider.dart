@@ -249,8 +249,7 @@ class OnboardingProvider extends ChangeNotifier {
     final result = await _onboardingService.createDriverProfile(
       name: name,
       email: email,
-      photoUrl:
-          'https://picsum.photos/seed/picsum/200/300', // Empty for now, can be updated with image picker
+      photoUrl: null, // Optional - will not be included in API request if null
       vehicleType: vehicleType,
       vehicleNumber: vehicleNumber,
       vehicleCapacity: vehicleCapacity,
@@ -407,10 +406,15 @@ class OnboardingProvider extends ChangeNotifier {
     isCreatingProfile = true;
     notifyListeners();
 
+    // Get photo URL from userData, pass null if empty
+    final photoUrl = userData['photo_url']?.toString().isNotEmpty == true
+        ? userData['photo_url']
+        : null;
+
     final result = await _onboardingService.createDriverProfile(
       name: userData['name'] ?? '',
       email: userData['email'] ?? '',
-      photoUrl: userData['photo_url'] ?? '',
+      photoUrl: photoUrl,
       vehicleType: userData['vehicle_type'] ?? '',
       vehicleNumber: userData['vehicle_number'] ?? '',
       vehicleCapacity: userData['vehicle_capacity'] ?? 0,

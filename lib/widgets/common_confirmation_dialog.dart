@@ -1,4 +1,4 @@
-import 'package:taxify_driver_ui/config.dart';
+import 'package:skolo_driver/config.dart';
 
 class CustomConfirmationDialog extends StatelessWidget {
   final String message;

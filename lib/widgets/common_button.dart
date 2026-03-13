@@ -1,4 +1,4 @@
-import 'package:taxify_driver_ui/widgets/loading/loading_wave_animation.dart';
+import 'package:skolo_driver/widgets/loading/loading_wave_animation.dart';
 
 import '../config.dart';
 
