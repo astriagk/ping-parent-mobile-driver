@@ -1,5 +1,5 @@
 class SchoolPointRequest {
-  final List<String> studentIds;
+  final List<String>? studentIds;
   final double latitude;
   final double longitude;
   final String? schoolId;
@@ -8,7 +8,7 @@ class SchoolPointRequest {
   final List<String>? skippedStudentIds;
 
   SchoolPointRequest({
-    required this.studentIds,
+    this.studentIds,
     required this.latitude,
     required this.longitude,
     this.schoolId,
@@ -17,13 +17,16 @@ class SchoolPointRequest {
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{
-      'student_ids': studentIds,
       'latitude': latitude,
       'longitude': longitude,
     };
     // Include school_id if provided (for multi-school validation)
     if (schoolId != null) {
       json['school_id'] = schoolId;
+    }
+    // Only include skipped_student_ids if provided
+    if (studentIds != null && studentIds!.isNotEmpty) {
+      json['student_ids'] = studentIds;
     }
     // Only include skipped_student_ids if provided
     if (skippedStudentIds != null && skippedStudentIds!.isNotEmpty) {
