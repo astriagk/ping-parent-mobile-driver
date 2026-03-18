@@ -23,6 +23,13 @@ class CustomerCard extends StatelessWidget {
   final Function(String)? onApprove;
   final Function(String)? onReject;
   final bool isActionLoading;
+  // Additional student/assignment info
+  final String? schoolName;
+  final String? classSection;
+  final String? gender;
+  final String? assignmentStatus;
+  final DateTime? assignedDate;
+  final String? parentName;
 
   const CustomerCard(
       {super.key,
@@ -41,88 +48,165 @@ class CustomerCard extends StatelessWidget {
       this.phoneNumber,
       this.onApprove,
       this.onReject,
-      this.isActionLoading = false});
+      this.isActionLoading = false,
+      this.schoolName,
+      this.classSection,
+      this.gender,
+      this.assignmentStatus,
+      this.assignedDate,
+      this.parentName});
+
+  /// Converts snake_case or lowercase to Title Case
+  /// e.g. "parent_requested" → "Parent Requested", "male" → "Male"
+  String _toTitleCase(String value) {
+    return value
+        .split('_')
+        .map((w) => w.isEmpty ? '' : w[0].toUpperCase() + w.substring(1))
+        .join(' ');
+  }
 
   @override
   Widget build(BuildContext context) {
-    final trimmedUserImage = userImage?.trim() ?? '';
-    final isNetworkUserImage = trimmedUserImage.startsWith('https://');
+    final hasPhone =
+        phoneNumber != null && phoneNumber!.trim().isNotEmpty;
+    final hasClass =
+        classSection != null && classSection!.trim().isNotEmpty;
+    final hasGender = gender != null && gender!.trim().isNotEmpty;
+    final hasSchool =
+        schoolName != null && schoolName!.trim().isNotEmpty;
+    final hasDistance =
+        distance != null && distance!.trim().isNotEmpty;
 
     return CommonBgLayout(
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+          // ── Header: photo + info + status ──
           Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                          height: Insets.i50,
-                          width: Insets.i50,
-                          decoration: BoxDecoration(
-                              border: Border.all(
-                                  width: 1, color: appTheme.borderColor),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(Insets.i7)),
-                              image: DecorationImage(
-                                  fit: BoxFit.cover,
-                                  image: isNetworkUserImage
-                                      ? NetworkImage(trimmedUserImage)
-                                      : AssetImage(imageAssets.profileImg)))),
-                      HSpace(Insets.i6),
-                      Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [screensWidgets.userName(userName)]),
-                            VSpace(Insets.i6),
-                            Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  // screensWidgets.ratingCounting(
-                                  //     rating, reviews),
-                                  // const CommonDivider(),
-                                  SvgPicture.asset(svgAssets.routing),
-                                  HSpace(Insets.i4),
-                                  Text(distance!,
-                                      style: AppCss.lexendRegular12
-                                          .textColor(appTheme.textClr))
-                                ])
-                          ])
+                Expanded(
+                  child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Student photo
+                        ClipRRect(
+                          borderRadius:
+                              BorderRadius.circular(Insets.i7),
+                          child: Container(
+                            height: Insets.i50,
+                            width: Insets.i50,
+                            decoration: BoxDecoration(
+                                border: Border.all(
+                                    width: 1,
+                                    color: appTheme.borderColor)),
+                            child: (userImage?.trim().isNotEmpty == true)
+                                ? Image.network(
+                                    userImage!.trim(),
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (_, __, ___) =>
+                                        Image.asset(imageAssets.profileImg,
+                                            fit: BoxFit.cover),
+                                  )
+                                : Image.asset(imageAssets.profileImg,
+                                    fit: BoxFit.cover),
+                          ),
+                        ),
+                        HSpace(Insets.i10),
+                        // Name + class/gender + school
+                        Expanded(
+                          child: Column(
+                              crossAxisAlignment:
+                                  CrossAxisAlignment.start,
+                              children: [
+                                screensWidgets.userName(userName,
+                                    style: AppCss.lexendMedium15
+                                        .textColor(appTheme.primary)),
+                                if (hasClass || hasGender) ...[
+                                  VSpace(Insets.i4),
+                                  Row(children: [
+                                    if (hasClass)
+                                      _InfoChip(label: classSection!),
+                                    if (hasClass && hasGender)
+                                      HSpace(Insets.i6),
+                                    if (hasGender)
+                                      _InfoChip(label: _toTitleCase(gender!)),
+                                  ]),
+                                ],
+                                if (hasSchool) ...[
+                                  VSpace(Insets.i5),
+                                  Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.school_outlined,
+                                            size: 12,
+                                            color: appTheme.primary),
+                                        HSpace(Insets.i4),
+                                        Flexible(
+                                          child: Text(schoolName!,
+                                              style: AppCss.lexendRegular13
+                                                  .textColor(appTheme.primary),
+                                              overflow:
+                                                  TextOverflow.ellipsis),
+                                        ),
+                                      ]),
+                                ],
+                              ]),
+                        ),
+                      ]),
+                ),
+                // Distance badge
+                if (hasDistance) ...[
+                  HSpace(Insets.i8),
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: Insets.i8, vertical: Insets.i4),
+                    decoration: BoxDecoration(
+                        color: appTheme.primary.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(Insets.i4)),
+                    child: Row(mainAxisSize: MainAxisSize.min, children: [
+                      SvgPicture.asset(svgAssets.routing, height: 12),
+                      HSpace(Insets.i4),
+                      Text(distance!,
+                          style: AppCss.lexendMedium13
+                              .textColor(appTheme.primary)),
                     ]),
-                // screensWidgets.priceText(amount,
-                //     bottomMargin: 23.0, leftMargin: 40.0)
+                  ),
+                ],
               ]),
           VSpace(Insets.i15),
           homeScreenWidget.dottedLineCommon(),
           VSpace(Insets.i15),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Text(pickupTime!,
-                style: AppCss.lexendLight12
-                    .textColor(appTheme.primary)
-                    .textHeight(1.3)),
-            Row(children: [
-              // CommonIconButton(
-              //     onTap: () => route.pushNamed(context, routeName.chatScreen),
-              //     icon: svgAssets.message,
-              //     bgColor: appTheme.bgBox),
-              // HSpace(Insets.i10),
+          // ── Middle row: parent name + call ──
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+            if (parentName != null && parentName!.trim().isNotEmpty)
+              Expanded(
+                child: Row(children: [
+                  Icon(Icons.person_outline,
+                      size: 18, color: appTheme.lightText),
+                  HSpace(Insets.i4),
+                  Flexible(
+                    child: Text(parentName!,
+                        style: AppCss.lexendLight14
+                            .textColor(appTheme.lightText)
+                            .textHeight(1.3),
+                        overflow: TextOverflow.ellipsis),
+                  ),
+                ]),
+              )
+            else
+              const SizedBox.shrink(),
+            if (hasPhone)
               CommonIconButton(
                   onTap: () async {
-                    // Request phone permission
-                    PermissionStatus status = await Permission.phone.request();
-
+                    PermissionStatus status =
+                        await Permission.phone.request();
                     if (status.isGranted) {
-                      final Uri phoneUri =
-                          Uri(scheme: 'tel', path: phoneNumber ?? '');
-
-                      // Try to launch the dialer
+                      final Uri phoneUri = Uri(
+                          scheme: 'tel', path: phoneNumber!.trim());
                       if (await canLaunchUrl(phoneUri)) {
                         await launchUrl(phoneUri,
                             mode: LaunchMode.externalApplication);
@@ -138,17 +222,18 @@ class CustomerCard extends StatelessWidget {
                   },
                   icon: svgAssets.call,
                   bgColor: appTheme.bgBox),
-            ])
           ]),
           VSpace(Insets.i15),
           CommonLocationLayout(
-              pickUpAddress: pickUpAddress, droppingAddress: dropOffAddress),
+              pickUpAddress: pickUpAddress,
+              droppingAddress: dropOffAddress),
           if (showActionButtons)
             Row(
               children: [
                 Expanded(
                   child: CommonButton(
-                      style: AppCss.lexendRegular14.textColor(appTheme.textClr),
+                      style: AppCss.lexendRegular14
+                          .textColor(appTheme.textClr),
                       color: appColor(context).appTheme.bgBox,
                       onTap: isActionLoading
                           ? null
@@ -159,7 +244,8 @@ class CustomerCard extends StatelessWidget {
                 SizedBox(width: Insets.i10),
                 Expanded(
                   child: CommonButton(
-                      style: AppCss.lexendRegular15.textColor(appTheme.white),
+                      style: AppCss.lexendRegular15
+                          .textColor(appTheme.white),
                       onTap: isActionLoading
                           ? null
                           : () => onApprove?.call(assignmentId!),
@@ -171,5 +257,23 @@ class CustomerCard extends StatelessWidget {
         ]))
         .marginSymmetric(horizontal: Insets.i20, vertical: Insets.i7)
         .inkWell(onTap: onTap);
+  }
+}
+
+class _InfoChip extends StatelessWidget {
+  final String label;
+  const _InfoChip({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+          horizontal: Insets.i6, vertical: Insets.i2),
+      decoration: BoxDecoration(
+          color: appTheme.primary.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(Insets.i4)),
+      child: Text(label,
+          style: AppCss.lexendRegular13.textColor(appTheme.primary)),
+    );
   }
 }

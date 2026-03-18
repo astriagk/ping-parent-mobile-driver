@@ -23,6 +23,7 @@ class DocumentUpdateProvider extends ChangeNotifier {
   String? vehicleLicensePhotoUrl;
   String? insurancePhotoUrl;
 
+
   // Store original values to check if changed
   String originalDrivingLicense = '';
   String originalVehicleLicenseNumber = '';

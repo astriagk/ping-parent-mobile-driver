@@ -46,7 +46,7 @@ class ProfileScreen extends StatelessWidget {
                   title: appFonts.profileSetting,
                   radius: Sizes.s20),
               body: udCtrl.isLoading
-                  ? const UserDetailsUpdateSkeleton()
+                  ? const ProfileUpdateSkeleton()
                   : Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [

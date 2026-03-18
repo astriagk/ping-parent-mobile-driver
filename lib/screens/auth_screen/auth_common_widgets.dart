@@ -39,7 +39,8 @@ class AuthCommonWidgets {
           .marginOnly(right: MediaQuery.of(context).size.width * 0.2),
       SvgPicture.asset(svgAssets.logo, height: Sizes.s30, width: Sizes.s70),
       Container()
-    ]).padding(top: MediaQuery.of(context).padding.top + Sizes.s15, bottom: Sizes.s5);
+    ]).padding(
+        top: MediaQuery.of(context).padding.top + Sizes.s15, bottom: Sizes.s5);
   }
 
 //gif title and subtitle layout
@@ -86,12 +87,12 @@ class AuthCommonWidgets {
                   color: index >= 2 ? Colors.black : Colors.white,
                   borderRadius: BorderRadius.circular(AppRadius.r6)))),
       SizedBox(width: Insets.i6),
-      // Expanded(
-      //     child: Container(
-      //         height: Insets.i4,
-      //         decoration: BoxDecoration(
-      //             color: index >= 3 ? Colors.black : Colors.white,
-      //             borderRadius: BorderRadius.circular(AppRadius.r6))))
+      Expanded(
+          child: Container(
+              height: Insets.i4,
+              decoration: BoxDecoration(
+                  color: index >= 3 ? Colors.black : Colors.white,
+                  borderRadius: BorderRadius.circular(AppRadius.r6))))
     ]).marginOnly(top: Sizes.s20, bottom: Sizes.s24);
   }
 

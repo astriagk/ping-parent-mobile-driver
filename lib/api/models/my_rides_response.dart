@@ -38,26 +38,34 @@ class DriverStudentAssignment {
   final String driverId;
   final String studentId;
   final String assignmentStatus;
+  final String assignmentSource;
   final DateTime assignedDate;
+  final DateTime? startDate;
+  final DateTime? endDate;
   final DateTime createdAt;
   final DateTime updatedAt;
   final Driver driver;
   final Student student;
   final School school;
   final ParentAddress parentAddress;
+  final Parent? parent;
 
   DriverStudentAssignment({
     required this.id,
     required this.driverId,
     required this.studentId,
     required this.assignmentStatus,
+    required this.assignmentSource,
     required this.assignedDate,
+    this.startDate,
+    this.endDate,
     required this.createdAt,
     required this.updatedAt,
     required this.driver,
     required this.student,
     required this.school,
     required this.parentAddress,
+    this.parent,
   });
 
   factory DriverStudentAssignment.fromJson(Map<String, dynamic> json) {
@@ -66,14 +74,22 @@ class DriverStudentAssignment {
       driverId: json['driver_id'] ?? '',
       studentId: json['student_id'] ?? '',
       assignmentStatus: json['assignment_status'] ?? '',
+      assignmentSource: json['assignment_source'] ?? '',
       assignedDate:
           DateTime.tryParse(json['assigned_date'] ?? '') ?? DateTime.now(),
+      startDate: json['start_date'] != null
+          ? DateTime.tryParse(json['start_date'])
+          : null,
+      endDate: json['end_date'] != null
+          ? DateTime.tryParse(json['end_date'])
+          : null,
       createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
       updatedAt: DateTime.tryParse(json['updated_at'] ?? '') ?? DateTime.now(),
       driver: Driver.fromJson(json['driver'] ?? {}),
       student: Student.fromJson(json['student'] ?? {}),
       school: School.fromJson(json['school'] ?? {}),
       parentAddress: ParentAddress.fromJson(json['parent_address'] ?? {}),
+      parent: Parent.fromJson(json['parent'] ?? {}),
     );
   }
 
@@ -83,13 +99,17 @@ class DriverStudentAssignment {
       'driver_id': driverId,
       'student_id': studentId,
       'assignment_status': assignmentStatus,
+      'assignment_source': assignmentSource,
       'assigned_date': assignedDate.toIso8601String(),
+      'start_date': startDate?.toIso8601String(),
+      'end_date': endDate?.toIso8601String(),
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
       'driver': driver.toJson(),
       'student': student.toJson(),
       'school': school.toJson(),
       'parent_address': parentAddress.toJson(),
+      'parent': parent?.toJson(),
     };
   }
 }
@@ -380,6 +400,47 @@ class ParentAddress {
       'is_primary': isPrimary,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
+    };
+  }
+}
+
+/// Parent model
+class Parent {
+  final String id;
+  final String name;
+  final String? email;
+  final String? photoUrl;
+  final String phoneNumber;
+  final bool hasActiveSubscription;
+
+  Parent({
+    required this.id,
+    required this.name,
+    this.email,
+    this.photoUrl,
+    required this.phoneNumber,
+    required this.hasActiveSubscription,
+  });
+
+  factory Parent.fromJson(Map<String, dynamic> json) {
+    return Parent(
+      id: json['_id'] ?? '',
+      name: json['name'] ?? '',
+      email: json['email'],
+      photoUrl: json['photo_url'],
+      phoneNumber: json['phone_number'] ?? '',
+      hasActiveSubscription: json['has_active_subscription'] ?? false,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id,
+      'name': name,
+      'email': email,
+      'photo_url': photoUrl,
+      'phone_number': phoneNumber,
+      'has_active_subscription': hasActiveSubscription,
     };
   }
 }

@@ -51,6 +51,42 @@ class OtpProvider extends ChangeNotifier {
     }
   }
 
+  Future<OtpVerifyResult> verifySignUpOtp(String phone, String otp) async {
+    if (phone.isEmpty || otp.isEmpty) {
+      return OtpVerifyResult(
+          success: false, error: 'Phone and OTP are required');
+    }
+    isVerifyingOtp = true;
+    verifyOtpError = null;
+    notifyListeners();
+    try {
+      final response =
+          await _authService.registerVerifyOtp(phone: phone, otp: otp);
+      isVerifyingOtp = false;
+      verifyOtpError = null;
+      notifyListeners();
+      if (response.success) {
+        return OtpVerifyResult(
+          success: true,
+          message: response.message,
+          token: response.token,
+          user: response.user,
+        );
+      } else {
+        return OtpVerifyResult(
+          success: false,
+          error:
+              response.error ?? response.message ?? 'OTP verification failed',
+        );
+      }
+    } catch (e) {
+      isVerifyingOtp = false;
+      verifyOtpError = 'Error verifying OTP';
+      notifyListeners();
+      return OtpVerifyResult(success: false, error: 'Error verifying OTP');
+    }
+  }
+
   void clearErrors() {
     verifyOtpError = null;
     isVerifyingOtp = false;
