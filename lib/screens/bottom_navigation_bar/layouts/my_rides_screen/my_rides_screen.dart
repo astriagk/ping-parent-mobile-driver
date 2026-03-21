@@ -1,6 +1,6 @@
 import 'package:latlong2/latlong.dart' as ll;
 import 'package:skolo_driver/config.dart';
-import 'package:skolo_driver/helper/address_util.dart';
+import 'package:skolo_driver/core/utils/address_util.dart';
 import 'package:skolo_driver/screens/bottom_navigation_bar/layouts/my_rides_screen/layouts/pending_ride_layouts.dart';
 import 'package:skolo_driver/widgets/empty_state/empty_state_widget.dart';
 import 'package:skolo_driver/widgets/maps/map_utils.dart';

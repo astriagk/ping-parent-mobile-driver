@@ -1,62 +1,46 @@
-import 'dart:io';
-// Provides access to input and output operations, including file, socket, HTTP, and more.
+// ─────────────────────────────────────────────────────────────────────────────
+// NEW ARCHITECTURE — lib/core/ (Clean Architecture, feature-first)
+// ─────────────────────────────────────────────────────────────────────────────
 
-import 'package:skolo_driver/common/app_fonts.dart';
-// Manages custom fonts used throughout the application.
+export 'package:skolo_driver/core/assets/index.dart';
+export 'package:skolo_driver/core/constants/app_array.dart';
+export 'package:skolo_driver/core/constants/session.dart';
+export 'package:skolo_driver/core/extensions/index.dart';
+export 'package:skolo_driver/core/languages/app_fonts.dart';
+export 'package:skolo_driver/core/languages/app_language.dart';
+export 'package:skolo_driver/core/languages/language_change.dart';
+export 'package:skolo_driver/core/responsive/flutter_screen_util.dart';
+export 'package:skolo_driver/core/theme/index.dart';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// OLD ARCHITECTURE — to be migrated
+// ─────────────────────────────────────────────────────────────────────────────
+
+import 'dart:io';
 
 import 'package:skolo_driver/screens/bottom_navigation_bar/layouts/home_screen/layouts/home_screen_widget.dart';
-// Widgets for the home screen layout.
-
 import 'package:skolo_driver/screens/bottom_navigation_bar/layouts/my_rides_screen/layouts/my_rides_widgets.dart';
-// Widgets related to the "My Rides" screen layout.
-
 import 'package:skolo_driver/widgets/screens_widgets/screens_widgets.dart';
-// General reusable screen-related widgets.
 
 import 'config.dart';
-// Local configuration file, possibly containing environment variables and app settings.
 
 export 'package:flutter/gestures.dart';
-// Enables gesture detection like tap, swipe, and long press.
-
 export 'package:flutter/material.dart';
-// The core Flutter UI framework for building user interfaces.
-
 export 'package:flutter/physics.dart';
-// Provides physics simulations for animations.
 
-export 'package:skolo_driver/common/assets/index.dart';
-// Manages app-wide assets like images and icons.
-
-export 'package:skolo_driver/common/index.dart';
-// Centralized common utilities and helper functions.
-
-export 'package:skolo_driver/helper/navigation_class.dart';
-// Navigation helper class to manage routing.
-
+export 'package:skolo_driver/core/utils/navigation_class.dart';
 export 'package:skolo_driver/models/index.dart';
-// Data models used within the application.
-
 export 'package:skolo_driver/package_list.dart';
-// List of third-party packages used in the project.
-
 export 'package:skolo_driver/provider/index.dart';
-// State management providers.
-
 export 'package:skolo_driver/routes/index.dart';
-// App routes configuration.
-
 export 'package:skolo_driver/routes/screen_list.dart';
-// Defines screens available for navigation.
-
 export 'package:skolo_driver/screens/index.dart';
-// Collection of all screens in the app.
-
 export 'package:skolo_driver/widgets/index.dart';
-// Collection of reusable widgets.
-
-// skeletons
 export 'package:skolo_driver/widgets/skeletons/index.dart';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GLOBALS
+// ─────────────────────────────────────────────────────────────────────────────
 
 Session session = Session();
 AppFonts appFonts = AppFonts();
@@ -103,12 +87,11 @@ String language(context, text) {
 
 Future<bool> isNetworkConnection() async {
   var connectivityResult = await Connectivity()
-      .checkConnectivity(); //Check For Wifi or Mobile data is ON/OFF
+      .checkConnectivity();
   if (connectivityResult == ConnectivityResult.none) {
     return false;
   } else {
-    final result = await InternetAddress.lookup(
-        'google.com'); //Check For Internet Connection
+    final result = await InternetAddress.lookup('google.com');
     if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
       return true;
     } else {

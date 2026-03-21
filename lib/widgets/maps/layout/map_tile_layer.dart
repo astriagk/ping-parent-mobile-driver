@@ -3,7 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/retry.dart';
 
-import 'package:skolo_driver/common/maps/map_config.dart';
+import 'package:skolo_driver/core/constants/map_config.dart';
 
 /// Custom HTTP client with retry logic for tile loading
 http.BaseClient _createRetryClient() {

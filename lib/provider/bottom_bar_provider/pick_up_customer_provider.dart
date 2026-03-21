@@ -9,7 +9,7 @@ import 'package:skolo_driver/api/models/pick_up_customer/pickup_point_response.d
 import 'package:skolo_driver/api/models/pick_up_customer/school_point_response.dart';
 import 'package:skolo_driver/api/models/pick_up_customer/trip_progress_response.dart';
 import 'package:skolo_driver/api/api_client.dart';
-import 'package:skolo_driver/helper/foreground_tracking_service.dart';
+import 'package:skolo_driver/services/background/foreground_tracking_service.dart';
 
 /// Provider for managing trip pickup and location tracking
 /// Uses ForegroundTrackingService for reliable background location tracking

@@ -33,9 +33,12 @@ Clean Architecture + Feature-First. Same structure applies to both apps; feature
 ```
 lib/
 ├── core/
+│   ├── assets/             # Asset path constants (images, svgs, gifs)
 │   ├── constants/          # API URLs, WS endpoints, app constants
 │   ├── errors/             # Failure classes, exception types
 │   ├── extensions/         # DateTime, String, Context extensions
+│   ├── languages/          # Localization strings and delegates (en only)
+│   ├── responsive/         # ScreenUtil — adaptive sizing, responsive width/height/font helpers
 │   ├── theme/              # AppTheme, colors, typography
 │   └── utils/              # Logger, validators, formatters
 │

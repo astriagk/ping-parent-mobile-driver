@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:skolo_driver/config/environment.dart';
-import 'package:skolo_driver/helper/foreground_tracking_service.dart';
+import 'package:skolo_driver/config/env/environment.dart';
+import 'package:skolo_driver/services/background/foreground_tracking_service.dart';
 
 import 'config.dart';
 

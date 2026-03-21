@@ -4,7 +4,7 @@ import 'package:skolo_driver/api/models/drop_student_selection_model.dart';
 import 'package:skolo_driver/api/models/pick_up_customer/trip_status_response.dart';
 import 'package:skolo_driver/api/services/drop_student_selection_service.dart';
 import 'package:skolo_driver/api/services/pick_up_customer_service.dart';
-import 'package:skolo_driver/helper/location_service.dart';
+import 'package:skolo_driver/services/location/location_service.dart';
 import 'package:skolo_driver/api/models/pick_up_customer/school_point_request.dart';
 
 /// Provider for managing drop student selection/attendance

@@ -1,4 +1,4 @@
-import 'package:skolo_driver/config/environment.dart';
+import 'package:skolo_driver/config/env/environment.dart';
 
 /// API Endpoints configuration
 /// All endpoints are dynamically built using the environment-specific base URL

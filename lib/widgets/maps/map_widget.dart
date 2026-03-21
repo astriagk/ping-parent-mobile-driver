@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:skolo_driver/helper/location_service.dart';
+import 'package:skolo_driver/services/location/location_service.dart';
 import 'package:skolo_driver/config.dart' hide Marker, Polyline, LatLng;
-import 'package:skolo_driver/config/app_constants.dart';
+import 'package:skolo_driver/core/constants/app_constants.dart';
 import 'package:skolo_driver/widgets/maps/map_markers.dart';
 import 'package:skolo_driver/widgets/maps/map_controls.dart';
 
