@@ -76,9 +76,9 @@ class OnboardingProvider extends ChangeNotifier {
   dynamic selectedVehicle;
 
   final List<Map<String, dynamic>> vehicles = [
-    {'name': appFonts.auto, 'image': 'assets/image/auth/van.png'},
+    {'name': appFonts.auto, 'image': 'assets/image/auth/auto.png'},
     {'name': appFonts.van, 'image': 'assets/image/auth/van.png'},
-    {'name': appFonts.bus, 'image': 'assets/image/auth/van.png'}
+    {'name': appFonts.bus, 'image': 'assets/image/auth/bus.png'}
   ];
 
   int selectedIndex = 0;

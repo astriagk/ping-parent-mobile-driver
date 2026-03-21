@@ -1,6 +1,5 @@
 import '../config.dart';
 import '../models/rides_info_model.dart';
-import '../helper/date_time_helper.dart';
 import '../api/enums/trip_type_enum.dart';
 
 class AppArray {
@@ -232,9 +231,9 @@ class AppArray {
   // using to show my assignments
 
   final List<Map<String, String>> rideData = [
-    {"count": "02", "title": "Pending \nAssignment"},
-    {"count": "16", "title": "Completed \nAssignment"},
-    {"count": "04", "title": "Cancel \nAssignment"}
+    {"count": "02", "title": "Pending"},
+    {"count": "16", "title": "Completed"},
+    {"count": "04", "title": "Rejected"},
   ];
 
   final List<RideInfo> rides = [
@@ -591,27 +590,17 @@ class AppArray {
   final List<Map<String, dynamic>> ridesData = [
     {
       'userName': 'Home to School',
-      'price': '',
-      'rating': 4.8,
-      'totalRatings': 127,
-      'time': DateTimeHelper.getFormattedDateTime(timeOfDay: '8:00 AM'),
       'tripType': TripType.pickup,
-      // 'pickUpAddress': '220 Yonge St, Toronto, ON M5B 2H1, Canada',
-      // 'droppingAddress': '17600 Yonge St, Newmarket, ON L3Y 4Z1, Canada',
-      'contact': '+919876543210',
-      'imageUrl': 'assets/image/home/user1.png'
+      'timeLabel': 'Morning Pickup',
+      'fromLabel': 'Home',
+      'toLabel': 'School',
     },
     {
       'userName': 'School to Home',
-      'price': '',
-      'rating': 4.9,
-      'totalRatings': 205,
-      'time': DateTimeHelper.getFormattedDateTime(timeOfDay: '4:00 PM'),
       'tripType': TripType.drop,
-      // 'pickUpAddress': '500 King St, Toronto, ON M5V 1L9, Canada',
-      // 'droppingAddress': '2500 Rutherford Rd, Vaughan, ON L4K 2N6, Canada',
-      'contact': '+919876543211',
-      'imageUrl': 'assets/image/home/user2.png'
+      'timeLabel': 'Afternoon Drop',
+      'fromLabel': 'School',
+      'toLabel': 'Home',
     }
   ];
 }

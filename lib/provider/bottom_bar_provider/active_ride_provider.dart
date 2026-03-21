@@ -5,27 +5,44 @@ import 'package:skolo_driver/config.dart';
 import 'package:skolo_driver/widgets/common_confirmation_dialog.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:skolo_driver/api/services/active_ride_service.dart';
+import 'package:skolo_driver/api/services/pick_up_customer_service.dart';
+import 'package:skolo_driver/api/services/socket_service.dart';
 import 'package:skolo_driver/api/models/get_my_trips_response.dart';
 import 'package:skolo_driver/api/enums/trip_type_enum.dart';
+import 'package:skolo_driver/api/enums/trip_status_enum.dart';
 import 'package:skolo_driver/api/api_client.dart';
+import 'package:skolo_driver/helper/foreground_tracking_service.dart';
 
 class ActiveRideProvider extends ChangeNotifier {
   late final ActiveRideService _activeRideService;
+  late final PickUpCustomerService _pickUpCustomerService;
+  late final SocketService _socketService;
+  late final ForegroundTrackingService _trackingService;
 
   bool isLoading = false;
 
   /// Track loading state per trip type for individual button loading
   TripType? loadingTripType;
+
+  /// Track end-trip loading state per trip type
+  TripType? endingTripType;
+
   String? successMessage;
   String? errorMessage;
   List<TripData> myTrips = [];
 
   ActiveRideProvider() {
     _activeRideService = ActiveRideService(ApiClient());
+    _pickUpCustomerService = PickUpCustomerService(ApiClient());
+    _socketService = SocketService();
+    _trackingService = ForegroundTrackingService();
   }
 
   /// Check if a specific trip type button is loading
   bool isLoadingForType(TripType tripType) => loadingTripType == tripType;
+
+  /// Check if end-trip is loading for a specific trip type
+  bool isEndingForType(TripType tripType) => endingTripType == tripType;
 
   cancelRideTap(context, int index) {
     showDialog(
@@ -137,6 +154,42 @@ class ActiveRideProvider extends ChangeNotifier {
       isLoading = false;
       notifyListeners();
       return false;
+    }
+  }
+
+  /// End a trip — stops tracking (unsubscribes socket), calls complete status API,
+  /// emits socket completed event, then silently refreshes trips.
+  Future<void> endTrip({
+    required TripType tripType,
+    required String tripId,
+  }) async {
+    try {
+      endingTripType = tripType;
+      errorMessage = null;
+      notifyListeners();
+
+      // 1. Stop location tracking — BackgroundLocationHandler emits
+      //    driver:unsubscribe_trip internally when tracking stops
+      _trackingService.stopTracking();
+
+      // 2. REST PATCH /driver/trips/{id}/status → completed
+      final response = await _pickUpCustomerService.updateTripStatus(
+        tripId: tripId,
+        tripStatus: TripStatus.completed.value,
+      );
+
+      if (response.success) {
+        // 3. Emit driver:trip_completed via socket
+        _socketService.completeTripViaWebSocket(tripId);
+      } else {
+        errorMessage = response.message ?? 'Failed to end trip';
+      }
+    } catch (e) {
+      errorMessage = 'Error ending trip: ${e.toString()}';
+    } finally {
+      endingTripType = null;
+      notifyListeners();
+      await fetchMyTripsByDate(showLoading: false);
     }
   }
 

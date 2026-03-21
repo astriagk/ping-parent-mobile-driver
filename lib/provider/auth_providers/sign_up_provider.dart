@@ -4,14 +4,9 @@ import '../../api/services/auth_service.dart';
 import '../../config.dart';
 
 class SignUpProvider extends ChangeNotifier {
-  // OTP state
   final TextEditingController phoneController = TextEditingController();
-  final TextEditingController otpController = TextEditingController();
   bool isSendingOtp = false;
-  bool isVerifyingOtp = false;
   String? sendOtpError;
-  String? verifyOtpError;
-  bool isOtpSent = false;
 
   final AuthService _authService = AuthService(ApiClient());
 
@@ -67,34 +62,6 @@ class SignUpProvider extends ChangeNotifier {
                         onTap: () => route.pop(context))
                   ])));
         });
-
-    /* PermissionStatus status = await Permission.photos.request();
-    if (source == ImageSource.camera) {
-      status = await Permission.camera.request();
-    } else {
-      status = await Permission.photos.request();
-    }
-    log("permission hello $status");
-    if (status.isGranted) {
-      final ImagePicker picker = ImagePicker();
-      final XFile? pickedFile = await picker.pickImage(
-          source: ImageSource.gallery,
-          imageQuality: 50,
-          maxHeight: 800,
-          maxWidth: 800);
-
-      if (pickedFile != null) {
-        notifyListeners();
-        image = File(pickedFile.path);
-        notifyListeners();
-      }
-    } else if (status.isDenied) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Permission denied. Cannot pick image.',
-              style: AppCss.lexendRegular16.textColor(appTheme.darkText))));
-    } else if (status.isPermanentlyDenied) {
-      openAppSettings();
-    }*/
   }
 
   handleBackTap(context) {
@@ -106,16 +73,11 @@ class SignUpProvider extends ChangeNotifier {
     return language(context, appFonts.createYourAccount);
   }
 
-  /*vehicleChooseOnTap() {
-    selectedIndex = index;
-    notifyListeners();
-  }*/
-
-  signUpButton() {
-    registerSendOtp();
+  signUpButton(BuildContext context) {
+    registerSendOtp(context);
   }
 
-  Future<void> registerSendOtp() async {
+  Future<void> registerSendOtp(BuildContext context) async {
     isSendingOtp = true;
     sendOtpError = null;
     notifyListeners();
@@ -134,9 +96,13 @@ class SignUpProvider extends ChangeNotifier {
     try {
       final response = await _authService.registerSendOtp(phone: phone);
       if (response.success) {
-        // Show OTP input instead of moving to next index
-        isOtpSent = true;
         sendOtpError = null;
+        isSendingOtp = false;
+        notifyListeners();
+        if (context.mounted) {
+          route.pushNamed(context, routeName.otpScreen, arg: true);
+        }
+        return;
       } else {
         sendOtpError =
             response.error ?? response.message ?? 'Failed to send OTP';
@@ -148,48 +114,9 @@ class SignUpProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> verifySignUpOtp() async {
-    isVerifyingOtp = true;
-    verifyOtpError = null;
-    notifyListeners();
-
-    final phone = phoneController.text.trim();
-    final otp = otpController.text.trim();
-
-    if (otp.isEmpty || otp.length != 6) {
-      verifyOtpError = 'Please enter a valid 6-digit OTP';
-      isVerifyingOtp = false;
-      notifyListeners();
-      return false;
-    }
-
-    try {
-      final response =
-          await _authService.registerVerifyOtp(phone: phone, otp: otp);
-      if (response.success) {
-        otpController.clear();
-        phoneController.clear();
-        isOtpSent = false;
-        verifyOtpError = null;
-        isVerifyingOtp = false;
-        notifyListeners();
-        return true;
-      } else {
-        verifyOtpError =
-            response.error ?? response.message ?? 'Failed to verify OTP';
-      }
-    } catch (e) {
-      verifyOtpError = 'Error: ${e.toString()}';
-    }
-    isVerifyingOtp = false;
-    notifyListeners();
-    return false;
-  }
-
   @override
   void dispose() {
     phoneController.dispose();
-    otpController.dispose();
     super.dispose();
   }
 

@@ -333,6 +333,7 @@ class AppFonts {
   final currenRide = "currenRide";
   final absent = "absent";
   final tripCancelled = "tripCancelled";
+  final endTrip = "endTrip";
 
   // Drop Student Selection Screen
   final selectStudents = "selectStudents";

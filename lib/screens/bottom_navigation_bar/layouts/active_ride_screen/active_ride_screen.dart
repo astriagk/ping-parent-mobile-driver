@@ -73,6 +73,24 @@ class _ActiveRideScreenState extends State<ActiveRideScreen>
     }
   }
 
+  /// Whether the "End Trip" button should be shown for this trip type
+  bool _canEndTrip(TripType tripType, ActiveRideProvider activeRidePvr) {
+    final trip = _getTripForType(tripType, activeRidePvr);
+    if (trip == null) return false;
+    final status = TripStatus.fromString(trip.tripStatus);
+    return status == TripStatus.inProgress;
+  }
+
+  Future<void> _onEndTripTap(
+      TripType tripType, ActiveRideProvider activeRidePvr) async {
+    final trip = _getTripForType(tripType, activeRidePvr);
+    if (trip == null) return;
+    await activeRidePvr.endTrip(tripType: tripType, tripId: trip.id);
+    if (mounted && activeRidePvr.errorMessage != null) {
+      _showSnackBar(activeRidePvr.errorMessage!);
+    }
+  }
+
   /// Get the button label based on trip status
   String _getButtonLabel(BuildContext context, TripType tripType,
       ActiveRideProvider activeRidePvr) {
@@ -236,111 +254,181 @@ class _ActiveRideScreenState extends State<ActiveRideScreen>
               itemCount: appArray.ridesData.length,
               itemBuilder: (context, index) {
                 final ride = appArray.ridesData[index];
+                final isPickup = ride['tripType'] == TripType.pickup;
+                final badgeColor =
+                    isPickup ? appTheme.primary : appTheme.yellowIcon;
+                final timeBgColor =
+                    isPickup ? appTheme.yellowIcon.withValues(alpha: 0.15) : appTheme.primary.withValues(alpha: 0.08);
+                final timeTextColor =
+                    isPickup ? appTheme.yellowIcon : appTheme.primary;
+
                 return CommonBgLayout(
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
+                      // Header: vehicle icon + title + time badge + trip type
                       Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
+                            Container(
+                                height: 58,
+                                width: 58,
+                                decoration: BoxDecoration(
+                                    color: badgeColor.withValues(alpha: 0.10),
+                                    borderRadius:
+                                        BorderRadius.circular(Insets.i12)),
+                                child: Icon(
+                                    isPickup
+                                        ? Icons.directions_bus_rounded
+                                        : Icons.directions_car_rounded,
+                                    size: 30,
+                                    color: badgeColor)),
+                            HSpace(Insets.i12),
                             Expanded(
-                                child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                  screensWidgets
-                                      .userProfileImage(ride['imageUrl']),
-                                  HSpace(Insets.i10),
-                                  Expanded(
-                                      child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                  Text(ride['userName'],
+                                      style: AppCss.lexendSemiBold15
+                                          .textColor(appTheme.textClr)),
+                                  VSpace(Insets.i6),
+                                  Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 3),
+                                      decoration: BoxDecoration(
+                                          color: timeBgColor,
+                                          borderRadius:
+                                              BorderRadius.circular(20)),
+                                      child: Row(
+                                          mainAxisSize: MainAxisSize.min,
                                           children: [
-                                        Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              screensWidgets
-                                                  .userName(ride['userName'])
-                                            ]),
-                                        VSpace(Insets.i6),
-                                        Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              screensWidgets.ratingCounting(
-                                                  ride['rating'],
-                                                  ride['totalRatings'])
-                                            ])
-                                      ])),
-                                  TextWidgetCommon(
-                                    text: ride['tripType'].value.toUpperCase(),
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                    color: ride['tripType'] == TripType.pickup
-                                        ? appTheme.primary
-                                        : appTheme.yellowIcon,
-                                  )
-                                  // screensWidgets.priceText(ride['price'],
-                                  //     bottomMargin: 23.0)
-                                ]))
+                                            Icon(
+                                                isPickup
+                                                    ? Icons.wb_sunny_rounded
+                                                    : Icons
+                                                        .nights_stay_rounded,
+                                                size: 12,
+                                                color: timeTextColor),
+                                            HSpace(4),
+                                            Text(ride['timeLabel'],
+                                                style: AppCss.lexendRegular11
+                                                    .textColor(timeTextColor))
+                                          ]))
+                                ])),
+                            Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 5),
+                                decoration: BoxDecoration(
+                                    color: badgeColor,
+                                    borderRadius: BorderRadius.circular(20)),
+                                child: Text(
+                                    ride['tripType'].value.toUpperCase(),
+                                    style: AppCss.lexendBold10.textColor(
+                                        isPickup
+                                            ? appTheme.white
+                                            : appTheme.textClr)))
                           ]),
-                      VSpace(Insets.i15),
+                      VSpace(Insets.i14),
                       homeScreenWidget.dottedLineCommon(),
-                      VSpace(Insets.i15),
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(ride['time'],
-                                style: AppCss.lexendLight12
-                                    .textColor(appTheme.textClr)
-                                    .textHeight(1.3)),
-                            Row(children: [
-                              CommonIconButton(
-                                  onTap: () => route.pushNamed(
-                                      context, routeName.chatScreen),
-                                  icon: svgAssets.message,
-                                  bgColor: appTheme.bgBox),
-                              HSpace(Insets.i10),
-                              CommonIconButton(
-                                  onTap: () =>
-                                      activeRidePvr.openDialer(ride['contact']),
-                                  icon: svgAssets.call,
-                                  bgColor: appTheme.bgBox)
-                            ])
-                          ]),
-                      VSpace(Insets.i15),
-                      // CommonLocationLayout(
-                      //     pickUpAddress: ride['pickUpAddress'],
-                      //     droppingAddress: ride['droppingAddress']),
+                      VSpace(Insets.i12),
+                      // Route direction chips
                       Row(children: [
-                        HSpace(Insets.i10),
+                        _RouteChip(
+                            icon: isPickup
+                                ? Icons.home_rounded
+                                : Icons.school_rounded,
+                            label: ride['fromLabel'],
+                            color: isPickup
+                                ? appTheme.priceClr
+                                : appTheme.primary),
                         Expanded(
-                            child: CommonButton(
-                                style: _isButtonEnabled(
-                                        ride['tripType'], activeRidePvr)
-                                    ? AppCss.lexendRegular15
-                                        .textColor(appTheme.white)
-                                    : AppCss.lexendRegular15
-                                        .textColor(appTheme.lightText),
-                                color: _isButtonEnabled(
-                                        ride['tripType'], activeRidePvr)
-                                    ? appTheme.primary
-                                    : appTheme.bgBox,
-                                onTap: _isButtonEnabled(
-                                        ride['tripType'], activeRidePvr)
-                                    ? () => _onCreateTripTap(
-                                        ride['tripType'], activeRidePvr)
-                                    : null,
-                                text: _getButtonLabel(
-                                    context, ride['tripType'], activeRidePvr),
-                                isLoading: activeRidePvr
-                                    .isLoadingForType(ride['tripType'])))
-                      ]).marginOnly(top: Insets.i15, bottom: Insets.i10)
+                            child: Icon(Icons.arrow_forward_rounded,
+                                size: 16, color: appTheme.lightText)),
+                        _RouteChip(
+                            icon: isPickup
+                                ? Icons.school_rounded
+                                : Icons.home_rounded,
+                            label: ride['toLabel'],
+                            color: isPickup
+                                ? appTheme.primary
+                                : appTheme.priceClr),
+                      ]),
+                      VSpace(Insets.i14),
+                      if (_canEndTrip(ride['tripType'], activeRidePvr))
+                        Row(children: [
+                          Expanded(
+                              child: CommonButton(
+                                  style: AppCss.lexendRegular15
+                                      .textColor(appTheme.white),
+                                  color: appTheme.alertZone,
+                                  onTap: () => _onEndTripTap(
+                                      ride['tripType'], activeRidePvr),
+                                  text: language(context, appFonts.endTrip),
+                                  isLoading: activeRidePvr
+                                      .isEndingForType(ride['tripType']))),
+                          HSpace(Insets.i10),
+                          Expanded(
+                              child: CommonButton(
+                                  style: AppCss.lexendRegular15
+                                      .textColor(appTheme.white),
+                                  color: appTheme.primary,
+                                  onTap: () => _onCreateTripTap(
+                                      ride['tripType'], activeRidePvr),
+                                  text: _getButtonLabel(
+                                      context, ride['tripType'], activeRidePvr),
+                                  isLoading: activeRidePvr
+                                      .isLoadingForType(ride['tripType'])))
+                        ])
+                      else
+                        CommonButton(
+                            style: _isButtonEnabled(
+                                    ride['tripType'], activeRidePvr)
+                                ? AppCss.lexendRegular15
+                                    .textColor(appTheme.white)
+                                : AppCss.lexendRegular15
+                                    .textColor(appTheme.lightText),
+                            color: _isButtonEnabled(
+                                    ride['tripType'], activeRidePvr)
+                                ? appTheme.primary
+                                : appTheme.bgBox,
+                            onTap: _isButtonEnabled(
+                                    ride['tripType'], activeRidePvr)
+                                ? () => _onCreateTripTap(
+                                    ride['tripType'], activeRidePvr)
+                                : null,
+                            text: _getButtonLabel(
+                                context, ride['tripType'], activeRidePvr),
+                            isLoading: activeRidePvr
+                                .isLoadingForType(ride['tripType']))
                     ])).marginOnly(bottom: Insets.i10);
               }));
     });
+  }
+}
+
+class _RouteChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+
+  const _RouteChip({
+    required this.icon,
+    required this.label,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+        decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.10),
+            borderRadius: BorderRadius.circular(Insets.i8)),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          Icon(icon, size: 16, color: color),
+          HSpace(Insets.i6),
+          Text(label, style: AppCss.lexendMedium12.textColor(color)),
+        ]));
   }
 }

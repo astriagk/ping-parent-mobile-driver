@@ -128,38 +128,66 @@ class DocumentsVerifyLayout extends StatelessWidget {
 
   Widget _buildFullWidthUploadContainer(
       BuildContext context, OnboardingProvider pvr, String documentName) {
+    final hasImage = pvr.documentImages[documentName] != null;
+
     return GestureDetector(
         onTap: () async => await pvr.pickImage(
               context,
               documentName: documentName,
             ),
-        child: Container(
-                padding: const EdgeInsets.all(5),
-                height: Insets.i94,
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(AppRadius.r12)),
-                child: DottedBorder(
-                    color: appColor(context).appTheme.lightText,
-                    strokeWidth: 1,
-                    dashPattern: const [6, 3],
-                    borderType: BorderType.RRect,
-                    radius: Radius.circular(AppRadius.r12),
-                    child: Container(
-                        alignment: Alignment.center,
-                        child: pvr.documentImages[documentName] == null
-                            ? Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                    SvgPicture.asset(svgAssets.import),
-                                    VSpace(Insets.i3),
-                                    Text(
-                                        language(context, appFonts.uploadImage),
-                                        style: AppCss.lexendRegular13
-                                            .textColor(appTheme.textClr))
-                                  ])
-                            : Image.file(pvr.documentImages[documentName]!,
-                                fit: BoxFit.cover))))
-            .width(double.infinity));
+        child: Stack(children: [
+          Container(
+                  padding: const EdgeInsets.all(5),
+                  height: Insets.i180,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                      color: appTheme.white,
+                      borderRadius: BorderRadius.circular(AppRadius.r12)),
+                  child: DottedBorder(
+                      color: appColor(context).appTheme.lightText,
+                      strokeWidth: 1,
+                      dashPattern: const [6, 3],
+                      borderType: BorderType.RRect,
+                      radius: Radius.circular(AppRadius.r12),
+                      child: ClipRRect(
+                          borderRadius: BorderRadius.circular(AppRadius.r12),
+                          child: hasImage
+                              ? Image.file(pvr.documentImages[documentName]!,
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  height: double.infinity)
+                              : Container(
+                                  alignment: Alignment.center,
+                                  child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        SvgPicture.asset(svgAssets.import),
+                                        VSpace(Insets.i3),
+                                        Text(
+                                            language(
+                                                context, appFonts.uploadImage),
+                                            style: AppCss.lexendRegular13
+                                                .textColor(appTheme.textClr))
+                                      ])))))
+              .width(double.infinity),
+          if (hasImage)
+            Positioned(
+                top: 8,
+                right: 8,
+                child: Container(
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                        color: appTheme.white,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                              color: appTheme.darkText.withValues(alpha: 0.26),
+                              blurRadius: 4,
+                              offset: const Offset(0, 1))
+                        ]),
+                    child: Icon(Icons.edit,
+                        size: Sizes.s16, color: appTheme.darkText)))
+        ]));
   }
 }
