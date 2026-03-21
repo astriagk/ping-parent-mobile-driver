@@ -794,7 +794,16 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
                                 waypoint: currentWaypoint,
                                 waypointIndex: currentWaypointIndex,
                                 totalWaypoints: totalWaypoints,
-                                onBack: () => route.pop(context),
+                                onBack: () {
+                                  if (_isDropTrip) {
+                                    Navigator.of(context).popUntil(
+                                      ModalRoute.withName(
+                                          routeName.commonBottomBar),
+                                    );
+                                  } else {
+                                    route.pop(context);
+                                  }
+                                },
                               ),
                             // Map
                             Expanded(

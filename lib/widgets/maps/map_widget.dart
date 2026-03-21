@@ -101,14 +101,14 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
   /// Uses animation to smoothly interpolate between GPS readings
   void _startLocationTracking() {
     _positionAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 200),
       vsync: this,
     )..addListener(_onPositionAnimationTick);
 
     _locationSubscription = Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 3,
+        accuracy: LocationAccuracy.bestForNavigation,
+        distanceFilter: 0,
       ),
     ).listen((Position position) {
       if (mounted) {

@@ -30,6 +30,7 @@ class CustomerCard extends StatelessWidget {
   final String? assignmentStatus;
   final DateTime? assignedDate;
   final String? parentName;
+  final String? parentPhotoUrl;
 
   const CustomerCard(
       {super.key,
@@ -54,7 +55,8 @@ class CustomerCard extends StatelessWidget {
       this.gender,
       this.assignmentStatus,
       this.assignedDate,
-      this.parentName});
+      this.parentName,
+      this.parentPhotoUrl});
 
   /// Converts snake_case or lowercase to Title Case
   /// e.g. "parent_requested" → "Parent Requested", "male" → "Male"
@@ -185,9 +187,26 @@ class CustomerCard extends StatelessWidget {
             if (parentName != null && parentName!.trim().isNotEmpty)
               Expanded(
                 child: Row(children: [
-                  Icon(Icons.person_outline,
-                      size: 18, color: appTheme.lightText),
-                  HSpace(Insets.i4),
+                  ClipOval(
+                    child: Container(
+                      height: 36,
+                      width: 36,
+                      color: appTheme.bgBox,
+                      child: (parentPhotoUrl?.trim().isNotEmpty == true)
+                          ? Image.network(
+                              parentPhotoUrl!.trim(),
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => Icon(
+                                Icons.person,
+                                size: 20,
+                                color: appTheme.lightText,
+                              ),
+                            )
+                          : Icon(Icons.person,
+                              size: 20, color: appTheme.lightText),
+                    ),
+                  ),
+                  HSpace(Insets.i8),
                   Flexible(
                     child: Text(parentName!,
                         style: AppCss.lexendLight14
