@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:permission_handler/permission_handler.dart';
 import 'package:skolo_driver/config.dart';
-import 'package:skolo_driver/widgets/common_confirmation_dialog.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:skolo_driver/api/services/active_ride_service.dart';
 import 'package:skolo_driver/api/services/pick_up_customer_service.dart';

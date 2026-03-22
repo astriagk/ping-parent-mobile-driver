@@ -1,9 +1,9 @@
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart' as emoji_picker;
 import 'package:flutter/foundation.dart' as foundation;
 import 'package:intl/intl.dart';
+import 'package:skolo_driver/core/utils/stateful_wrapper.dart';
 
 import '../../../config.dart';
-import '../../../widgets/chat_text_field_common.dart';
 import 'layout/chat_appbar_layout.dart';
 import 'layout/chat_layout.dart';
 

@@ -1,7 +1,7 @@
 import 'package:skolo_driver/api/enums/trip_status_enum.dart';
 import 'package:skolo_driver/config.dart';
 import 'package:skolo_driver/screens/bottom_navigation_bar/layouts/drop_student_selection_screen/layout/student_card.dart';
-import 'package:skolo_driver/widgets/auto_refresh_mixin.dart';
+import 'package:skolo_driver/core/utils/auto_refresh_mixin.dart';
 
 class DropStudentSelectionScreen extends StatefulWidget {
   const DropStudentSelectionScreen({super.key});

@@ -1,5 +1,3 @@
-import 'package:skolo_driver/widgets/common_divider.dart';
-
 import '../../../../../config.dart';
 
 class OfferCard extends StatelessWidget {

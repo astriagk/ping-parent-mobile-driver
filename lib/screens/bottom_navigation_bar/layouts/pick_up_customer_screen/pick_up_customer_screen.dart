@@ -8,9 +8,6 @@ import 'package:skolo_driver/api/models/pick_up_customer/optimized_route_model.d
 import 'package:skolo_driver/core/constants/map_config.dart';
 import 'package:skolo_driver/config.dart' hide Marker, Polyline, LatLng;
 import 'package:skolo_driver/core/constants/app_constants.dart';
-import 'package:skolo_driver/widgets/common_bg_layout.dart';
-import 'package:skolo_driver/widgets/maps/index.dart';
-import 'package:skolo_driver/widgets/empty_state/empty_state_widget.dart';
 import 'package:skolo_driver/provider/bottom_bar_provider/pick_up_customer_provider.dart';
 import 'layout/on_the_way_sheet.dart';
 import 'layout/otp_verification_sheet.dart';

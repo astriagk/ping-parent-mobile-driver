@@ -1,6 +1,4 @@
 import 'package:skolo_driver/config.dart';
-import 'package:skolo_driver/widgets/common_bg_layout.dart';
-import 'package:skolo_driver/widgets/empty_state/index.dart';
 import 'package:skolo_driver/api/enums/trip_type_enum.dart';
 import 'package:skolo_driver/api/enums/trip_status_enum.dart';
 import 'package:skolo_driver/api/models/get_my_trips_response.dart';

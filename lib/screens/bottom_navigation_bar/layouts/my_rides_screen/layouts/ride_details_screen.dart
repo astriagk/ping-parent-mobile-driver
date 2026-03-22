@@ -1,8 +1,5 @@
 import 'package:skolo_driver/config.dart';
 import 'package:skolo_driver/screens/bottom_navigation_bar/layouts/my_rides_screen/layouts/my_rides_tab_inner_common_layout.dart';
-import 'package:skolo_driver/widgets/common_bg_layout.dart';
-import 'package:skolo_driver/widgets/common_bill_summary_layout.dart';
-import 'package:skolo_driver/widgets/common_location_layout.dart';
 
 class RideDetailsScreen extends StatelessWidget {
   const RideDetailsScreen({super.key});

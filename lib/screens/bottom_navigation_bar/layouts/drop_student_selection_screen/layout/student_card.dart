@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:permission_handler/permission_handler.dart';
 import 'package:skolo_driver/config.dart';
-import 'package:skolo_driver/widgets/common_bg_layout.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:skolo_driver/api/models/drop_student_selection_model.dart';
 

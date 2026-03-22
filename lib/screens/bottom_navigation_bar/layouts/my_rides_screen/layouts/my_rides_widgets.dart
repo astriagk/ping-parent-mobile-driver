@@ -1,6 +1,4 @@
 import '../../../../../config.dart';
-import '../../../../../widgets/common_bg_layout.dart';
-import '../../../../../widgets/common_location_layout.dart';
 
 class MyRidesWidgets {
   Widget buildTabButton(String text, int index, screenWidth, selectedIndex,

@@ -1,5 +1,4 @@
 import 'package:skolo_driver/config.dart';
-import 'package:skolo_driver/widgets/common_bg_layout.dart';
 
 class MyWalletScreen extends StatelessWidget {
   const MyWalletScreen({super.key});

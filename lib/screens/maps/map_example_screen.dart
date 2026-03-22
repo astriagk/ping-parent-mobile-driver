@@ -1,6 +1,5 @@
 import 'package:skolo_driver/core/constants/map_config.dart';
 import 'package:skolo_driver/config.dart' hide Marker, Polyline, LatLng;
-import 'package:skolo_driver/widgets/maps/index.dart';
 
 /// Map Example Screen - Main Map Screen
 /// Tiles with MapWidget

@@ -1,4 +1,5 @@
 import 'package:skolo_driver/config.dart';
+import 'package:skolo_driver/core/utils/stateful_wrapper.dart';
 import 'package:skolo_driver/screens/app_pages/bank_details_screen/bank_details_widgets.dart';
 
 class BankDetailsScreen extends StatelessWidget {

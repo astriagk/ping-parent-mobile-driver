@@ -11,8 +11,10 @@ class AuthDivider extends StatelessWidget {
           height: Sizes.s1,
           decoration: BoxDecoration(
               gradient: gradientColorChange(context,
-                  firstColor:
-                      appColor(context).appTheme.lightText.withValues(alpha: 0.1),
+                  firstColor: appColor(context)
+                      .appTheme
+                      .lightText
+                      .withValues(alpha: 0.1),
                   secColor: appColor(context).appTheme.lightText),
               borderRadius: SmoothBorderRadius(cornerRadius: 1))),
       TextWidgetCommon(

@@ -1,5 +1,3 @@
-import 'package:skolo_driver/widgets/common_bg_layout.dart';
-
 import '../../../../config.dart';
 
 class WithdrawScreen extends StatelessWidget {

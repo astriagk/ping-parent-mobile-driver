@@ -11,6 +11,8 @@ export 'package:skolo_driver/core/languages/app_language.dart';
 export 'package:skolo_driver/core/languages/language_change.dart';
 export 'package:skolo_driver/core/responsive/flutter_screen_util.dart';
 export 'package:skolo_driver/core/theme/index.dart';
+export 'package:skolo_driver/core/utils/stateful_wrapper.dart';
+export 'package:skolo_driver/core/theme/color_helpers.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // OLD ARCHITECTURE — to be migrated
@@ -20,8 +22,6 @@ import 'dart:io';
 
 import 'package:skolo_driver/screens/bottom_navigation_bar/layouts/home_screen/layouts/home_screen_widget.dart';
 import 'package:skolo_driver/screens/bottom_navigation_bar/layouts/my_rides_screen/layouts/my_rides_widgets.dart';
-import 'package:skolo_driver/widgets/screens_widgets/screens_widgets.dart';
-
 import 'config.dart';
 
 export 'package:flutter/gestures.dart';
@@ -34,8 +34,7 @@ export 'package:skolo_driver/package_list.dart';
 export 'package:skolo_driver/provider/index.dart';
 export 'package:skolo_driver/config/router/app_router.dart';
 export 'package:skolo_driver/screens/index.dart';
-export 'package:skolo_driver/widgets/index.dart';
-export 'package:skolo_driver/widgets/skeletons/index.dart';
+export 'package:skolo_driver/presentation/shared/widgets/index.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // GLOBALS

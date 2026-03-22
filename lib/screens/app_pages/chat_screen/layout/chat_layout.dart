@@ -1,5 +1,4 @@
 import '../../../../config.dart';
-import '../../../../widgets/common_back_button1.dart';
 
 class ChatLayout extends StatelessWidget {
   final String? title;

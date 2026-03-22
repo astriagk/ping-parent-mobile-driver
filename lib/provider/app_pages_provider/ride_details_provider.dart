@@ -7,8 +7,6 @@ import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../../config.dart';
-import '../../widgets/common_bg_layout.dart';
-import '../../widgets/common_divider.dart';
 
 class RideDetailsProvider extends ChangeNotifier {
   double currentRating = 3.0;

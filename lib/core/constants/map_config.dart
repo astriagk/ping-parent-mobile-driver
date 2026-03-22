@@ -1,4 +1,4 @@
-import 'package:skolo_driver/widgets/maps/map_widget.dart';
+import 'package:skolo_driver/presentation/shared/widgets/organisms/maps/map_widget.dart';
 
 /// OpenFreeMap Configuration with CartoDB Voyager tiles
 class MapConfig implements MapProviderConfig {

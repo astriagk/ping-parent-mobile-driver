@@ -1,6 +1,4 @@
 import '../../../../../config.dart';
-import '../../../../../widgets/common_bg_layout.dart';
-import '../../../../../widgets/common_location_layout.dart';
 import 'my_rides_tab_inner_common_layout.dart';
 
 class CancelRideDetailsScreen extends StatelessWidget {
