@@ -46,7 +46,7 @@ class MyWalletScreen extends StatelessWidget {
                                     style: AppCss.lexendSemiBold14
                                         .textColor(appTheme.primary)))
                             .inkWell(onTap: () {
-                          route.pushNamed(context, routeName.topUpWalletScreen);
+                          route.pushNamed(context, AppRoute.topUpWallet.path);
                         })
                       ]).paddingSymmetric(horizontal: Insets.i20)
                 ]).marginSymmetric(vertical: Insets.i25),
@@ -166,7 +166,7 @@ class MyWalletScreen extends StatelessWidget {
                 CommonButton(
                     text: language(context, appFonts.withdraw),
                     onTap: () {
-                      route.pushNamed(context, routeName.withdrawScreen);
+                      route.pushNamed(context, AppRoute.withdraw.path);
                     }).marginOnly(bottom: Insets.i20)
               ]).marginSymmetric(horizontal: Insets.i20));
     });

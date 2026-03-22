@@ -29,7 +29,7 @@ class UpcomingRidesList extends StatelessWidget {
                                 onTap: () {
                                   myRidePvr.determinePosition().then((value) {
                                     route.pushNamed(context,
-                                        routeName.pickupCustomerScreen);
+                                        AppRoute.pickupCustomer.path);
                                   });
                                 },
                                 rideInfo: appArray.rides[index]);

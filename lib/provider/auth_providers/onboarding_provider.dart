@@ -182,7 +182,7 @@ class OnboardingProvider extends ChangeNotifier {
       pageController.nextPage(
           duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
     } else {
-      route.pushReplacementNamed(context, routeName.signInScreen);
+      route.pushReplacementNamed(context, AppRoute.signIn.path);
     }
   }
 
@@ -192,7 +192,7 @@ class OnboardingProvider extends ChangeNotifier {
   }
 
   userRegButton(context) {
-    route.pushNamed(context, routeName.documentsOnboarding);
+    route.pushNamed(context, AppRoute.documentsOnboarding.path);
   }
 
   /// Validates user registration data and calls the API
@@ -277,7 +277,7 @@ class OnboardingProvider extends ChangeNotifier {
       selectedIndex = 0;
       notifyListeners();
       // Navigate to next onboarding screen
-      route.pushNamed(context, routeName.documentsOnboarding);
+      route.pushNamed(context, AppRoute.documentsOnboarding.path);
     } else {
       String errorMessage = result.error ?? 'Failed to create driver profile';
       if (result.details != null && result.details!.isNotEmpty) {
@@ -377,7 +377,7 @@ class OnboardingProvider extends ChangeNotifier {
       documentImages.clear();
       notifyListeners();
       // Navigate to next onboarding screen
-      route.pushNamed(context, routeName.commonBottomBar);
+      route.pushNamed(context, AppRoute.home.path);
     } else {
       String errorMessage = result.error ?? 'Failed to upload documents';
       if (result.details != null && result.details!.isNotEmpty) {
@@ -389,7 +389,7 @@ class OnboardingProvider extends ChangeNotifier {
 
   bankDetails(context) {
     // Navigate to dashboard after completing onboarding
-    route.pushNamedAndRemoveUntil(context, routeName.commonBottomBar);
+    route.pushNamedAndRemoveUntil(context, AppRoute.home.path);
   }
 
   vehiclesRulesOnTap(int ruleIndex) {
@@ -435,7 +435,7 @@ class OnboardingProvider extends ChangeNotifier {
         ),
       );
       // Navigate to dashboard after successful profile creation
-      route.pushNamedAndRemoveUntil(context, routeName.commonBottomBar);
+      route.pushNamedAndRemoveUntil(context, AppRoute.home.path);
     } else if (result.error != null) {
       String errorMessage = result.error!;
       if (result.details != null && result.details!.isNotEmpty) {

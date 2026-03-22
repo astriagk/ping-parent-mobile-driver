@@ -47,7 +47,7 @@ class EmptyNotification extends StatelessWidget {
             CommonButton(
                     text: appFonts.refresh,
                     onTap: () =>
-                        route.pushNamed(context, routeName.notificationScreen))
+                        route.pushNamed(context, AppRoute.notifications.path))
                 .padding(bottom: Sizes.s20, top: Sizes.s75)
           ]).padding(horizontal: Sizes.s20)
         ]));

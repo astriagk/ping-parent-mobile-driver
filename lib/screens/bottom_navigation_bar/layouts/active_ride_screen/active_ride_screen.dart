@@ -139,7 +139,7 @@ class _ActiveRideScreenState extends State<ActiveRideScreen>
       if (status == TripStatus.inProgress) {
         await route.pushNamed(
           context,
-          routeName.pickupCustomerScreen,
+          AppRoute.pickupCustomer.path,
           arg: {
             'tripId': trip.id,
             if (tripType == TripType.drop) 'isDropTrip': true,
@@ -148,12 +148,12 @@ class _ActiveRideScreenState extends State<ActiveRideScreen>
       } else if (tripType == TripType.drop) {
         // For DROP trips (not in-progress), go to student selection screen
         context.read<DropStudentSelectionProvider>().setCurrentTripId(trip.id);
-        await route.pushNamed(context, routeName.dropStudentSelectionScreen);
+        await route.pushNamed(context, AppRoute.dropStudentSelection.path);
       } else {
         // For PICKUP trips, go directly to map
         await route.pushNamed(
           context,
-          routeName.pickupCustomerScreen,
+          AppRoute.pickupCustomer.path,
           arg: {'tripId': trip.id, 'tripStatus': trip.tripStatus},
         );
       }
@@ -188,11 +188,11 @@ class _ActiveRideScreenState extends State<ActiveRideScreen>
                 .read<DropStudentSelectionProvider>()
                 .setCurrentTripId(updatedTrip.id);
             await route.pushNamed(
-                context, routeName.dropStudentSelectionScreen);
+                context, AppRoute.dropStudentSelection.path);
           } else {
             await route.pushNamed(
               context,
-              routeName.pickupCustomerScreen,
+              AppRoute.pickupCustomer.path,
               arg: {
                 'tripId': updatedTrip.id,
                 'tripStatus': updatedTrip.tripStatus

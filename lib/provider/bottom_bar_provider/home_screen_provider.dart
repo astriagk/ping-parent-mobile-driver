@@ -19,6 +19,6 @@ class HomeScreenProvider extends ChangeNotifier {
   }
 
   editOnTap(context) {
-    route.pushNamed(context, routeName.createOfferScreen);
+    route.pushNamed(context, AppRoute.createOffer.path);
   }
 }

@@ -59,7 +59,7 @@ class OnTheWaySheet extends StatelessWidget {
                 ]),
                 Spacer(),
                 CommonIconButton(
-                    onTap: () => route.pushNamed(context, routeName.chatScreen),
+                    onTap: () => route.pushNamed(context, AppRoute.chat.path),
                     icon: svgAssets.message,
                     bgColor: appTheme.bgBox),
                 SizedBox(width: Insets.i12),

@@ -100,7 +100,7 @@ class SignUpProvider extends ChangeNotifier {
         isSendingOtp = false;
         notifyListeners();
         if (context.mounted) {
-          route.pushNamed(context, routeName.otpScreen, arg: true);
+          route.pushNamed(context, AppRoute.otp.path, arg: true);
         }
         return;
       } else {
@@ -121,6 +121,6 @@ class SignUpProvider extends ChangeNotifier {
   }
 
   alreadyHavingAccountSignInButton(context) {
-    route.pushNamed(context, routeName.signInScreen);
+    route.pushNamed(context, AppRoute.signIn.path);
   }
 }

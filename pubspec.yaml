@@ -35,6 +35,10 @@ dependencies:
   flutter_local_notifications: ^17.0.0 # USED — helper/foreground_tracking_service
   sqflite: ^2.3.2                     # USED — api/services/position_queue_service
 
+  # ── NEW ARCHITECTURE ──────────────────────────────────────────────────────
+  flutter_riverpod: ^2.5.1            # State management — replaces provider
+  go_router: ^14.0.0                  # Declarative routing — replaces named routes
+
   # ── NOT USED — remove after migration is complete ─────────────────────────
   provider: ^6.1.2                    # NOT USED — will be replaced by flutter_riverpod
   connectivity_plus: ^6.0.5           # NOT USED

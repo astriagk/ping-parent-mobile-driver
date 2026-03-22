@@ -17,7 +17,7 @@ class OfferListScreen extends StatelessWidget {
                   titleWidth: MediaQuery.of(context).size.width * 0.01,
                   icon: true,
                   onTap: () =>
-                      route.pushNamed(context, routeName.createOfferScreen)),
+                      route.pushNamed(context, AppRoute.createOffer.path)),
               body: ListView.builder(
                   padding: EdgeInsets.all(Insets.i8),
                   itemCount: appArray.offersList.length,
@@ -34,7 +34,7 @@ class OfferListScreen extends StatelessWidget {
                             promoCtrl.updateIsActive(index, newIsActive),
                         onDeleteTap: () => promoCtrl.deleteOffer(index),
                         onEditTap: () => route.pushNamed(
-                            context, routeName.createOfferScreen));
+                            context, AppRoute.createOffer.path));
                   }).marginSymmetric(vertical: Insets.i10)));
     });
   }

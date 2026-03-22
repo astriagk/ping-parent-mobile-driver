@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' show ProviderScope;
 import 'package:skolo_driver/config/env/environment.dart';
 import 'package:skolo_driver/services/background/foreground_tracking_service.dart';
 
@@ -21,7 +22,7 @@ void main() async {
   // Initialize background tracking service
   await ForegroundTrackingService().initialize();
 
-  runApp(const MyApp());
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -71,7 +72,7 @@ class MyApp extends StatelessWidget {
                   return Consumer<LanguageProvider>(
                       builder: (context, lang, child) {
                     return ScreenUtilInit(builder: (context, child) {
-                      return MaterialApp(
+                      return MaterialApp.router(
                           title: appFonts.taxify,
                           debugShowCheckedModeBanner: false,
                           theme: AppTheme.fromType(ThemeType.light).themeData,
@@ -79,9 +80,7 @@ class MyApp extends StatelessWidget {
                               AppTheme.fromType(ThemeType.dark).themeData,
                           supportedLocales: appArray.localList,
                           themeMode: themeService.theme,
-                          initialRoute: "/",
-                          navigatorObservers: [routeObserver],
-                          routes: appRoute.route,
+                          routerConfig: appRouter,
                           locale: lang.locale,
                           localizationsDelegates: const [
                             AppLocalizations.delegate,

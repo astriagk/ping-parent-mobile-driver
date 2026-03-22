@@ -30,31 +30,31 @@ class SettingProvider extends ChangeNotifier {
   settingsOnTap(e, a, context) {
     if (language(context, a['subTitle']) ==
         language(context, appFonts.profileSettings)) {
-      route.pushNamed(context, routeName.profileScreen);
+      route.pushNamed(context, AppRoute.profile.path);
     }
     if (language(context, a['subTitle']) ==
         language(context, appFonts.myWallet)) {
-      route.pushNamed(context, routeName.myWalletScreen);
+      route.pushNamed(context, AppRoute.myWallet.path);
     }
     if (language(context, a['subTitle']) ==
         language(context, appFonts.bankDetail)) {
-      route.pushNamed(context, routeName.bankDetailsScreen);
+      route.pushNamed(context, AppRoute.bankDetails.path);
     }
     if (language(context, a['subTitle']) ==
         language(context, appFonts.offerList)) {
-      route.pushNamed(context, routeName.offerListScreen);
+      route.pushNamed(context, AppRoute.offerList.path);
     }
     if (language(context, a['subTitle']) ==
         language(context, appFonts.appSettings)) {
-      route.pushNamed(context, routeName.appSettingScreen);
+      route.pushNamed(context, AppRoute.appSettings.path);
     }
     if (language(context, a['subTitle']) ==
         language(context, appFonts.documentRegistration)) {
-      route.pushNamed(context, routeName.documentUpdateScreen);
+      route.pushNamed(context, AppRoute.documentUpdate.path);
     }
     if (language(context, a['subTitle']) ==
         language(context, appFonts.userRegistration)) {
-      route.pushNamed(context, routeName.userUpdateScreen);
+      route.pushNamed(context, AppRoute.userUpdate.path);
     }
     if (language(context, a['subTitle']) ==
         language(context, appFonts.deleteAccount)) {
@@ -84,7 +84,7 @@ class SettingProvider extends ChangeNotifier {
                   authService.logout().then((_) {
                     if (context.mounted) {
                       route.pushReplacementNamed(
-                          context, routeName.signInScreen);
+                          context, AppRoute.signIn.path);
                     }
                   });
                 },

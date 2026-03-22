@@ -494,7 +494,7 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
     } catch (e) {
       await _pickUpProvider.stopLocationTracking();
       if (mounted) {
-        route.pushNamed(context, routeName.rideDetailsScreen);
+        route.pushNamed(context, AppRoute.rideDetails.path);
       }
     }
   }
@@ -572,13 +572,13 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
         // Stop tracking and navigate to ride details on error
         await _pickUpProvider.stopLocationTracking();
         if (mounted) {
-          route.pushNamed(context, routeName.rideDetailsScreen);
+          route.pushNamed(context, AppRoute.rideDetails.path);
         }
       }
     } catch (e) {
       await _pickUpProvider.stopLocationTracking();
       if (mounted) {
-        route.pushNamed(context, routeName.rideDetailsScreen);
+        route.pushNamed(context, AppRoute.rideDetails.path);
       }
     }
   }
@@ -798,7 +798,7 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
                                   if (_isDropTrip) {
                                     Navigator.of(context).popUntil(
                                       ModalRoute.withName(
-                                          routeName.commonBottomBar),
+                                          AppRoute.home.path),
                                     );
                                   } else {
                                     route.pop(context);
@@ -888,7 +888,7 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
                                       //     text: language(
                                       //         context, appFonts.rideDetails),
                                       //     onTap: () => route.pushNamed(context,
-                                      //         routeName.rideDetailsScreen)),
+                                      //         AppRoute.rideDetails.path)),
                                     ]))
                             : isOtpVerify == true
                                 ? showGif == true
@@ -929,7 +929,7 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
                                     : OnTheWaySheet(
                                         onTap: isRideComplete == true
                                             ? () => route.pushNamed(context,
-                                                routeName.rideDetailsScreen)
+                                                AppRoute.rideDetails.path)
                                             : () {},
                                         isRideComplete: isRideComplete,
                                         isLastWaypoint: _isLastWaypoint(),

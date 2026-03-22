@@ -1,66 +1,24 @@
-import 'package:skolo_driver/config.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class NavigationClass {
-  pushNamedAndRemoveUntil(context, pageName, {arg}) =>
-      Navigator.pushNamedAndRemoveUntil(
-        context,
-        pageName,
-        arguments: arg,
-        (route) => false,
-      );
+  pushNamedAndRemoveUntil(BuildContext context, String pageName, {arg}) =>
+      context.go(pageName);
 
-  pushNamed(context, pageName, {arg}) async {
-    final result = await Navigator.pushNamed(
-      context,
-      pageName,
-      arguments: arg,
-    );
-    return result;
+  pushNamed(BuildContext context, String pageName, {arg}) =>
+      context.push(pageName, extra: arg);
+
+  push(BuildContext context, Widget page, {arg}) =>
+      Navigator.push(context, MaterialPageRoute(builder: (_) => page));
+
+  pop(BuildContext context, {arg}) => context.pop(arg);
+
+  popAndPushNamed(BuildContext context, String pageName,
+      {arg, result}) {
+    context.pop(result);
+    context.push(pageName, extra: arg);
   }
 
-  push(context, pageName, {arg}) async {
-    final result = await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => pageName,
-        ));
-    return result;
-  }
-
-  pop(context, {arg}) {
-    Navigator.pop(context, arg);
-  }
-
-  popAndPushNamed(context, pageName, {arg, result}) {
-    Navigator.popAndPushNamed(
-      context,
-      pageName,
-      arguments: arg,
-      result: result,
-    );
-  }
-
-  pushReplacementNamed(context, pageName, {args}) {
-    Navigator.pushReplacementNamed(
-      context,
-      pageName,
-      arguments: args,
-    );
-  }
-
-/*  pushAndRemoveUntil(context,{args}){
-    Navigator.of(context).pushAndRemoveUntil(
-      // the new route
-      MaterialPageRoute(
-        builder: (BuildContext context) => const SplashScreen(),
-      ),
-
-      // this function should return true when we're done removing routes
-      // but because we want to remove all other screens, we make it
-      // always return false
-          (Route route) => false,
-    );
-
-
-  }*/
+  pushReplacementNamed(BuildContext context, String pageName, {args}) =>
+      context.pushReplacement(pageName, extra: args);
 }

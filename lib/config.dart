@@ -32,8 +32,7 @@ export 'package:skolo_driver/core/utils/navigation_class.dart';
 export 'package:skolo_driver/models/index.dart';
 export 'package:skolo_driver/package_list.dart';
 export 'package:skolo_driver/provider/index.dart';
-export 'package:skolo_driver/routes/index.dart';
-export 'package:skolo_driver/routes/screen_list.dart';
+export 'package:skolo_driver/config/router/app_router.dart';
 export 'package:skolo_driver/screens/index.dart';
 export 'package:skolo_driver/widgets/index.dart';
 export 'package:skolo_driver/widgets/skeletons/index.dart';
@@ -86,8 +85,7 @@ String language(context, text) {
 }
 
 Future<bool> isNetworkConnection() async {
-  var connectivityResult = await Connectivity()
-      .checkConnectivity();
+  var connectivityResult = await Connectivity().checkConnectivity();
   if (connectivityResult == ConnectivityResult.none) {
     return false;
   } else {

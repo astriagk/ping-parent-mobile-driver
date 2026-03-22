@@ -42,7 +42,7 @@ class HomeScreen extends StatelessWidget {
           // VSpace(Insets.i10),
           // ElevatedButton.icon(
           //   onPressed: () {
-          //     route.pushNamed(context, routeName.rideDetailsScreen);
+          //     route.pushNamed(context, AppRoute.rideDetails.path);
           //   },
           //   icon: const Icon(Icons.directions_car),
           //   label: const Text('Ride Details'),

@@ -125,7 +125,7 @@ class _DashHeaderContent extends StatelessWidget {
           // CommonIconButton(
           //     icon: svgAssets.notifications,
           //     onTap: () =>
-          //         route.pushNamed(context, routeName.emptyNotificationScreen))
+          //         route.pushNamed(context, AppRoute.emptyNotifications.path))
         ]);
       case 1:
       case 2:
@@ -135,13 +135,13 @@ class _DashHeaderContent extends StatelessWidget {
           // CommonIconButton(
           //     icon: svgAssets.messages,
           //     onTap: () {
-          //       route.pushNamed(context, routeName.chatScreen);
+          //       route.pushNamed(context, AppRoute.chat.path);
           //     }),
           // HSpace(Insets.i10),
           // CommonIconButton(
           //     icon: svgAssets.notifications,
           //     onTap: () =>
-          //         route.pushNamed(context, routeName.emptyNotificationScreen))
+          //         route.pushNamed(context, AppRoute.emptyNotifications.path))
         ]);
     }
   }

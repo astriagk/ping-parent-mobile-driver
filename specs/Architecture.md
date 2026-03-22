@@ -15,7 +15,7 @@ Both apps will expand in future to include school events, attendance, sports, an
 
 | Decision | Choice |
 |---|---|
-| State Management | Riverpod (riverpod_annotation + code-gen) |
+| State Management | Riverpod (flutter_riverpod — manual providers, no code-gen) |
 | Routing | GoRouter with ShellRoute |
 | Authentication | JWT — access + refresh tokens |
 | Platforms | Android + iOS |
@@ -62,7 +62,8 @@ lib/
 │   ├── features/           # One folder per feature
 │   │   ├── auth/
 │   │   │   ├── pages/
-│   │   │   ├── widgets/    # Widgets used only in auth feature
+│   │   │   ├── widgets/            # Widgets used only in auth feature
+│   │   │   │   └── index.dart      # Barrel — exports all auth widgets
 │   │   │   └── providers/
 │   │   ├── tracking/       # (Parent) Live map, bus pin, ETA
 │   │   │   ├── pages/
@@ -87,12 +88,17 @@ lib/
 │   │   └── app_top_bar     # Custom AppBar / Toolbar
 │   │
 │   └── shared/
-│       ├── widgets/        # Reusable widgets — Atomic Design structure
-│       │   ├── atoms/      # Smallest indivisible UI units
-│       │   ├── molecules/  # Compositions of atoms
-│       │   ├── organisms/  # Complex sections, may access Riverpod
-│       │   └── templates/  # Page layout scaffolds — slot-based, no real data
-│       └── providers/      # App-wide shared Riverpod providers
+│       ├── widgets/            # Reusable widgets — Atomic Design structure
+│       │   ├── index.dart      # Barrel — re-exports atoms/ + molecules/ + organisms/ + templates/
+│       │   ├── atoms/
+│       │   │   └── index.dart  # Barrel — exports all atoms
+│       │   ├── molecules/
+│       │   │   └── index.dart  # Barrel — exports all molecules
+│       │   ├── organisms/
+│       │   │   └── index.dart  # Barrel — exports all organisms
+│       │   └── templates/
+│       │       └── index.dart  # Barrel — exports all templates
+│       └── providers/          # App-wide shared Riverpod providers
 │
 └── services/
     ├── websocket/          # WS connection lifecycle + message dispatcher
@@ -122,6 +128,17 @@ All widgets follow Atomic Design, progressing from smallest to most complex:
 - Used in **1 feature only** → stays in `features/<name>/widgets/` regardless of complexity
 - Data flows **down** through props. Events flow **up** through callbacks.
 - Only Organisms and Pages access Riverpod providers directly.
+
+**Barrel export rule:**
+Every widget folder must have an `index.dart` that re-exports all widgets in that folder. Feature-level widget folders (`features/<name>/widgets/index.dart`) export all widgets for that feature. The shared top-level barrel (`shared/widgets/index.dart`) re-exports all atomic levels. Consumers import only the barrel:
+
+```dart
+// shared widgets — one import covers all atoms, molecules, organisms, templates
+import 'package:skolo_driver/presentation/shared/widgets/index.dart';
+
+// feature widgets — one import covers all widgets in that feature
+import 'package:skolo_driver/presentation/features/auth/widgets/index.dart';
+```
 
 **Shell (Bottom Tabs + AppBar):**
 The shell (`presentation/shell/`) wraps all tabbed screens via GoRouter's `ShellRoute`:
@@ -321,7 +338,7 @@ FCM arrives → OS delivers notification → user taps → app launches → GoRo
 
 | Purpose | Package |
 |---|---|
-| State management | flutter_riverpod, riverpod_annotation, riverpod_generator |
+| State management | flutter_riverpod |
 | Routing | go_router |
 | HTTP client | dio, retrofit, retrofit_generator |
 | WebSocket | web_socket_channel |

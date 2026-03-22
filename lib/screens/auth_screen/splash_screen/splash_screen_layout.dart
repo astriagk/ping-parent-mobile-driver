@@ -25,7 +25,7 @@ class _SplashScreenLayoutState extends State<SplashScreenLayout> {
     super.didChangeDependencies();
     Future.delayed(DurationClass.s1).then((value) {
       if (mounted) {
-        route.pushNamed(context, routeName.signInScreen);
+        route.pushNamed(context, AppRoute.signIn.path);
       }
     });
   }

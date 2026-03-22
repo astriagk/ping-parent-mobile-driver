@@ -165,7 +165,7 @@ class _DropStudentSelectionScreenState extends State<DropStudentSelectionScreen>
 
         route.pushNamed(
           context,
-          routeName.pickupCustomerScreen,
+          AppRoute.pickupCustomer.path,
           arg: {
             'tripId': _provider.currentTripId,
             'isDropTrip': true,

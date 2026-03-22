@@ -21,7 +21,7 @@ class OtpScreen extends StatelessWidget {
             content: TextWidgetCommon(
                 text: result.message ?? 'OTP verified successfully')),
       );
-      route.pushNamedAndRemoveUntil(context, routeName.commonBottomBar);
+      route.pushNamedAndRemoveUntil(context, AppRoute.home.path);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -47,7 +47,7 @@ class OtpScreen extends StatelessWidget {
             content: TextWidgetCommon(
                 text: result.message ?? 'OTP verified successfully')),
       );
-      route.pushNamed(context, routeName.userOnboarding);
+      route.pushNamed(context, AppRoute.userOnboarding.path);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
