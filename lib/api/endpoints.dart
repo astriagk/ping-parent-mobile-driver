@@ -4,8 +4,8 @@ import 'package:skolo_driver/config/env/environment.dart';
 /// All endpoints are dynamically built using the environment-specific base URL
 class Endpoints {
   /// Get the base URL for the current environment
-  static String get baseUrl => appConfig.baseUrl;
-  // static String get baseUrl => 'http://192.168.0.126:3000/api';
+  // static String get baseUrl => appConfig.baseUrl;
+  static String get baseUrl => 'http://192.168.0.126:3000/api';
 
 // ===== Authentication Endpoints =====
   static String get sendOtp => '$baseUrl/auth/login/send-otp';

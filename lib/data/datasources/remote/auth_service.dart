@@ -1,8 +1,11 @@
 import 'dart:convert';
-import '../api_client.dart';
-import '../endpoints.dart';
-import '../models/index.dart';
-import 'storage_service.dart';
+
+import 'package:skolo_driver/api/endpoints.dart';
+import 'package:skolo_driver/data/datasources/local/storage_service.dart';
+import 'package:skolo_driver/data/datasources/remote/api_client.dart';
+import 'package:skolo_driver/data/models/auth/send_otp_request.dart';
+import 'package:skolo_driver/data/models/auth/send_otp_response.dart';
+import 'package:skolo_driver/data/models/auth/verify_otp_request.dart';
 
 class AuthService {
   final ApiClient _apiClient;

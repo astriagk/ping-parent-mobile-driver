@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:skolo_driver/config/env/environment.dart';
 
-import 'services/storage_service.dart';
+import 'package:skolo_driver/data/datasources/local/storage_service.dart';
 
 /// Enum for HTTP methods - provides type safety
 enum HttpMethod { get, post, put, delete, patch }

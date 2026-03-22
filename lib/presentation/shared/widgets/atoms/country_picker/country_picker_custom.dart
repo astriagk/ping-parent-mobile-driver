@@ -1,7 +1,9 @@
-import 'package:skolo_driver/widgets/country_picker_custom/selection_item_list.dart';
+import 'package:skolo_driver/config.dart';
+import 'package:skolo_driver/core/constants/country_list_data.dart';
 
-import '../../config.dart';
-import 'layouts/country_list_layout.dart';
+import 'country_code_custom.dart';
+import 'country_theme.dart';
+import 'selection_item_list.dart';
 
 List<Map> jsonList = countriesEnglish;
 

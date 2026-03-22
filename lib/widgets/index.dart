@@ -10,6 +10,3 @@ export 'package:skolo_driver/widgets/common_app_bar_layout.dart';
 export '../../../widgets/switch_common.dart';
 
 export 'package:skolo_driver/widgets/common_container.dart';
-export 'package:skolo_driver/widgets/country_picker_custom/country_code_custom.dart';
-export 'package:skolo_driver/widgets/country_picker_custom/country_picker_custom.dart';
-export 'package:skolo_driver/widgets/country_picker_custom/layouts/country_theme.dart';
