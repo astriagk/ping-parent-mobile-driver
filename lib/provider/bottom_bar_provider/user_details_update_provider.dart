@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:skolo_driver/config.dart';
-import 'package:skolo_driver/api/api_client.dart';
+import 'package:skolo_driver/data/datasources/remote/api_client.dart';
 import 'package:skolo_driver/api/models/user_details/user_details_update_request.dart';
 import 'package:skolo_driver/api/services/user_details_service.dart';
 

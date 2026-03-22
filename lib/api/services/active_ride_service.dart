@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:skolo_driver/api/api_client.dart';
+import 'package:skolo_driver/data/datasources/remote/api_client.dart';
 import 'package:skolo_driver/api/endpoints.dart';
 import 'package:skolo_driver/api/models/trip/create_trip_request.dart';
 import 'package:skolo_driver/api/models/trip/create_trip_response.dart';
