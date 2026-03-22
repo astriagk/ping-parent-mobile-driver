@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:skolo_driver/api/api_client.dart';
+import 'package:skolo_driver/data/datasources/remote/api_client.dart';
 import 'package:skolo_driver/api/models/drop_student_selection_model.dart';
 import 'package:skolo_driver/api/models/pick_up_customer/trip_status_response.dart';
 import 'package:skolo_driver/api/services/drop_student_selection_service.dart';

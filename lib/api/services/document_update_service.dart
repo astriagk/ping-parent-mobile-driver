@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:skolo_driver/api/api_client.dart';
+import 'package:skolo_driver/data/datasources/remote/api_client.dart';
 import 'package:skolo_driver/api/endpoints.dart';
 import 'package:skolo_driver/api/models/documents/driver_documents_response.dart';
-import 'package:skolo_driver/api/services/storage_service.dart';
+import 'package:skolo_driver/data/datasources/local/storage_service.dart';
 
 class DocumentUpdateService {
   final ApiClient _apiClient;

@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:skolo_driver/api/endpoints.dart';
 import 'package:skolo_driver/api/enums/socket_events_enum.dart';
-import 'package:skolo_driver/api/services/storage_service.dart';
+import 'package:skolo_driver/data/datasources/local/storage_service.dart';
 
 /// Driver socket service - Main isolate only
 class SocketService {

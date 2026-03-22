@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:skolo_driver/api/api_client.dart';
-import 'package:skolo_driver/api/services/auth_service.dart';
+import 'package:skolo_driver/data/datasources/remote/api_client.dart';
+import 'package:skolo_driver/data/datasources/remote/auth_service.dart';
 
 class SignInState {
   final String countryCode;

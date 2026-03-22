@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:skolo_driver/config.dart';
-import 'package:skolo_driver/api/api_client.dart';
+import 'package:skolo_driver/data/datasources/remote/api_client.dart';
 import 'package:skolo_driver/api/services/document_update_service.dart';
 
 class DocumentUpdateProvider extends ChangeNotifier {

@@ -1,4 +1,4 @@
-import '../../api/api_client.dart';
+import 'package:skolo_driver/data/datasources/remote/api_client.dart';
 import '../../api/services/user_details_service.dart';
 import '../../config.dart';
 import '../../screens/bottom_navigation_bar/layouts/active_ride_screen/active_ride_screen.dart';

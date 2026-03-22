@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../api/api_client.dart';
-import '../../api/services/auth_service.dart';
+import 'package:skolo_driver/data/datasources/remote/api_client.dart';
+import 'package:skolo_driver/data/datasources/remote/auth_service.dart';
 
 class SignInProvider extends ChangeNotifier {
   String countryCode = "";

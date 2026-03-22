@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import '../../config.dart';
-import '../../api/api_client.dart';
+import 'package:skolo_driver/data/datasources/remote/api_client.dart';
 import '../../api/services/onboarding_service.dart';
 
 class OnboardingProvider extends ChangeNotifier {

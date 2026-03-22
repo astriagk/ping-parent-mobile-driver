@@ -1,5 +1,5 @@
 import 'package:skolo_driver/config.dart';
-import 'package:skolo_driver/api/api_client.dart';
+import 'package:skolo_driver/data/datasources/remote/api_client.dart';
 import 'package:skolo_driver/api/services/my_rides_service.dart';
 import 'package:skolo_driver/api/enums/assignment_status_enum.dart';
 

@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:skolo_driver/api/api_client.dart';
+import 'package:skolo_driver/data/datasources/remote/api_client.dart';
 import 'package:skolo_driver/api/endpoints.dart';
 import 'package:skolo_driver/api/models/my_rides_response.dart';
 import 'package:skolo_driver/api/enums/assignment_status_enum.dart';

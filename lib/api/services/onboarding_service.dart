@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import '../api_client.dart';
+import 'package:skolo_driver/data/datasources/remote/api_client.dart';
 import '../endpoints.dart';
 import '../models/index.dart';
-import 'storage_service.dart';
+import 'package:skolo_driver/data/datasources/local/storage_service.dart';
 
 class OnboardingService {
   final ApiClient _apiClient;

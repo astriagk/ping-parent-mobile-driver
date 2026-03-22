@@ -1,5 +1,5 @@
 import 'package:skolo_driver/config.dart';
-import '../../api/services/storage_service.dart';
+import 'package:skolo_driver/data/datasources/local/storage_service.dart';
 
 class SplashProvider extends ChangeNotifier {
   final StorageService _storageService = StorageService();

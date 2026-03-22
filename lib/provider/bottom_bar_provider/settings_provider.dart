@@ -2,8 +2,8 @@ import 'dart:developer';
 
 import 'package:skolo_driver/config.dart';
 import 'package:skolo_driver/screens/app_pages/app_settings/layout/common_draggable_sheet.dart';
-import '../../api/services/auth_service.dart';
-import '../../api/api_client.dart';
+import 'package:skolo_driver/data/datasources/remote/auth_service.dart';
+import 'package:skolo_driver/data/datasources/remote/api_client.dart';
 import '../../widgets/common_confirmation_dialog.dart';
 
 class SettingProvider extends ChangeNotifier {

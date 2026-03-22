@@ -10,7 +10,7 @@ import 'package:skolo_driver/api/services/socket_service.dart';
 import 'package:skolo_driver/api/models/get_my_trips_response.dart';
 import 'package:skolo_driver/api/enums/trip_type_enum.dart';
 import 'package:skolo_driver/api/enums/trip_status_enum.dart';
-import 'package:skolo_driver/api/api_client.dart';
+import 'package:skolo_driver/data/datasources/remote/api_client.dart';
 import 'package:skolo_driver/services/background/foreground_tracking_service.dart';
 
 class ActiveRideProvider extends ChangeNotifier {
