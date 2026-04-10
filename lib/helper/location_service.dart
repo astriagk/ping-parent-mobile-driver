@@ -168,9 +168,12 @@ class LocationService {
   }
 
   /// Format estimated arrival time
-  /// Returns formatted string like "14:30"
+  /// Returns formatted string like "2:30 PM"
   static String formatETA(DateTime? eta) {
     if (eta == null) return '--';
-    return '${eta.hour}:${eta.minute.toString().padLeft(2, '0')}';
+    final hour = eta.hour % 12 == 0 ? 12 : eta.hour % 12;
+    final minute = eta.minute.toString().padLeft(2, '0');
+    final period = eta.hour < 12 ? 'AM' : 'PM';
+    return '$hour:$minute $period';
   }
 }
