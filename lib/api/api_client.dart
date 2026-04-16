@@ -6,16 +6,21 @@ import 'package:http/http.dart' as http;
 import 'package:skolo_driver/config/environment.dart';
 
 import 'services/storage_service.dart';
+import 'services/auth_service.dart';
+import 'auth_interceptor.dart';
 
 /// Enum for HTTP methods - provides type safety
 enum HttpMethod { get, post, put, delete, patch }
 
 /// HTTP Client for API communication
 /// Automatically injects authentication token to all requests
+/// Includes interceptor for token validation and refresh
 class ApiClient {
   final http.Client _client;
   final StorageService _storage;
   late final Duration timeout;
+  late final AuthInterceptor _interceptor;
+  AuthService? _authService;
 
   /// IMPORTANT: appConfig must be initialized before creating ApiClient.
   /// If not initialized, a default timeout of 30 seconds will be used.
@@ -23,10 +28,34 @@ class ApiClient {
     http.Client? client,
     StorageService? storage,
     Duration? timeout,
+    AuthInterceptor? interceptor,
   })  : _client = client ?? http.Client(),
         _storage = storage ?? StorageService() {
     this.timeout =
         timeout ?? (appConfig?.requestTimeout ?? const Duration(seconds: 30));
+    _interceptor = interceptor ?? AuthInterceptor();
+  }
+
+  /// Initialize AuthService for the interceptor
+  /// This should be called after ApiClient is created to avoid circular dependency
+  void initializeAuthService() {
+    if (_authService == null) {
+      _authService = AuthService(this);
+      _interceptor.setAuthService(_authService!);
+    }
+  }
+
+  /// Get AuthService instance (lazy initialization)
+  AuthService getAuthService() {
+    initializeAuthService();
+    return _authService!;
+  }
+
+  /// Validate token once on app startup
+  /// Call this from your splash screen or app initialization
+  /// Returns true if token is valid, false if invalid or needs re-login
+  Future<bool> validateTokenOnStartup() async {
+    return await _interceptor.validateTokenOnStartup();
   }
 
   /// Get headers with automatic auth token injection
@@ -56,6 +85,8 @@ class ApiClient {
   }
 
   /// Generic HTTP request handler with timeout support
+  /// Checks token validity using local JWT decoding (no API call)
+  /// Only refreshes if token is about to expire
   Future<http.Response> _sendRequest(
     HttpMethod method,
     String url, {
@@ -63,6 +94,22 @@ class ApiClient {
     Object? body,
   }) async {
     try {
+      // Check token validity using local JWT decoding (no API call)
+      // Skip token check for auth endpoints to avoid circular calls
+      if (!_isAuthEndpoint(url)) {
+        final canProceed = await _interceptor.shouldProceedWithRequest();
+        if (!canProceed) {
+          // Token is invalid or couldn't be refreshed, return 401
+          return http.Response(
+            jsonEncode({
+              'success': false,
+              'error': 'Token expired or invalid. Please login again.'
+            }),
+            401,
+          );
+        }
+      }
+
       final requestHeaders = await getHeaders(additionalHeaders: headers);
       final uri = Uri.parse(url);
       final encodedBody = _encodeBody(body);
@@ -90,6 +137,17 @@ class ApiClient {
     } on Exception catch (e) {
       throw Exception('Unexpected error: $e');
     }
+  }
+
+  /// Check if URL is an auth endpoint (skip token validation for these)
+  bool _isAuthEndpoint(String url) {
+    final authEndpoints = [
+      '/auth/login/send-otp',
+      '/auth/login/verify-otp',
+      '/auth/register/send-otp',
+      '/auth/register/verify-otp',
+    ];
+    return authEndpoints.any((endpoint) => url.contains(endpoint));
   }
 
   /// GET request

@@ -15,6 +15,7 @@ class VerifyOtpRequest {
 class VerifyOtpResponse {
   final bool success;
   final String? token;
+  final String? refreshToken;
   final Map<String, dynamic>? user;
   final String? message;
   final String? error;
@@ -22,6 +23,7 @@ class VerifyOtpResponse {
   VerifyOtpResponse({
     required this.success,
     this.token,
+    this.refreshToken,
     this.user,
     this.message,
     this.error,
@@ -30,7 +32,8 @@ class VerifyOtpResponse {
   factory VerifyOtpResponse.fromJson(Map<String, dynamic> json) {
     return VerifyOtpResponse(
       success: json['success'] ?? false,
-      token: json['data'] != null ? json['data']['token'] : null,
+      token: json['data'] != null ? json['data']['accessToken'] : null,
+      refreshToken: json['data'] != null ? json['data']['refreshToken'] : null,
       user: json['data'] != null ? json['data']['user'] : null,
       message: json['message'],
       error: json['error'],
