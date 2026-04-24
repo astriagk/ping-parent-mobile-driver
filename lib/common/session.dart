@@ -12,11 +12,11 @@ class Session {
   String usageControls = 'usageControls';
   String userAppSettings = 'userAppSettings';
   String accessToken = 'accessToken';
+  String refreshToken = 'refreshToken';
   String contactList = 'contactList';
   String contactPermission = 'contactPermission';
   String registerUser = 'registerUser';
   String unRegisterUser = 'unRegisterUser';
   String statusList = 'statusList';
   String locale = 'locale';
-
 }

@@ -153,6 +153,10 @@ class AuthService {
       await _storage.saveUserPhone(phone);
       await _storage.saveLoginStatus(true);
     }
+    // Save refresh token if available
+    if (response.refreshToken != null) {
+      await _storage.saveRefreshToken(response.refreshToken!);
+    }
     // Save user data if available
     if (response.user != null) {
       final userData = response.user!;
@@ -165,6 +169,61 @@ class AuthService {
       if (userData['email'] != null) {
         await _storage.saveUserEmail(userData['email'].toString());
       }
+    }
+  }
+
+  /// Verify token and refresh if needed
+  /// Makes request to /auth/verify-token with access token in Authorization header
+  /// and refresh token in x-refresh-token header
+  /// Returns new token if expired, null if still valid
+  Future<VerifyTokenResponse> verifyToken() async {
+    try {
+      final accessToken = await _storage.getAuthToken();
+      final refreshToken = await _storage.getRefreshToken();
+
+      if (accessToken == null || refreshToken == null) {
+        return VerifyTokenResponse(
+          success: false,
+          error: 'No tokens available',
+        );
+      }
+
+      // Add refresh token to headers
+      final headers = {
+        'x-refresh-token': refreshToken,
+      };
+
+      final response = await _apiClient.get(
+        Endpoints.verifyToken,
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        final verifyResponse =
+            VerifyTokenResponse.fromJson(jsonDecode(response.body));
+
+        // If new token is provided, save it
+        if (verifyResponse.data?.newToken != null) {
+          await _storage.saveAuthToken(verifyResponse.data!.newToken!);
+        }
+
+        // Update user ID if provided
+        if (verifyResponse.data?.userId != null) {
+          await _storage.saveUserId(verifyResponse.data!.userId);
+        }
+
+        return verifyResponse;
+      } else {
+        return VerifyTokenResponse(
+          success: false,
+          error: 'Failed to verify token. Status code: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      return VerifyTokenResponse(
+        success: false,
+        error: 'Error verifying token: ${e.toString()}',
+      );
     }
   }
 }
