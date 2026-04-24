@@ -17,6 +17,12 @@ class SocketService {
   Function()? onConnected;
   Function()? onDisconnected;
 
+  final _routeUpdatesController =
+      StreamController<Map<String, dynamic>>.broadcast();
+
+  Stream<Map<String, dynamic>> get routeUpdatesStream =>
+      _routeUpdatesController.stream;
+
   SocketService._internal();
 
   factory SocketService() {
@@ -64,6 +70,9 @@ class SocketService {
 
       _socket!.onConnect((_) {
         _isConnected = true;
+        if (_subscribedTripId != null) {
+          subscribeToTrip(_subscribedTripId!);
+        }
         onConnected?.call();
       });
 
@@ -90,6 +99,13 @@ class SocketService {
         }
       });
 
+      _socket!.on(BroadcastSocketEvent.routeCalculated.value, (data) {
+        print('[D] trip:route_calculated raw data: $data');
+        if (data is Map<String, dynamic>) {
+          _routeUpdatesController.add(data);
+        }
+      });
+
       _isInitialized = true;
       await _waitForConnection();
     } catch (e) {
@@ -110,10 +126,10 @@ class SocketService {
   bool get isConnected => _isConnected && _socket != null && _socket!.connected;
 
   Future<bool> subscribeToTrip(String tripId) async {
+    _subscribedTripId = tripId;
     if (!isConnected || _socket == null) return false;
 
     try {
-      _subscribedTripId = tripId;
       _socket!.emitWithAck(
         DriverSocketEvent.subscribeTrp.value,
         tripId,

@@ -1,7 +1,9 @@
+import 'package:latlong2/latlong.dart' as ll;
 import 'package:skolo_driver/config.dart';
 import 'package:skolo_driver/helper/address_util.dart';
 import 'package:skolo_driver/screens/bottom_navigation_bar/layouts/my_rides_screen/layouts/pending_ride_layouts.dart';
 import 'package:skolo_driver/widgets/empty_state/empty_state_widget.dart';
+import 'package:skolo_driver/widgets/maps/map_utils.dart';
 
 class MyRidesScreen extends StatefulWidget {
   const MyRidesScreen({super.key});
@@ -141,20 +143,40 @@ class _MyRidesScreenState extends State<MyRidesScreen>
                   city: assignment.school.city,
                   state: assignment.school.state,
                 );
-                //  TODO: refer from here for data maping -
-                //  D:\astria\Ping Parent\ping-parent-mobile-driver\lib\common\app_array.dart
+                final classSection = [
+                  assignment.student.classLevel,
+                  assignment.student.section
+                ].where((s) => s.trim().isNotEmpty).join(' - ');
+
+                final distanceKm = MapUtils.calculateDistance(
+                  ll.LatLng(assignment.parentAddress.latitude,
+                      assignment.parentAddress.longitude),
+                  ll.LatLng(assignment.school.latitude,
+                      assignment.school.longitude),
+                );
+                final distanceText = MapUtils.formatDistance(distanceKm);
+
                 return CustomerCard(
                     pickUpAddress: pickupAddress,
                     userName: assignment.student.studentName,
                     userImage: assignment.student.photoUrl,
-                    rating: 4.0,
-                    reviews: 10,
-                    distance: '1.2KM',
-                    // amount: 200,
-                    pickupTime: '10:00 AM',
                     dropOffAddress: dropoffAddress,
                     assignmentId: assignment.id,
-                    phoneNumber: '', // Get parent phone number here
+                    schoolName: assignment.school.schoolName,
+                    classSection: classSection.isNotEmpty ? classSection : null,
+                    gender: assignment.student.gender.isNotEmpty
+                        ? assignment.student.gender
+                        : null,
+                    assignmentStatus: assignment.assignmentStatus,
+                    assignedDate: assignment.assignedDate,
+                    distance: distanceText,
+                    parentName: (assignment.parent?.name.isNotEmpty == true)
+                        ? assignment.parent!.name
+                        : null,
+                    phoneNumber:
+                        (assignment.parent?.phoneNumber.isNotEmpty == true)
+                            ? assignment.parent!.phoneNumber
+                            : null,
                     showActionButtons: myRidesPvr.selectedIndex == 0,
                     isActionLoading:
                         myRidesPvr.actionLoadingId == assignment.id,

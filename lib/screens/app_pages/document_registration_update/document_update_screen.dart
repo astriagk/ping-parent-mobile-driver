@@ -117,41 +117,74 @@ class DocumentUpdateScreen extends StatelessWidget {
 
   Widget _buildFullWidthUploadContainer(BuildContext context,
       DocumentUpdateProvider pvr, String documentName, String? photoUrl) {
+    final hasLocalImage = pvr.documentImages[documentName] != null;
+    final hasNetworkImage = photoUrl != null && photoUrl.isNotEmpty;
+    final showEditIcon = hasLocalImage || hasNetworkImage;
+
     return GestureDetector(
         onTap: () async => await pvr.pickImage(
               context,
               documentName: documentName,
             ),
-        child: Container(
-                padding: const EdgeInsets.all(5),
-                height: Insets.i94.toDouble(),
-                decoration: BoxDecoration(
-                    color: appTheme.white,
-                    borderRadius: BorderRadius.circular(AppRadius.r12)),
-                child: DottedBorder(
-                    color: appColor(context).appTheme.lightText,
-                    strokeWidth: 1,
-                    dashPattern: const [6, 3],
-                    borderType: BorderType.RRect,
-                    radius: Radius.circular(AppRadius.r12),
-                    child: Container(
-                        alignment: Alignment.center,
-                        child: pvr.documentImages[documentName] == null
-                            ? (photoUrl == null || photoUrl.isEmpty
-                                ? Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                        SvgPicture.asset(svgAssets.import),
-                                        VSpace(Insets.i3),
-                                        Text(
-                                            language(
-                                                context, appFonts.uploadImage),
-                                            style: AppCss.lexendRegular13
-                                                .textColor(appTheme.textClr))
-                                      ])
-                                : Image.network(photoUrl, fit: BoxFit.cover))
-                            : Image.file(pvr.documentImages[documentName]!,
-                                fit: BoxFit.cover))))
-            .width(double.infinity));
+        child: Stack(children: [
+          Container(
+                  padding: const EdgeInsets.all(5),
+                  height: Insets.i180,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                      color: appTheme.white,
+                      borderRadius: BorderRadius.circular(AppRadius.r12)),
+                  child: DottedBorder(
+                      color: appColor(context).appTheme.lightText,
+                      strokeWidth: 1,
+                      dashPattern: const [6, 3],
+                      borderType: BorderType.RRect,
+                      radius: Radius.circular(AppRadius.r12),
+                      child: ClipRRect(
+                          borderRadius: BorderRadius.circular(AppRadius.r12),
+                          child: hasLocalImage
+                              ? Image.file(pvr.documentImages[documentName]!,
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  height: double.infinity)
+                              : hasNetworkImage
+                                  ? Image.network(photoUrl,
+                                      fit: BoxFit.cover,
+                                      width: double.infinity,
+                                      height: double.infinity)
+                                  : Container(
+                                      alignment: Alignment.center,
+                                      child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            SvgPicture.asset(svgAssets.import),
+                                            VSpace(Insets.i3),
+                                            Text(
+                                                language(context,
+                                                    appFonts.uploadImage),
+                                                style: AppCss.lexendRegular13
+                                                    .textColor(
+                                                        appTheme.textClr))
+                                          ])))))
+              .width(double.infinity),
+          if (showEditIcon)
+            Positioned(
+                top: 8,
+                right: 8,
+                child: Container(
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                        color: appTheme.white,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                              color: appTheme.darkText.withValues(alpha: 0.26),
+                              blurRadius: 4,
+                              offset: const Offset(0, 1))
+                        ]),
+                    child: Icon(Icons.edit,
+                        size: Sizes.s16, color: appTheme.darkText)))
+        ]));
   }
 }

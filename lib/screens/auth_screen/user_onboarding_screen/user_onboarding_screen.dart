@@ -26,7 +26,7 @@ class UserOnboardingScreen extends StatelessWidget {
                         language(context, appFonts.userRegistration),
                         language(context, appFonts.exploreYourLife),
                         isSignUp: true,
-                        index: 1,
+                        index: 2,
                       ),
                       // User registration layout
                       const UserRegistrationsLayout(),

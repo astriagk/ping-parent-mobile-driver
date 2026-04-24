@@ -303,17 +303,26 @@ class _OtpVerificationSheetState extends State<OtpVerificationSheet> {
                 Text(language(context, appFonts.nextRide),
                     style:
                         TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                Image.asset('assets/image/home/car.png', height: 25)
+                // Image.asset('assets/image/home/car.png', height: 25)
               ]),
               VSpace(Insets.i16),
               Divider(color: appTheme.stroke, height: 0),
               VSpace(Insets.i16),
               Row(children: [
-                CircleAvatar(
-                    backgroundImage: widget.waypoint?.studentPhotoUrl != null
-                        ? NetworkImage(widget.waypoint!.studentPhotoUrl!)
-                        : AssetImage(imageAssets.profileImg) as ImageProvider,
-                    radius: 20),
+                ClipOval(
+                  child: SizedBox(
+                    width: 40,
+                    height: 40,
+                    child: (widget.waypoint?.studentPhotoUrl?.isNotEmpty == true)
+                        ? Image.network(
+                            widget.waypoint!.studentPhotoUrl!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) =>
+                                Image.asset(imageAssets.profileImg, fit: BoxFit.cover),
+                          )
+                        : Image.asset(imageAssets.profileImg, fit: BoxFit.cover),
+                  ),
+                ),
                 HSpace(Insets.i8),
                 Expanded(
                   child: Text(

@@ -44,6 +44,8 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
   // Track if this is a resumed trip (not a fresh start)
   bool _isResuming = false;
 
+  StreamSubscription<String>? _routeNotificationSubscription;
+
   // Callback to center map on current location
   VoidCallback? _centerOnCurrentLocation;
 
@@ -175,6 +177,7 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
 
   @override
   void dispose() {
+    _routeNotificationSubscription?.cancel();
     // Don't stop tracking here — let background service continue
     // while trip is active. Tracking is stopped explicitly on trip completion.
     WidgetsBinding.instance.removeObserver(this);
@@ -187,6 +190,10 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
 
   void _initializeProviders() {
     _pickUpProvider = PickUpCustomerProvider();
+    _routeNotificationSubscription =
+        _pickUpProvider.notificationStream.listen((message) {
+      _showSnackBar(message);
+    });
   }
 
   /// Show snackbar message to user
@@ -794,7 +801,16 @@ class _PickUpCustomerScreenState extends State<PickUpCustomerScreen>
                                 waypoint: currentWaypoint,
                                 waypointIndex: currentWaypointIndex,
                                 totalWaypoints: totalWaypoints,
-                                onBack: () => route.pop(context),
+                                onBack: () {
+                                  if (_isDropTrip) {
+                                    Navigator.of(context).popUntil(
+                                      ModalRoute.withName(
+                                          routeName.commonBottomBar),
+                                    );
+                                  } else {
+                                    route.pop(context);
+                                  }
+                                },
                               ),
                             // Map
                             Expanded(

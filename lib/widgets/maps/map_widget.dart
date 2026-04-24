@@ -4,6 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:skolo_driver/helper/location_service.dart';
 import 'package:skolo_driver/config.dart' hide Marker, Polyline, LatLng;
+import 'package:skolo_driver/config/app_constants.dart';
 import 'package:skolo_driver/widgets/maps/map_markers.dart';
 import 'package:skolo_driver/widgets/maps/map_controls.dart';
 
@@ -67,8 +68,7 @@ class MapWidget extends StatefulWidget {
   State<MapWidget> createState() => _MapWidgetState();
 }
 
-class _MapWidgetState extends State<MapWidget>
-    with TickerProviderStateMixin {
+class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
   late MapController _mapController;
   bool _mapReady = false;
   List<Marker> _markers = [];
@@ -101,14 +101,14 @@ class _MapWidgetState extends State<MapWidget>
   /// Uses animation to smoothly interpolate between GPS readings
   void _startLocationTracking() {
     _positionAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 200),
       vsync: this,
     )..addListener(_onPositionAnimationTick);
 
     _locationSubscription = Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 3,
+        accuracy: LocationAccuracy.bestForNavigation,
+        distanceFilter: 0,
       ),
     ).listen((Position position) {
       if (mounted) {
@@ -116,11 +116,11 @@ class _MapWidgetState extends State<MapWidget>
         _previousLocation = _currentLocation;
         _previousHeading = _currentHeading;
         _targetLocation = LatLng(position.latitude, position.longitude);
-        // Only update heading when moving — GPS heading is noise when stationary
-        _targetHeading =
-            (position.heading >= 0 && position.speed >= 0.5)
-                ? position.heading
-                : _currentHeading;
+        // Only update heading when actually driving — GPS heading is noise when stationary
+        _targetHeading = (position.heading >= 0 &&
+                position.speed >= AppConstants.navigationSpeedThreshold)
+            ? position.heading
+            : _currentHeading;
 
         // Animate from current to new position
         _positionAnimationController?.forward(from: 0.0);
@@ -132,8 +132,7 @@ class _MapWidgetState extends State<MapWidget>
   void _onPositionAnimationTick() {
     if (_previousLocation == null || _targetLocation == null) return;
 
-    final t =
-        Curves.easeInOut.transform(_positionAnimationController!.value);
+    final t = Curves.easeInOut.transform(_positionAnimationController!.value);
     final lat = _previousLocation!.latitude +
         (_targetLocation!.latitude - _previousLocation!.latitude) * t;
     final lng = _previousLocation!.longitude +
@@ -146,9 +145,15 @@ class _MapWidgetState extends State<MapWidget>
       _updateMarkers();
     });
 
-    // In navigation mode, rotate map and keep driver centered
+    // In navigation mode, keep driver centered and only rotate on significant heading change
     if (widget.navigationMode && _mapReady) {
-      _mapController.rotate(-_currentHeading);
+      // Only rotate map if heading changed significantly (prevents jitter when idle)
+      double headingDiff = (_targetHeading - _previousHeading) % 360;
+      if (headingDiff > 180) headingDiff -= 360;
+      if (headingDiff < -180) headingDiff += 360;
+      if (headingDiff.abs() >= AppConstants.navigationHeadingThreshold) {
+        _mapController.rotate(-_currentHeading);
+      }
       _mapController.move(_currentLocation!, _mapController.camera.zoom);
     }
   }
@@ -164,8 +169,7 @@ class _MapWidgetState extends State<MapWidget>
   /// Center map on current location (called via onMapReady callback)
   void _centerOnCurrentLocation() {
     if (_currentLocation != null) {
-      final zoom = widget.navigationMode ? 18.0 : widget.config.defaultZoom;
-      _mapController.move(_currentLocation!, zoom);
+      _mapController.move(_currentLocation!, 18.0);
       if (widget.navigationMode) {
         _mapController.rotate(-_currentHeading);
       }
@@ -182,7 +186,7 @@ class _MapWidgetState extends State<MapWidget>
       // Delay to ensure map controller is initialized
       await Future.delayed(const Duration(milliseconds: 300));
       if (mounted) {
-        _mapController.move(location, 15);
+        _mapController.move(location, 18.0);
         // Notify parent that map is ready with center method
         widget.onMapReady?.call(_centerOnCurrentLocation);
       }
@@ -308,7 +312,7 @@ class _MapWidgetState extends State<MapWidget>
             onZoomIn: _zoomIn,
             onZoomOut: _zoomOut,
             onMyLocation: () {
-              _mapController.move(_currentLocation!, 15);
+              _mapController.move(_currentLocation!, 18.0);
             },
             tileOptions: widget.config.allTileOptions,
             onTileSelected: _changeTileLayer,

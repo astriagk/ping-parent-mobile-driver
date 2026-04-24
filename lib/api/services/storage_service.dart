@@ -28,6 +28,7 @@ class StorageService {
       );
 
   static const String _keyAuthToken = 'auth_token';
+  static const String _keyRefreshToken = 'refresh_token';
   static const String _keyUserId = 'user_id';
   static const String _keyUserPhone = 'user_phone';
   static const String _keyUserName = 'user_name';
@@ -42,6 +43,16 @@ class StorageService {
   /// Get authentication token
   Future<String?> getAuthToken() async {
     return await _secureStorage.read(key: _keyAuthToken);
+  }
+
+  /// Save refresh token
+  Future<void> saveRefreshToken(String refreshToken) async {
+    await _secureStorage.write(key: _keyRefreshToken, value: refreshToken);
+  }
+
+  /// Get refresh token
+  Future<String?> getRefreshToken() async {
+    return await _secureStorage.read(key: _keyRefreshToken);
   }
 
   /// Save user ID

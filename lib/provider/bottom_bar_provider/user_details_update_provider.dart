@@ -44,7 +44,7 @@ class UserDetailsUpdateProvider extends ChangeNotifier {
   List vehicles = [
     {
       'name': appFonts.auto,
-      'image': 'assets/image/auth/van.png',
+      'image': 'assets/image/auth/auto.png',
       'value': 'auto'
     },
     {
@@ -52,7 +52,7 @@ class UserDetailsUpdateProvider extends ChangeNotifier {
       'image': 'assets/image/auth/van.png',
       'value': 'van'
     },
-    {'name': appFonts.bus, 'image': 'assets/image/auth/van.png', 'value': 'bus'}
+    {'name': appFonts.bus, 'image': 'assets/image/auth/bus.png', 'value': 'bus'}
   ];
 
   onInit() {

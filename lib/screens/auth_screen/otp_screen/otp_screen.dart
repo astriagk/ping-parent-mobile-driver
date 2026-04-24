@@ -3,8 +3,8 @@ import 'package:skolo_driver/config.dart';
 class OtpScreen extends StatelessWidget {
   const OtpScreen({super.key});
 
-  /// Handles OTP verification and result UI logic
-  Future<void> _handleOtpVerification(BuildContext context) async {
+  /// Handles OTP verification for sign-in flow
+  Future<void> _handleSignInOtpVerification(BuildContext context) async {
     final otpCtrlProvider = Provider.of<OtpProvider>(context, listen: false);
     final signInProvider = Provider.of<SignInProvider>(context, listen: false);
     final phone = signInProvider.currentPhone ??
@@ -16,7 +16,6 @@ class OtpScreen extends StatelessWidget {
       otpCtrlProvider.pinController.clear();
       signInProvider.token = result.token;
       signInProvider.user = result.user;
-      // Session persistence is handled in AuthService after verification
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: TextWidgetCommon(
@@ -32,8 +31,35 @@ class OtpScreen extends StatelessWidget {
     }
   }
 
+  /// Handles OTP verification for sign-up flow
+  Future<void> _handleSignUpOtpVerification(BuildContext context) async {
+    final otpCtrlProvider = Provider.of<OtpProvider>(context, listen: false);
+    final signUpProvider = Provider.of<SignUpProvider>(context, listen: false);
+    final phone = signUpProvider.phoneController.text.trim();
+    final otp = otpCtrlProvider.pinController.text.trim();
+    final result = await otpCtrlProvider.verifySignUpOtp(phone, otp);
+    if (!context.mounted) return;
+    if (result.success) {
+      otpCtrlProvider.pinController.clear();
+      signUpProvider.phoneController.clear();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: TextWidgetCommon(
+                text: result.message ?? 'OTP verified successfully')),
+      );
+      route.pushNamed(context, routeName.userOnboarding);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: TextWidgetCommon(
+                text: result.error ?? 'OTP verification failed')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isSignUp = ModalRoute.of(context)?.settings.arguments == true;
     return Consumer<OtpProvider>(builder: (context1, otpCtrl, child) {
       return Scaffold(
           backgroundColor: appColor(context).appTheme.bgBox,
@@ -55,7 +81,9 @@ class OtpScreen extends StatelessWidget {
                           AuthCommonWidgets().gifTitleText(
                               context,
                               language(context, appFonts.otpVerification),
-                              language(context, appFonts.enterOTPSent)),
+                              language(context, appFonts.enterOTPSent),
+                              isSignUp: isSignUp,
+                              index: isSignUp ? 1 : null),
                           TextWidgetCommon(
                                   text: language(context, appFonts.otp),
                                   style: AppCss.lexendMedium14.textColor(
@@ -70,7 +98,13 @@ class OtpScreen extends StatelessWidget {
                                   onTap: otpCtrl.isVerifyingOtp
                                       ? null
                                       : () async {
-                                          await _handleOtpVerification(context);
+                                          if (isSignUp) {
+                                            await _handleSignUpOtpVerification(
+                                                context);
+                                          } else {
+                                            await _handleSignInOtpVerification(
+                                                context);
+                                          }
                                         })
                               .padding(top: Sizes.s60, bottom: Sizes.s15),
                           // Common Rich Text layout

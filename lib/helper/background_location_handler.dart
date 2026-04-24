@@ -154,13 +154,16 @@ class BackgroundLocationHandler {
     _lastApiPosition = null;
     _lastSocketEmitTime = null;
 
+    // Clear stale pending positions from previous sessions
+    await _queueService.clearAll();
+
     // CRITICAL: Subscribe to trip room BEFORE emitting any position updates
     await _subscribeToTrip(tripId);
 
     _locationSubscription = Geolocator.getPositionStream(
-      locationSettings: const LocationSettings(
+      locationSettings: LocationSettings(
         accuracy: LocationAccuracy.high,
-        distanceFilter: 0,
+        distanceFilter: AppConstants.backgroundDistanceFilter,
       ),
     ).listen(
       _handlePositionUpdate,
@@ -407,14 +410,20 @@ class BackgroundLocationHandler {
       final pending = await _queueService.getPendingApiPositions(limit: 10);
       if (pending.isEmpty) return;
 
-      final syncedIds = <int>[];
+      // Only send the latest position for the current trip — server only needs
+      // the most recent location. Mark all others as synced to prevent buildup.
+      final allIds = <int>[];
+      Map<String, dynamic>? latestPos;
       for (final pos in pending) {
-        try {
-          // Only sync positions for the current active trip
-          // Skip if this position belongs to a different trip
-          if (pos['trip_id'] != _currentTripId) continue;
+        allIds.add(pos['id'] as int);
+        if (pos['trip_id'] == _currentTripId) {
+          latestPos = pos;
+        }
+      }
 
-          final url = '$_baseUrl/tracking/${pos['trip_id']}/position';
+      if (latestPos != null) {
+        try {
+          final url = '$_baseUrl/tracking/${latestPos['trip_id']}/position';
           final response = await http
               .patch(
                 Uri.parse(url),
@@ -423,23 +432,29 @@ class BackgroundLocationHandler {
                   'Authorization': 'Bearer $token',
                 },
                 body: jsonEncode({
-                  'latitude': pos['latitude'],
-                  'longitude': pos['longitude'],
-                  'speed': pos['speed'],
-                  'heading': pos['heading'],
-                  'accuracy': pos['accuracy'],
+                  'latitude': latestPos['latitude'],
+                  'longitude': latestPos['longitude'],
+                  'speed': latestPos['speed'],
+                  'heading': latestPos['heading'],
+                  'accuracy': latestPos['accuracy'],
                 }),
               )
               .timeout(const Duration(seconds: 10));
 
           if (response.statusCode == 200 || response.statusCode == 201) {
-            syncedIds.add(pos['id'] as int);
+            // Mark all pending as synced (not just the one sent)
+            await _queueService.markSynced(allIds);
+          } else {
+            // Mark as synced anyway to prevent infinite retry loop
+            await _queueService.markSynced(allIds);
           }
-        } catch (_) {}
-      }
-
-      if (syncedIds.isNotEmpty) {
-        await _queueService.markSynced(syncedIds);
+        } catch (_) {
+          // Mark as synced on failure to prevent stale positions retrying forever
+          await _queueService.markSynced(allIds);
+        }
+      } else {
+        // No positions for current trip — mark all as synced to clear stale data
+        await _queueService.markSynced(allIds);
       }
     } catch (_) {}
   }

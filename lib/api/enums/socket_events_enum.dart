@@ -11,9 +11,10 @@ enum DriverSocketEvent {
   const DriverSocketEvent(this.value);
 }
 
-/// Error events from server
+/// Events broadcast from server
 enum BroadcastSocketEvent {
-  error('socket:error');
+  error('socket:error'),
+  routeCalculated('trip:route_calculated');
 
   final String value;
 
