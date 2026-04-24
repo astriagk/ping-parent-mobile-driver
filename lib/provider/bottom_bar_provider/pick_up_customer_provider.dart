@@ -27,6 +27,10 @@ class PickUpCustomerProvider extends ChangeNotifier {
   bool _isTrackingActive = false;
   StreamSubscription<Map<String, dynamic>>? _positionSubscription;
   StreamSubscription<String>? _statusSubscription;
+  StreamSubscription<Map<String, dynamic>>? _routeUpdateSubscription;
+
+  final _notificationController = StreamController<String>.broadcast();
+  Stream<String> get notificationStream => _notificationController.stream;
 
   // Current position for UI
   double? currentLatitude;
@@ -61,6 +65,45 @@ class PickUpCustomerProvider extends ChangeNotifier {
 
   /// Get tracking active state
   bool get isTrackingActive => _isTrackingActive;
+
+  DateTime? _lastRouteUpdate;
+
+  /// Listen for server-recalculated routes via socket and update optimizedRoute
+  void _setupRouteUpdateListener() {
+    _routeUpdateSubscription?.cancel();
+    _routeUpdateSubscription =
+        _socketService.routeUpdatesStream.listen((data) {
+      // Deduplicate — server may broadcast multiple times per recalc
+      final now = DateTime.now();
+      if (_lastRouteUpdate != null &&
+          now.difference(_lastRouteUpdate!).inSeconds < 3) {
+        return;
+      }
+      _lastRouteUpdate = now;
+
+      print('[D] Route update received: $data');
+      try {
+        // Socket sends { tripId, routeData: { waypoints, coordinates, legs, ... } }
+        final routeData = data['routeData'];
+        if (routeData != null) {
+          final geometry = RouteGeometry.fromJson(
+              routeData is Map<String, dynamic>
+                  ? routeData
+                  : Map<String, dynamic>.from(routeData as Map));
+          optimizedRoute = OptimizedRoute(
+            id: optimizedRoute?.id ?? '',
+            tripId: data['tripId']?.toString() ?? optimizedRoute?.tripId ?? '',
+            routeGeometry: geometry,
+          );
+          _notificationController.add('Route recalculated');
+          notifyListeners();
+          return;
+        }
+      } catch (e) {
+        print('[D] Route update parse error: $e');
+      }
+    });
+  }
 
   /// Get school_id of current waypoint (for multi-school route filtering)
   /// Returns null if no route or waypoint index is out of bounds
@@ -146,7 +189,15 @@ class PickUpCustomerProvider extends ChangeNotifier {
         // NOTE: Room subscription happens in BackgroundLocationHandler when tracking starts
         if (tripStatus == TripStatus.started.value) {
           await _socketService.initializeSocket(forceRefresh: true);
+          _setupRouteUpdateListener();
+          await _socketService.subscribeToTrip(socketTripId);
           _socketService.startTripViaWebSocket(socketTripId);
+        }
+
+        if (tripStatus == TripStatus.inProgress.value) {
+          await _socketService.initializeSocket(forceRefresh: true);
+          _setupRouteUpdateListener();
+          await _socketService.subscribeToTrip(socketTripId);
         }
 
         // Emit trip completed and unsubscribe from trip room
@@ -406,6 +457,8 @@ class PickUpCustomerProvider extends ChangeNotifier {
   void dispose() {
     _positionSubscription?.cancel();
     _statusSubscription?.cancel();
+    _routeUpdateSubscription?.cancel();
+    _notificationController.close();
     stopLocationTracking();
     super.dispose();
   }
