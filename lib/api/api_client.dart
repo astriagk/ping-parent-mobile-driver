@@ -146,6 +146,8 @@ class ApiClient {
       '/auth/login/verify-otp',
       '/auth/register/send-otp',
       '/auth/register/verify-otp',
+      '/auth/login/resend-otp',
+      '/auth/register/resend-otp',
     ];
     return authEndpoints.any((endpoint) => url.contains(endpoint));
   }

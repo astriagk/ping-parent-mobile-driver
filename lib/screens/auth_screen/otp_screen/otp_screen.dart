@@ -1,9 +1,21 @@
 import 'package:skolo_driver/config.dart';
 
-class OtpScreen extends StatelessWidget {
+class OtpScreen extends StatefulWidget {
   const OtpScreen({super.key});
 
-  /// Handles OTP verification for sign-in flow
+  @override
+  State<OtpScreen> createState() => _OtpScreenState();
+}
+
+class _OtpScreenState extends State<OtpScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<OtpProvider>().startResendTimer();
+    });
+  }
+
   Future<void> _handleSignInOtpVerification(BuildContext context) async {
     final otpCtrlProvider = Provider.of<OtpProvider>(context, listen: false);
     final signInProvider = Provider.of<SignInProvider>(context, listen: false);
@@ -31,7 +43,6 @@ class OtpScreen extends StatelessWidget {
     }
   }
 
-  /// Handles OTP verification for sign-up flow
   Future<void> _handleSignUpOtpVerification(BuildContext context) async {
     final otpCtrlProvider = Provider.of<OtpProvider>(context, listen: false);
     final signUpProvider = Provider.of<SignUpProvider>(context, listen: false);
@@ -57,6 +68,70 @@ class OtpScreen extends StatelessWidget {
     }
   }
 
+  Future<void> _handleResend(BuildContext context, bool isSignUp) async {
+    final otpCtrl = context.read<OtpProvider>();
+    final signInProvider = context.read<SignInProvider>();
+    final signUpProvider = context.read<SignUpProvider>();
+
+    final phone = isSignUp
+        ? signUpProvider.phoneController.text.trim()
+        : (signInProvider.currentPhone ??
+            signInProvider.phoneController.text.trim());
+    final countryCode =
+        isSignUp ? null : signInProvider.countryCode;
+
+    final result = await otpCtrl.resendOtp(
+        phone: phone, isSignUp: isSignUp, countryCode: countryCode);
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+          content: TextWidgetCommon(
+              text: result.success
+                  ? (result.message ?? 'OTP resent successfully')
+                  : (result.error ?? 'Failed to resend OTP'))),
+    );
+  }
+
+  String _formatCountdown(int seconds) {
+    final m = seconds ~/ 60;
+    final s = seconds % 60;
+    return '$m:${s.toString().padLeft(2, '0')}';
+  }
+
+  Widget _buildResendSection(
+      BuildContext context, OtpProvider otpCtrl, bool isSignUp) {
+    if (otpCtrl.isResendEnabled) {
+      return AuthCommonWidgets().commonRichText(
+          context,
+          language(context, appFonts.notReceivedYet),
+          language(context, appFonts.resendIt),
+          onTap: otpCtrl.isResendingOtp
+              ? null
+              : () => _handleResend(context, isSignUp));
+    }
+
+    return RichText(
+        text: TextSpan(children: [
+      TextSpan(
+          text: language(context, appFonts.notReceivedYet),
+          style: AppCss.lexendRegular12
+              .textColor(appColor(context).appTheme.lightText)),
+      TextSpan(
+          recognizer: TapGestureRecognizer()
+            ..onTap = () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                    content: TextWidgetCommon(
+                        text:
+                            'Please wait ${_formatCountdown(otpCtrl.secondsRemaining)} before resending')),
+              );
+            },
+          text: '  ${_formatCountdown(otpCtrl.secondsRemaining)}',
+          style: AppCss.lexendMedium14
+              .textColor(appColor(context).appTheme.darkText))
+    ])).center();
+  }
+
   @override
   Widget build(BuildContext context) {
     final isSignUp = ModalRoute.of(context)?.settings.arguments == true;
@@ -74,10 +149,8 @@ class OtpScreen extends StatelessWidget {
                     Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                          // back button and taxify logo layout
                           AuthCommonWidgets().backAndLogo(context,
                               onTap: () => otpCtrl.backOnTap(context)),
-                          //gif title and subtitle layout
                           AuthCommonWidgets().gifTitleText(
                               context,
                               language(context, appFonts.otpVerification),
@@ -89,9 +162,7 @@ class OtpScreen extends StatelessWidget {
                                   style: AppCss.lexendMedium14.textColor(
                                       appColor(context).appTheme.darkText))
                               .padding(bottom: Sizes.s9),
-                          // PinPut layout
                           OTPScreenWidgets().pinPutLayout(),
-                          // Common button
                           CommonButton(
                                   text: language(context, appFonts.verify),
                                   isLoading: otpCtrl.isVerifyingOtp,
@@ -107,18 +178,13 @@ class OtpScreen extends StatelessWidget {
                                           }
                                         })
                               .padding(top: Sizes.s60, bottom: Sizes.s15),
-                          // Common Rich Text layout
-                          AuthCommonWidgets().commonRichText(
-                              context,
-                              language(context, appFonts.notReceivedYet),
-                              language(context, appFonts.resendIt))
+                          _buildResendSection(context, otpCtrl, isSignUp),
                         ])
                         .padding(horizontal: Sizes.s20, bottom: Sizes.s20)
                         .decorated(
                             color: appColor(context).appTheme.bgBox,
                             bLRadius: Sizes.s20,
                             bRRadius: Sizes.s20),
-                    //common car image layout
                     AuthCommonWidgets().commonImage(context)
                   ])));
     });

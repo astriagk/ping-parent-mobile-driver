@@ -136,6 +136,60 @@ class AuthService {
     }
   }
 
+  Future<SendOtpResponse> resendLoginOtp(
+      {required String phone, String? countryCode}) async {
+    try {
+      final body = <String, dynamic>{'phone': phone};
+      if (countryCode != null && countryCode.isNotEmpty) {
+        body['countryCode'] = countryCode;
+      }
+      final response =
+          await _apiClient.post(Endpoints.resendLoginOtp, body: body);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return SendOtpResponse.fromJson(jsonDecode(response.body));
+      } else {
+        try {
+          return SendOtpResponse.fromJson(jsonDecode(response.body));
+        } catch (_) {
+          return SendOtpResponse(
+              success: false,
+              error:
+                  'Failed to resend OTP. Status: ${response.statusCode}');
+        }
+      }
+    } catch (e) {
+      return SendOtpResponse(
+          success: false, error: 'Error resending OTP: ${e.toString()}');
+    }
+  }
+
+  Future<SendOtpResponse> resendRegisterOtp(
+      {required String phone, String? countryCode}) async {
+    try {
+      final body = <String, dynamic>{'phone': phone};
+      if (countryCode != null && countryCode.isNotEmpty) {
+        body['countryCode'] = countryCode;
+      }
+      final response =
+          await _apiClient.post(Endpoints.resendRegisterOtp, body: body);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return SendOtpResponse.fromJson(jsonDecode(response.body));
+      } else {
+        try {
+          return SendOtpResponse.fromJson(jsonDecode(response.body));
+        } catch (_) {
+          return SendOtpResponse(
+              success: false,
+              error:
+                  'Failed to resend OTP. Status: ${response.statusCode}');
+        }
+      }
+    } catch (e) {
+      return SendOtpResponse(
+          success: false, error: 'Error resending OTP: ${e.toString()}');
+    }
+  }
+
   /// Logout - Clear all authentication data
   Future<void> logout() async {
     await _storage.logout();

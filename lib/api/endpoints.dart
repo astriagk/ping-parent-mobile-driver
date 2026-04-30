@@ -5,13 +5,15 @@ import 'package:skolo_driver/config/environment.dart';
 class Endpoints {
   /// Get the base URL for the current environment
   static String get baseUrl => appConfig.baseUrl;
-  // static String get baseUrl => 'http://192.168.0.126:3000/api';
+  // static String get baseUrl => 'http://192.168.1.8:3000/api';
 
 // ===== Authentication Endpoints =====
   static String get sendOtp => '$baseUrl/auth/login/send-otp';
   static String get verifyOtp => '$baseUrl/auth/login/verify-otp';
   static String get registerSendOtp => '$baseUrl/auth/register/send-otp';
   static String get registerVerifyOtp => '$baseUrl/auth/register/verify-otp';
+  static String get resendLoginOtp => '$baseUrl/auth/login/resend-otp';
+  static String get resendRegisterOtp => '$baseUrl/auth/register/resend-otp';
   static String get verifyToken => '$baseUrl/auth/verify-token';
 
 // ===== Driver Endpoints =====
